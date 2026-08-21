@@ -1,0 +1,58 @@
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { CANDIDATE, JOB } from '../../data/demo/fixtures'
+import { isDecisionComplete, isMutualMatch, type DecisionValue } from '../../domain/demo'
+import { useDemo } from '../../data/demo/DemoContext'
+import { BlindBadge, NetworkBadge, PageShell, PixelButton, SectionEyebrow, useCountdown } from '../components'
+
+export function PreflightScreen() {
+  const { state, dispatch } = useDemo()
+  const navigate = useNavigate()
+  const [speakerPassed, setSpeakerPassed] = useState(false)
+  const denied = state.scenario === 'media-denied'
+  return (
+    <PageShell><div className="preflight-page"><div className="preflight-heading"><div><SectionEyebrow>PRIVATE INTERVIEW · PREFLIGHT</SectionEyebrow><h1>เตรียมตัวก่อนเข้าห้อง</h1><p>{JOB.title} · {JOB.company.name} · 12 นาที</p></div><div><BlindBadge /><span className="badge badge--green">● ไม่มีการบันทึก</span></div></div>{denied && <div className="warning-banner" role="alert"><span>!</span><div><strong>ไม่ได้รับอนุญาตให้ใช้กล้อง</strong><p>ไม่เป็นไร เราเลือก Avatar-only ให้แล้ว คุณยังเข้าสัมภาษณ์ได้ครบ</p></div></div>}<div className="preflight-grid"><section><article className="device-card"><header><div><span className="device-icon">◇</span><div><h2>ภาพของคุณ</h2><small>Recruiter จะไม่เห็นใบหน้าจริง</small></div></div><span className="status-ok">✓ ปลอดภัย</span></header><div className="avatar-preview"><div className="avatar-orbit"><span>◇</span></div><b>{CANDIDATE.alias}</b><small>{state.interview.mediaMode.replace('_', ' ')}</small></div><fieldset><legend>เลือกวิธีเข้าร่วม</legend><div className="media-choices">{(['AVATAR_ONLY', 'AUDIO_ONLY', 'TEXT_ASSISTED'] as const).map((mode) => <label className={state.interview.mediaMode === mode ? 'is-selected' : ''} key={mode}><input type="radio" name="media" checked={state.interview.mediaMode === mode} onChange={() => dispatch({ type: 'SET_MEDIA', mediaMode: mode })} /><span>{mode === 'AVATAR_ONLY' ? '◇' : mode === 'AUDIO_ONLY' ? '◖' : '▤'}</span><b>{mode === 'AVATAR_ONLY' ? 'Avatar-only' : mode === 'AUDIO_ONLY' ? 'เสียงเท่านั้น' : 'ข้อความช่วย'}</b><small>{mode === 'AVATAR_ONLY' ? 'แนะนำ' : mode === 'AUDIO_ONLY' ? 'ประหยัดเน็ต' : 'เข้าถึงง่าย'}</small></label>)}</div></fieldset></article></section><aside><article className="checklist-card"><h2>ตรวจอุปกรณ์</h2><div className="device-check"><span>◖</span><div><b>ไมโครโฟน</b><small>ปิดอยู่ · คุณเปิดได้ในห้อง</small></div><span className="status-ok">พร้อม</span></div><div className="device-check"><span>▣</span><div><b>ลำโพง</b><small>{speakerPassed ? 'ทดสอบเสียงแล้ว' : 'แตะเพื่อทดสอบ'}</small></div><button onClick={() => setSpeakerPassed(true)}>{speakerPassed ? '✓ ผ่าน' : 'ทดสอบ'}</button></div><div className="device-check"><span>⌁</span><div><b>เครือข่าย</b><small>เหมาะกับ Avatar-only</small></div><NetworkBadge /></div></article><article className="privacy-card"><h2>ความเป็นส่วนตัว</h2><p><span>●</span> การบันทึกเสียง/วิดีโอ <b>ปิด</b></p><p><span>●</span> การถอดเสียงอัตโนมัติ <b>ปิด</b></p><p><span>◇</span> ชื่อและข้อมูลติดต่อ <b>ซ่อน</b></p></article><PixelButton className="button--full" onClick={() => { dispatch({ type: 'START_INTERVIEW' }); navigate('/interviews/demo-session') }}>เข้าห้องสัมภาษณ์ →</PixelButton><button className="text-button button--full">ต้องการความช่วยเหลือ?</button></aside></div></div></PageShell>
+  )
+}
+
+export function InterviewScreen() {
+  const { state, dispatch } = useDemo()
+  const navigate = useNavigate()
+  const timer = useCountdown(state.interview.endsAt)
+  const [promptOpen, setPromptOpen] = useState(true)
+  return (
+    <div className="interview-page"><header className="interview-header"><div><span className="private-dot">◇</span><div><strong>PRIVATE INTERVIEW</strong><span>{JOB.title} · {JOB.company.name}</span></div></div><div className="interview-timer"><small>เวลาที่เหลือ</small><strong>{timer}</strong></div><div><span className="badge badge--green">● ไม่บันทึก</span><NetworkBadge /></div></header><main className="interview-main"><section className="participant participant--candidate"><div className="participant-label"><div><strong>{CANDIDATE.alias}</strong><span>Candidate · Identity masked</span></div><span className="badge badge--cyan">◇ AVATAR ONLY</span></div><div className="participant-visual"><div className="avatar-interview"><i className={state.interview.micOn ? 'is-speaking' : ''} /><span>◇</span><b>{CANDIDATE.alias}</b></div></div><div className="media-status"><span>{state.interview.micOn ? '◖ ไมค์เปิด' : '⊘ ไมค์ปิด'}</span><span>▣ กล้องปิด</span></div></section><section className="participant participant--recruiter"><div className="participant-label"><div><strong>Recruiter #R12</strong><span>Hiring Team · Cyber Orchard</span></div><span className="badge badge--purple">ยืนยันบทบาทแล้ว</span></div><div className="participant-visual participant-visual--recruiter"><div className="recruiter-avatar">R12</div><span>Recruiter กำลังฟัง…</span></div><div className="media-status"><span>◖ ไมค์เปิด</span><span>◇ Hiring Team</span></div></section>{promptOpen && <aside className="prompt-panel"><header><span>PROMPT 01 / 03</span><button onClick={() => setPromptOpen(false)} aria-label="ปิดคำถาม">×</button></header><h2>เล่าการตัดสินใจหนึ่งครั้งที่ทำให้ Queue System เชื่อถือได้ขึ้น</h2><p>คุณอาจอธิบาย trade-off, failure mode และวิธีวัดผล</p><small>คำถามนี้ใช้ร่วมกันทั้งสองฝ่าย · ไม่บันทึกคำตอบอัตโนมัติ</small></aside>}</main><footer className="control-dock"><button aria-pressed={state.interview.micOn} onClick={() => dispatch({ type: 'TOGGLE_MIC' })}><span>{state.interview.micOn ? '◖' : '⊘'}</span>{state.interview.micOn ? 'ปิดไมค์' : 'เปิดไมค์'}</button><button disabled><span>▣</span>กล้องปิด</button><button aria-pressed={promptOpen} onClick={() => setPromptOpen(!promptOpen)}><span>▤</span>คำถาม</button><button onClick={() => dispatch({ type: 'SET_MEDIA', mediaMode: 'AUDIO_ONLY' })}><span>⌁</span>ประหยัดเน็ต</button><button><span>!</span>รายงาน</button><PixelButton variant="secondary" onClick={() => { dispatch({ type: 'COMPLETE_INTERVIEW' }); navigate('/decisions/demo-session') }}>จบสัมภาษณ์</PixelButton></footer></div>
+  )
+}
+
+export function DecisionScreen() {
+  const { state, dispatch } = useDemo()
+  const navigate = useNavigate()
+  const [selected, setSelected] = useState<DecisionValue | null>(null)
+  const candidateSubmitted = Boolean(state.candidateDecision)
+  const complete = isDecisionComplete(state)
+  const matched = isMutualMatch(state)
+  if (complete) return <ResultPanel matched={matched} onContinue={() => navigate(matched ? '/matches/demo-match/reveal' : '/event/demo/world')} />
+  return (
+    <PageShell><div className="decision-page"><div className="decision-card"><div className="decision-lock">◇</div><SectionEyebrow>PRIVATE DECISION</SectionEyebrow>{candidateSubmitted ? <WaitingDecision /> : <><h1>คุณอยากไปต่อไหม?</h1><p className="lead">การตัดสินใจนี้เป็นส่วนตัว Recruiter จะไม่เห็นคำตอบของคุณก่อนทั้งสองฝ่ายส่งครบ</p><div className="conversation-summary"><span>สัมภาษณ์กับ</span><strong>{JOB.title}</strong><p>{JOB.company.name} · 12 นาที · {CANDIDATE.alias}</p></div><div className="decision-options"><button className={selected === 'PASS' ? 'is-selected' : ''} onClick={() => setSelected('PASS')}><span>←</span><b>ยังไม่ไปต่อ</b><small>ข้อมูลติดต่อจะยังคงซ่อน</small></button><button className={selected === 'INTERESTED' ? 'is-selected' : ''} onClick={() => setSelected('INTERESTED')}><span>♥</span><b>สนใจไปต่อ</b><small>ยังไม่เปิดเผยข้อมูลจนกว่าจะ match</small></button></div><PixelButton className="button--full" disabled={!selected} onClick={() => selected && dispatch({ type: 'SUBMIT_CANDIDATE_DECISION', value: selected })}>ยืนยันคำตอบส่วนตัว</PixelButton></>}</div><div className="decision-note">◇ คำตอบถูกเก็บแยกกัน · อีกฝ่ายไม่เห็นก่อนปิดผล</div></div></PageShell>
+  )
+}
+
+function WaitingDecision() {
+  return <><div className="waiting-pixels" aria-hidden="true"><i /><i /><i /></div><h1>บันทึกคำตอบแล้ว</h1><p className="lead">กำลังรออีกฝ่าย คุณสามารถเปิด Recruiter Dashboard ในอีกแท็บเพื่อส่งคำตอบของ recruiter</p><Link className="button button--secondary button--full" to="/recruiter/demo/dashboard">เปิด Recruiter Dashboard</Link><Link className="text-button button--full" to="/event/demo/world">กลับไปสำรวจ Career City</Link></>
+}
+
+function ResultPanel({ matched, onContinue }: { matched: boolean; onContinue: () => void }) {
+  return <PageShell><div className="result-page"><div className={`result-card ${matched ? 'result-card--match' : ''}`}><div className="result-symbol">{matched ? '♥' : '◇'}</div><SectionEyebrow>{matched ? 'MUTUAL MATCH' : 'PRIVATE RESULT'}</SectionEyebrow><h1>{matched ? 'MATCH!' : 'ขอบคุณสำหรับการสนทนา'}</h1><p>{matched ? 'ทั้งสองฝ่ายสนใจไปต่อ ตอนนี้คุณยังเป็นผู้ควบคุมว่าจะเปิดเผยข้อมูลใด' : 'ครั้งนี้ยังไม่มีขั้นตอนต่อ เราจะไม่เปิดเผยว่าแต่ละฝ่ายเลือกอะไร และข้อมูลติดต่อยังคงซ่อนอยู่'}</p><PixelButton onClick={onContinue}>{matched ? 'เลือกข้อมูลที่ต้องการแชร์ →' : 'กลับ Career City'}</PixelButton></div></div></PageShell>
+}
+
+export function RevealScreen() {
+  const { state, dispatch } = useDemo()
+  const [selected, setSelected] = useState<string[]>(state.revealedFields)
+  const [confirmed, setConfirmed] = useState(state.revealedFields.length > 0)
+  const options = [{ id: 'email', label: 'Email', value: CANDIDATE.email }, { id: 'phone', label: 'โทรศัพท์', value: CANDIDATE.phone }, { id: 'portfolio', label: 'Portfolio', value: CANDIDATE.portfolio }, { id: 'resume', label: 'Resume ฉบับเต็ม', value: 'candidate-demo-resume.pdf' }]
+  const toggle = (id: string) => setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id])
+  return (
+    <PageShell><div className="reveal-page"><div className="match-heading"><span>♥</span><div><SectionEyebrow>MUTUAL MATCH</SectionEyebrow><h1>เลือกข้อมูลที่ต้องการแชร์</h1><p>แชร์เฉพาะช่องที่คุณเลือก Cyber Orchard Co. จะไม่เห็นช่องอื่น</p></div></div>{confirmed ? <div className="reveal-success"><div className="success-orbit">✓</div><h2>แชร์ข้อมูลเรียบร้อยแล้ว</h2><p>Cyber Orchard Co. เข้าถึงเฉพาะข้อมูลต่อไปนี้</p><div className="shared-list">{options.filter((option) => selected.includes(option.id)).map(option => <span key={option.id}><b>{option.label}</b>{option.value}</span>)}</div><div className="next-step"><span>NEXT STEP</span><h3>Technical conversation · 30 นาที</h3><p>Hiring Team จะติดต่อผ่านข้อมูลที่คุณเลือกภายใน 3 วันทำการ (จำลอง)</p></div><Link className="button button--primary" to="/event/demo">จบ Demo</Link></div> : <div className="reveal-grid"><section><div className="field-picker"><header><h2>ข้อมูลของคุณ</h2><span>{selected.length} ช่องที่เลือก</span></header>{options.map(option => <label key={option.id} className={selected.includes(option.id) ? 'is-selected' : ''}><input type="checkbox" checked={selected.includes(option.id)} onChange={() => toggle(option.id)} /><span><b>{option.label}</b><small>{option.value}</small></span><em>{selected.includes(option.id) ? 'จะแชร์' : 'ยังซ่อน'}</em></label>)}</div></section><aside><div className="reciprocal-card"><span>Cyber Orchard จะแชร์กลับ</span><p>✓ Recruiter role: Hiring Team</p><p>✓ Work email: hiring@cyber-orchard.test</p><p>✓ Next step และกรอบเวลา</p></div><div className="consequence-note">◇ เมื่อยืนยัน บริษัทจะดูเฉพาะช่องที่เลือก คุณถอนสิทธิ์การเข้าถึงในอนาคตได้ แต่เรียกคืนไฟล์ที่ดาวน์โหลดแล้วไม่ได้</div><PixelButton className="button--full" disabled={!selected.length} onClick={() => { dispatch({ type: 'REVEAL', fields: selected }); setConfirmed(true) }}>ยืนยันการแชร์ {selected.length} ช่อง</PixelButton></aside></div>}</div></PageShell>
+  )
+}
