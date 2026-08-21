@@ -14,5 +14,5 @@ Status: accepted for the hackathon prototype, 21 August 2026
 - The browser is the authoritative store only for synthetic demo state; this is not a production security model.
 - Interview media is a truthful avatar/media sandbox. No camera frame, recording, transcription or production WebRTC is used.
 - Ready Check is dispatched through a visibly labelled demo control so the presentation stays deterministic.
-- The Phaser map uses original programmatically drawn geometry. No PDF, Gather, Hideout or third-party visual asset is reused.
+- The Phaser world uses original generated indoor hall art plus a generated NPC/prop atlas. Reference images informed only density/top-down mood; no PDF, Gather, Hideout, Pokémon or third-party product asset/UI is reused.
 - Thai is the default UI language. Full runtime English localization remains a subsequent slice.

@@ -1,7 +1,7 @@
 # MaskedMatch — AI/Coding Agent Playbook
 
-> Version 1.0 · Hackathon prototype handoff · 21 August 2026  
-> เอกสารนี้บอก AI/coding agent ว่า “ต้องสร้างอย่างไร” ส่วนรายละเอียดผลิตภัณฑ์ฉบับเต็มอยู่ใน [MaskedMatch Complete Specification](<./MaskedMatch_Complete_Specification (1).md>) และรายละเอียดหน้าจออยู่ใน [DESIGN.md](./DESIGN.md)
+> Version 1.1 · Interactive Career Hall revision · 21 August 2026  
+> เอกสารนี้บอก AI/coding agent ว่า “ต้องสร้างอย่างไร” ส่วนรายละเอียดผลิตภัณฑ์ฉบับเต็มอยู่ใน [MaskedMatch Complete Specification](./MaskedMatch_Complete_Specification.md) และรายละเอียดหน้าจออยู่ใน [DESIGN.md](./DESIGN.md)
 
 > **Naming note:** ไฟล์นี้ตั้งชื่อ `AGENT.md` ตามคำขอของโครงการ หากเครื่องมือใดค้นหาเฉพาะ `AGENTS.md` ให้ทีมสร้างไฟล์นั้นภายหลังโดยอ้างอิงเนื้อหานี้ ห้ามมีข้อกำหนดสองชุดที่ขัดกัน
 
@@ -13,13 +13,28 @@
 
 1. เข้า Event และยืนยันตัวตนแบบจำลอง
 2. สร้างและตรวจ Masked Profile ที่เน้นทักษะ
-3. สำรวจ Career City หรือใช้ Navigator แบบรายการ
+3. สำรวจ Neon Career Hall แบบ indoor spatial world หรือใช้ Navigator แบบรายการ
 4. เปิดบูธ ดูงาน เหตุผลที่แนะนำ และเข้าคิว
 5. รับ Ready Check และเข้า Interview Room
 6. ตัดสินใจแบบส่วนตัวทั้งสองฝ่าย
 7. Reveal เฉพาะข้อมูลที่ผู้สมัครยินยอมเมื่อ Mutual Match
 
 Prototype ต้อง **ใช้งานได้จริง ไม่ใช่เพียงภาพหน้าจอ** แต่ต้องติดป้ายสิ่งจำลองอย่างตรงไปตรงมา ไม่สื่อว่า ThaID, AI, media masking หรือระบบจ้างงาน production พร้อมแล้ว
+
+### 1.1 Approved interactive visual direction (Revision 1.1)
+
+คำขอผู้ใช้ล่าสุดอนุมัติให้ R0 เปลี่ยนฉากหลักจากแผนที่เมืองกลางแจ้งแบบเรียบง่ายเป็น **Job Fair Hall ขนาดใหญ่ภายในอาคาร** โดยยังคง route และ domain contract เดิมเพื่อไม่ทำลาย flow
+
+World implementation MUST:
+
+- ใช้ Phaser เป็น renderer และให้กล้องติดตามตัวละครแบบ easing; รองรับ WASD/ลูกศร, click-to-move และ tap-to-move
+- มีฮอลล์เดียวที่อ่านเป็นพื้นที่ต่อเนื่อง พร้อม grand entrance, central hub, 4 exhibitor booths, lounge, Support/Accessibility zone และ device-test/interview area
+- แต่ละบูธมีช่อง logo/sign ที่แยกจาก background และเปลี่ยน fixture ได้โดยไม่แก้ภาพทั้งฉาก
+- มี NPC หลายบทบาท เช่น candidate, recruiter, guide, event staff และ accessibility support พร้อม idle/walk loop, hover/tap feedback และบทสนทนาสั้นจากข้อมูลสังเคราะห์
+- มี scene props จำนวนมาก เช่น โต๊ะ เก้าอี้ ต้นไม้ โคมไฟ kiosk coffee cart sign และ partition เพื่อให้โลกดูมีชีวิต โดย interactive prop ต้องมี semantic equivalent เมื่อเกี่ยวกับ core task
+- มี ambient animation เช่น booth glow, light pulse, floating marker, NPC movement และ smooth camera โดย Reduced Motion ต้องหยุด animation ที่ไม่จำเป็น
+- ใช้ original/generated asset ที่บันทึกใน asset registry เท่านั้น ภาพอ้างอิงของผู้ใช้ใช้กำหนด mood/density ได้ แต่ห้ามคัดลอก character, map, furniture, logo, UI chrome หรือ trade dress
+- รักษา Navigator/List Mode เป็นเส้นทางเทียบเท่า; ความหนาแน่นของงานภาพห้ามทำให้ผู้ใช้ต้องเล่นเกมเพื่อเข้าถึง booth, queue, support หรือ interview
 
 ---
 
@@ -61,7 +76,7 @@ Prototype ต้อง **ใช้งานได้จริง ไม่ใช
 - Event Landing พร้อมป้าย `DEMO DATA`
 - Mock verification พร้อมคำว่า `NOT A REAL THAID INTEGRATION`
 - Resume/skill form และ Masked Profile review
-- Career City 1 แผนที่, 4 บริษัทสมมติ และ Navigator/List Mode
+- Neon Career Hall 1 ฮอลล์, 4 บริษัทสมมติ, ช่อง logo ต่อบูธ, NPC/props ที่โต้ตอบได้ และ Navigator/List Mode
 - Deterministic explainable job match
 - Booth detail, 1 active queue, Ready Check และ refresh recovery
 - Interview sandbox หรือ two-role session ที่แสดง timer/control/fallback

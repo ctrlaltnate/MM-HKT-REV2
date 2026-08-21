@@ -1,6 +1,6 @@
 # MaskedMatch R0
 
-Functional hackathon prototype for a skills-first, candidate-anonymous virtual job fair. Built with React, TypeScript, Vite and Phaser.
+Functional hackathon prototype for a skills-first, candidate-anonymous virtual job fair. Built with React, TypeScript, Vite and Phaser. Revision 1.1 adds a full indoor Neon Career Hall with smooth camera-follow movement, animated NPC crowd, booth proximity interaction and generated original pixel assets.
 
 ## Run
 
@@ -22,6 +22,8 @@ Open `http://localhost:4173/event/demo`.
 7. Submit the recruiter decision → select reveal fields.
 
 Use `/demo/control` to reset data or select Happy match, No match, Media denied, Queue timeout and Offline recovery presets.
+
+Inside Career Hall: use WASD/arrow keys, click/tap a destination, press `E` near a booth, or click NPCs to see synthetic conversations. Navigator remains the complete non-canvas alternative.
 
 ## Checks
 

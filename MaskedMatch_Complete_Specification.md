@@ -13,7 +13,7 @@
 
 | รายการ | ค่า |
 |---|---|
-| Document version | 2.0 |
+| Document version | 2.1 — Interactive Career Hall revision |
 | Status | Draft for Product, Design, Engineering, Security, Legal และ Pilot Review |
 | Last updated | 21 August 2026 |
 | Product | MaskedMatch |
@@ -27,7 +27,7 @@
 
 เอกสารนี้ใช้ป้ายกำกับต่อไปนี้เพื่อแยก “คำขอ” ออกจาก “ข้อมูลในเอกสารแนบ” และ “ข้อเสนอเพื่อการพัฒนา”
 
-- **[USER]** ข้อกำหนดจากผู้ใช้: ต้องขยายสเปกให้ละเอียด, เป็น Interactive Web App, ใช้ได้ทั้งมือถือและคอมพิวเตอร์ผ่าน browser, มีสไตล์ 8-bit และใช้แนวคิด spatial interaction คล้าย Hideout/Gather ในบริบท Job Fair
+- **[USER]** ข้อกำหนดจากผู้ใช้: ต้องขยายสเปกให้ละเอียด, เป็น Interactive Web App, ใช้ได้ทั้งมือถือและคอมพิวเตอร์ผ่าน browser, มีสไตล์ 8-bit และใช้แนวคิด spatial interaction คล้าย Hideout/Gather ในบริบท Job Fair; Revision 2.1 กำหนดให้ world หลักเป็นฮอลล์ Job Fair indoor ขนาดใหญ่ มีบูธ ช่อง logo, NPC หลายบทบาท, scene props จำนวนมาก และ animation ที่ลื่นไหล
 - **[PDF]** บริบทจาก pitch deck: Skills First, Bias Last, Virtual Job Fair, AI matching, candidate-anonymous interview, queue, mutual decision และ reveal หลัง match
 - **[PROPOSED]** ข้อเสนอเชิงผลิตภัณฑ์/เทคนิคในเอกสารนี้ ซึ่งทีมสามารถนำไป validate และตัดสินใจ
 - **[OPEN]** เรื่องที่ยังต้องมี Product Owner, Partner, Legal หรือ Technical Spike ตัดสินใจ
@@ -59,6 +59,10 @@
 
 ### 0.4 Changelog จากเวอร์ชันเดิม
 
+- Revision 2.1 เปลี่ยน visual baseline ของ R0 จาก outdoor Career City แบบเรียบง่ายเป็น indoor **Neon Career Hall** ขนาดใหญ่ โดยคง route/domain/privacy contract เดิม
+- เพิ่ม NPC/prop/booth-logo/camera-follow/proximity interaction และ Reduced Motion contract
+- เพิ่ม generated asset provenance สำหรับ hall environment และ 4×4 character/prop atlas; ภาพอ้างอิงใช้เป็น mood/density เท่านั้นและห้ามคัดลอก asset/trade dress
+
 - เพิ่ม product scope, goals, non-goals, personas, role/permission และ glossary
 - เพิ่ม Candidate, Recruiter, Company Admin, Organizer, Moderator และ Support journeys
 - เพิ่ม responsive interaction สำหรับ desktop/tablet/mobile และ Navigator/List Mode
@@ -74,12 +78,12 @@
 
 ## 1. Executive Summary
 
-MaskedMatch คือ **Virtual Job Fair แบบ 2D top-down pixel world** ที่ช่วยให้ผู้สมัครค้นหางาน เดินดูบูธ เข้าคิว และสัมภาษณ์แบบ speed interview ผ่าน browser โดยบริษัทจะเห็น **Masked Candidate Profile** ที่เน้นทักษะและหลักฐานผลงานก่อนเห็นชื่อ รูป ประวัติส่วนตัว หรือข้อมูลติดต่อ การเลือกมุมมอง top-down เป็น `[USER + PROPOSED]`; PDF เดิมเปิดกว้างทั้ง third-person/top view
+MaskedMatch คือ **Virtual Job Fair แบบ 2D top-down pixel world ภายในฮอลล์จัดงานขนาดใหญ่** ที่ช่วยให้ผู้สมัครค้นหางาน เดินดูบูธ พูดคุยกับ NPC จำลอง เข้าคิว และสัมภาษณ์แบบ speed interview ผ่าน browser โดยบริษัทจะเห็น **Masked Candidate Profile** ที่เน้นทักษะและหลักฐานผลงานก่อนเห็นชื่อ รูป ประวัติส่วนตัว หรือข้อมูลติดต่อ การเลือกมุมมอง top-down และ indoor Career Hall เป็น `[USER + PROPOSED]`; PDF เดิมเปิดกว้างทั้ง third-person/top view
 
 แกนประสบการณ์มี 5 ขั้น:
 
 1. **Verify & Prepare / Pre-event Quick Assessment** - ยืนยันบัญชี, อัปโหลด Resume/Portfolio, ให้ AI preprocess, ตรวจผล anonymization และเลือก avatar
-2. **Explore** - เข้าสู่ Career City, ค้นหาบูธด้วย map/list/search และดูคำแนะนำจากทักษะ
+2. **Explore** - เข้าสู่ Neon Career Hall ที่มีบูธ/NPC/props แบบ interactive, ค้นหาบูธด้วย map/list/search และดูคำแนะนำจากทักษะ
 3. **Queue & Interview** - เข้าคิวแบบ server-authoritative, ยืนยัน ready check และเข้าสัมภาษณ์ 10-15 นาที
 4. **Private Decision** - ผู้สมัครและ recruiter ตัดสินใจอย่างอิสระ โดยไม่เห็นคำตอบอีกฝ่าย
 5. **Mutual Reveal** - เมื่อทั้งสองฝ่ายสนใจตรงกันและยืนยัน consent จึงเปิดเผยข้อมูลที่เลือกและเข้าสู่ hiring pipeline
@@ -529,7 +533,18 @@ Score (0-100):
 | FR-MATCH-006 | P1 | sensitive demographic ที่ผู้ใช้สมัครใจให้เพื่อ fairness audit ต้องเก็บแยก ไม่เข้า ranking และรายงานแบบ aggregate เท่านั้น |
 | FR-MATCH-007 | P0 | Resume/JD content ต้องถือเป็น untrusted data; ห้ามให้ embedded instruction เปลี่ยน system policy หรือ tool behavior |
 
-### 8.5 Interactive Career City world
+### 8.5 Interactive Neon Career Hall world
+
+#### Revision 2.1 indoor hall baseline `[USER]`
+
+- R0 world หลักเป็น hall ภายในอาคารขนาดใหญ่ ไม่ใช่ outdoor city thumbnail
+- Phaser camera ติดตาม avatar แบบ smooth easing และใช้ world bounds 1536×1024 reference; desktop/mobile แสดงเฉพาะบริเวณใกล้ตัว พร้อม minimap/Navigator สำหรับภาพรวม
+- ฮอลล์มี grand entrance, central hub/aisle, exhibitor booth 4 แห่ง, social/quiet lounge, Support/Accessibility desk และ device-test/interview-pod zone
+- Booth sign ใช้ dynamic logo plate หรือ fictional monogram แยก layer จาก background เพื่อให้เปลี่ยน fixture ได้โดยไม่สร้างแผนที่ใหม่
+- R0 ต้องมี NPC อย่างน้อย 12 ตัวจากอย่างน้อย 5 บทบาท และ scene props อย่างน้อย 8 ประเภท; NPC dialogue ใช้ synthetic copy เท่านั้น
+- NPC, player และ prop ที่เคลื่อนไหวต้อง depth-sort ตามแกน Y และไม่บังทางหลัก/booth entrance
+- Ambient motion ประกอบด้วย idle/walk, booth glow, light pulse, marker bob และ central hub pulse; `prefers-reduced-motion` และ setting ในแอปต้องหยุด motion ที่ไม่จำเป็น
+- ภาพอ้างอิงของผู้ใช้ใช้กำหนดความหนาแน่น, top-down readability และ indoor spatial feeling เท่านั้น ห้ามคัดลอก map, character, furniture, logo, UI chrome หรือ asset เฉพาะของผลิตภัณฑ์อื่น
 
 #### World layout
 
@@ -560,6 +575,11 @@ Score (0-100):
 | FR-WORLD-011 | P0 | เมื่อ tab hidden ให้ลด render tick/pause animation; queue/deadline อยู่ที่ server และ client ต้อง resync snapshot/cursor เมื่อ foreground กลับมา ห้ามพึ่ง service-worker heartbeat เพราะ browser/OS อาจ suspend ได้ |
 | FR-WORLD-012 | P0 | Asset โหลดเป็น lobby/zone chunk; ห้าม preload ทั้ง event โดย default |
 | FR-WORLD-013 | P2 | ถ้าเปิด Main Stage live broadcast ต้องมี live captions ที่ระบุ speaker, text fallback และ accessibility owner sign-off; official stage ใช้ human captioner/interpreter เมื่อความถูกต้องมีผลสูง |
+| FR-WORLD-014 | R0 | Indoor hall ต้องมี 4 booth zone พร้อม dynamic logo/sign layer, interaction radius และ click/tap/keyboard action |
+| FR-WORLD-015 | R0 | NPC crowd มีอย่างน้อย 12 ตัว/5 role silhouettes พร้อม synthetic dialogue; NPC ห้ามเปิด PII หรือแอบอ้างว่าเป็นผู้ใช้จริง |
+| FR-WORLD-016 | R0 | Camera-follow, click/tap movement และ NPC/prop animation ต้องใช้ time-based easing และรักษา input response; Reduced Motion ต้องมี stationary equivalent |
+| FR-WORLD-017 | R0 | Player/NPC/prop ต้องเป็น runtime layer แยกจาก environment และ depth-sort อย่างถูกต้อง; decorative density ห้ามบัง route/interaction marker |
+| FR-WORLD-018 | R0 | Generated/third-party world asset ทุกไฟล์ต้องมี provenance/allowed-use record และห้ามคัดลอก asset/trade dress จากภาพอ้างอิง |
 
 #### Movement and interaction parity
 
@@ -872,11 +892,11 @@ UPLOADED -> QUARANTINED -> SCANNING -> PARSING -> REVIEW_REQUIRED -> APPROVED
 
 ---
 
-## 10. 8-Bit Visual Design System
+## 10. 8-Bit Visual Design System — Interactive Career Hall
 
 ### 10.1 Creative direction: “Neon Career City”
 
-ภาพรวมคือเมืองงานแฟร์ไทยอนาคตแบบ pixel art: professional cyber-night market ผสม career districts, neon signage, booth kiosk, interview pods และ animal avatars
+ภาพรวม Revision 2.1 คือฮอลล์งานแฟร์อนาคตแบบ pixel art: professional convention hall ผสม coworking space, exhibitor booths, recruiter tables, indoor lounge, support desk, device pods, blank logo panels และ character/NPC crowd ที่มีชีวิต งานภาพใช้ warm indoor material ร่วมกับ neon signage แทน cyber-night-market กลางแจ้ง
 
 View mode ใช้ **top-down** เป็น `[USER + PROPOSED]` เพราะควบคุมด้วย touch, keyboard และ pathfinding/List Mode parity ได้ง่ายกว่า แม้ PDF จะระบุได้ทั้ง third-person/top view
 
@@ -886,6 +906,7 @@ View mode ใช้ **top-down** เป็น `[USER + PROPOSED]` เพรา�
 - retro-futuristic แต่ข้อความ/ฟอร์มอ่านง่ายเหมือน modern SaaS
 - โลกเป็น pixel art; HUD และ form เป็น semantic HTML ที่คมชัด
 - ฉากไม่ใช้ visual noise แข่งกับข้อมูลสำคัญ
+- World เป็นพื้นที่หลักแบบ full-bleed ใต้ floating HUD; ห้ามลด Phaser canvas ให้เป็น card เล็กระหว่าง sidebar ทึบสองข้างบน desktop
 
 ### 10.2 Inspiration boundary
 
@@ -1010,6 +1031,23 @@ Pixel font MUST NOT ใช้กับ paragraph, legal copy, form help, error, 
 - Queue alert sound/haptic เป็น opt-in และมี visual equivalent
 - Proximity area ไม่ auto-play voice/music/video
 - Stage/video ไม่ autoplay พร้อมเสียง
+
+### 10.9 R0 Career Hall runtime assets and animation
+
+| Asset | Runtime role | Provenance rule |
+|---|---|---|
+| `neon-career-hall-v3.png` | 1536×1024 indoor environment background | Original generated project asset; references used only for mood/density |
+| `career-hall-atlas-v1.png` | Source 4×4 NPC/prop atlas | Original generated project source; not loaded directly |
+| `career-hall-atlas-v3.png` | Transparent normalized 1280×1280 Phaser atlas | Mechanical alpha/size derivative of source atlas |
+
+Runtime composition:
+
+- Player/NPC use atlas frames and remain independent from background
+- R0 crowd target คือ 16 visible NPC instances โดย reuse frame ได้ผ่าน position, flip, tint, role และ motion variation
+- Booth logo plate, interaction marker, speech bubble และ proximity prompt เป็น runtime layer
+- Smooth camera follow ใช้ lerp/easing; movement อิง `delta` time ไม่ผูกกับ frame rate
+- World route ต้องหยุด/destroy Phaser instance เมื่อเข้า interview เพื่อคง performance contract เดิม
+- Asset draft ที่ไม่ใช้งานจริงต้องไม่ถูก preload และต้องไม่เพิ่ม cold world transfer โดยไม่มีเหตุผล
 
 ---
 
@@ -2259,6 +2297,12 @@ window      = event start ถึง event end + 24h late-event allowance
 **Given** Organizer เปิด Main Stage live broadcast feature flag  
 **When** accessibility preflight ไม่พบ human captions/speaker identification/text fallback  
 **Then** broadcast เริ่มไม่ได้; เมื่อพร้อม captions ต้องมองเห็น ปรับขนาดได้ และผ่าน rehearsal ภาษา event ก่อน go-live
+
+### AC-31 Interactive Career Hall
+
+**Given** Candidate เปิด world route ที่ desktop, mobile 390 px หรือ narrow 320 px  
+**When** ใช้ WASD/ลูกศรหรือ click/tap-to-move, เข้าใกล้ booth และแตะ NPC  
+**Then** กล้องตาม avatar อย่างต่อเนื่อง, booth แสดง proximity/interaction feedback, NPC แสดง synthetic dialogue, logo plate เปลี่ยนตาม fixture, ไม่มี core action ที่พึ่ง canvas อย่างเดียว และ Reduced Motion หยุด ambient movement โดยยังคงสถานะ/interaction marker
 
 ---
 

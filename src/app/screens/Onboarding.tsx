@@ -24,6 +24,8 @@ export function LandingScreen() {
           <div className="pixel-building pixel-building--two"><span>CAREER<br />CITY</span></div>
           <div className="pixel-building pixel-building--three"><span>CREATE</span></div>
           <div className="pixel-road"><div className="pixel-avatar"><i /><b>#8F3A</b></div></div>
+          <span className="preview-npc preview-npc--one">C</span><span className="preview-npc preview-npc--two">R</span><span className="preview-npc preview-npc--three">G</span>
+          <div className="preview-live"><i /> 16 PEOPLE EXPLORING</div>
           <div className="preview-card"><span>งานแนะนำสำหรับคุณ</span><strong>Backend Developer</strong><small>Cyber Orchard Co.</small><b>92<span>/100</span></b></div>
         </div>
       </section>

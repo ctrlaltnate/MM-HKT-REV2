@@ -1,7 +1,7 @@
 # MaskedMatch — Wireframe & Functional Prototype Design Handoff
 
-> Version 1.0 · R0 Hackathon design baseline · 21 August 2026  
-> ใช้คู่กับ [MaskedMatch Complete Specification](<./MaskedMatch_Complete_Specification (1).md>) และ [AGENT.md](./AGENT.md)
+> Version 1.1 · Interactive Career Hall visual revision · 21 August 2026  
+> ใช้คู่กับ [MaskedMatch Complete Specification](./MaskedMatch_Complete_Specification.md) และ [AGENT.md](./AGENT.md)
 
 ---
 
@@ -27,7 +27,7 @@
 
 ### 2.1 One-line experience
 
-> “เดินเข้าเมืองงานแฟร์ ค้นพบงานจากทักษะ คุยกันโดยยังไม่เห็นตัวตน แล้วเปิดเผยข้อมูลเมื่อทั้งสองฝ่ายอยากไปต่อ”
+> “เดินเข้า Career Hall ที่มีชีวิต ค้นพบงานจากทักษะ คุยกันโดยยังไม่เห็นตัวตน แล้วเปิดเผยข้อมูลเมื่อทั้งสองฝ่ายอยากไปต่อ”
 
 ### 2.2 Emotional arc
 
@@ -35,7 +35,7 @@
 |---|---|---|
 | Event entry | สนใจแต่ยังระวัง | อธิบาย Blind Mode และ demo limitation อย่างตรงไปตรงมา |
 | Masked Profile | ควบคุมข้อมูลของตนเอง | แสดง before/after และให้ approve เอง |
-| Career City | ตื่นเต้นและค้นพบ | spatial world สนุก แต่มี Navigator ที่เร็วกว่าเสมอ |
+| Career Hall | ตื่นเต้นและรู้สึกว่ามีผู้คนอยู่จริง | ฮอลล์มี NPC, บูธและวัตถุที่ตอบสนอง แต่มี Navigator ที่เร็วกว่าเสมอ |
 | Queue | มั่นใจว่าไม่หลุดคิว | position, ETA, notification และ recovery ชัด |
 | Interview | ปลอดภัยและเป็นมืออาชีพ | privacy status, timer, media fallback และ help อยู่ในสายตา |
 | Private choice | กล้าตัดสินใจจริง | ย้ำว่าอีกฝ่ายยังไม่เห็นคำตอบ |
@@ -108,7 +108,7 @@ R0 ออกแบบเพียง overview/optional frame; Candidate/Recruite
 | SC-03 | Resume/Skill Import | Candidate | P0-Demo | Yes | Yes | Functional/sample upload |
 | SC-04 | Masked Profile Review | Candidate | P0-Demo | Yes | Yes | Functional approval |
 | SC-05 | Avatar & Tutorial | Candidate | P1-Frame | Yes | Yes | Short functional preset |
-| SC-06 | Career City World | Candidate | P0-Demo | Yes | Yes | Functional movement |
+| SC-06 | Neon Career Hall World | Candidate | P0-Demo | Yes | Yes | Functional movement, NPC, booth proximity |
 | SC-07 | Navigator/List Mode | Candidate | P0-Demo | Yes | Yes | Functional parity |
 | SC-08 | Booth & Job Detail | Candidate | P0-Demo | Yes | Yes | Functional |
 | SC-09 | Queue HUD & Ready Check | Candidate | P0-Demo | Yes | Yes | Functional state machine |
@@ -254,17 +254,18 @@ Primary CTA:      full width or ≥48 px high
 
 ---
 
-## 7. Visual Direction — Neon Career City
+## 7. Visual Direction — Neon Career Hall
 
 ### 7.1 Art direction
 
-โลกคือ **ตลาดนัดอาชีพไทยแห่งอนาคตในยามค่ำคืน** ผสม career districts, neon kiosk, interview pod และ animal avatar แบบ original pixel art
+โลกคือ **ฮอลล์จัดงาน Job Fair ขนาดใหญ่ที่มีชีวิต** มองแบบ top-down/three-quarter top-down ผสม convention hall, coworking space, exhibitor booth, interview table, quiet lounge และ futuristic neon device แบบ original pixel art งานภาพต้องหนาแน่นและอบอุ่นเหมือนเกมผจญภัย 16-bit คุณภาพสูง แต่เส้นทางหลักและจุด interactive ต้องอ่านออกทันที
 
 Visual layers:
 
-1. **World layer:** 8-bit/pixel art, tile grid, sprite, environmental light
-2. **Product layer:** crisp HTML, solid panels, readable Thai, clear states
-3. **Privacy layer:** mask badge, shield motif, field visibility indicator
+1. **Environment layer:** indoor pixel hall, floor pattern, walls, booth furniture, plants, props และ blank logo panels
+2. **Living layer:** player, candidate/recruiter/support NPC, idle/walk loop, hover response, speech bubble, booth glow และ environmental light
+3. **Product layer:** crisp HTML, glass/solid HUD, readable Thai, clear states
+4. **Privacy layer:** mask badge, shield motif, field visibility indicator
 
 ความเป็น pixel ไม่ควรทำให้ข้อความแตก อ่านยาก หรือ interaction คลุมเครือ
 
@@ -330,24 +331,37 @@ Body/legal/error/caption ต้องไม่ใช้ pixel font
 
 Sound/haptic เป็น opt-in และมี visual equivalent ทุกครั้ง
 
+### 7.6 Interactive density and animation contract (Revision 1.1)
+
+- กล้องติดตาม avatar ด้วย easing; click/tap target และ WASD ต้องเคลื่อนที่ต่อเนื่องไม่กระตุก
+- ฮอลล์ R0 มี NPC อย่างน้อย 12 ตัวจากอย่างน้อย 5 role silhouette: Candidate, Recruiter, Hall Guide, Event Staff และ Accessibility Support
+- NPC ต้องมี idle/walk variation, depth sorting ตามแกน Y, hover/tap highlight และ synthetic one-line conversation; ห้ามสร้างบทสนทนาที่เปิด PII หรือทำให้เข้าใจว่าเป็นคนจริง
+- ทุก booth มี blank logo plate/monogram layer แยกจาก environment art เพื่อให้เปลี่ยน company fixture ได้
+- Scene props ขั้นต่ำ: โต๊ะ, เก้าอี้, plant, lamp, kiosk, coffee cart, sign, partition, lounge object และ device pod
+- Ambient animation ใช้ booth glow, light pulse, marker bob, NPC drift และ central hub pulse; ห้ามใช้ flashing, camera shake หรือ autoplay sound
+- Reduced Motion เปลี่ยน NPC เป็น stationary pose, ปิด bob/pulse/drift และคง focus/interaction marker แบบนิ่ง
+- HUD desktop ลอยเหนือ world แบบ translucent panel เพื่อให้ world เป็นพื้นที่หลัก ไม่จัด canvas เป็นเพียง card ระหว่าง sidebar สองข้าง
+- Mobile ใช้ world เต็มพื้นที่และ bottom context sheet; controls ต้องไม่บัง avatar/interaction target
+
 ---
 
-## 8. Career City World Design
+## 8. Neon Career Hall World Design
 
 ### 8.1 Map concept
 
-R0 ใช้แผนที่เดียวที่อ่านง่ายในหนึ่งจอ desktop และ pan ได้บน mobile
+R0 ใช้ฮอลล์ indoor เดียวขนาดใหญ่ กล้องตามตัวละครบน desktop/mobile และมี minimap/Navigator ช่วยให้เห็นโครงสร้างทั้งหมด
 
 ```text
 ┌────────────────────────────────────────────────────────────┐
-│ ENTRY PLAZA        SKILL LAB         SUPPORT STATION       │
-│ onboarding portal  profile kiosk     help/accessibility    │
+│ DEVICE TEST PODS      GRAND LOBBY          SOCIAL LOUNGE    │
 │                                                            │
-│ TECH DISTRICT ───── CENTRAL WAYFINDING ───── CREATIVE ROW  │
-│ Cyber Orchard       Event clock              Riverbyte      │
-│ Cloud Lantern       Search terminal          Pixel Loom     │
+│ CYBER ORCHARD ─────── CENTRAL AISLE ───── CLOUD LANTERN    │
+│ cyan booth            info kiosks           pink booth      │
 │                                                            │
-│ QUIET LANE          INTERVIEW PODS            EXIT/ARCHIVE  │
+│ RIVERBYTE ─────────── CENTRAL HUB ───────── PIXEL LOOM     │
+│ green booth           help counter           mango booth     │
+│                                                            │
+│ QUIET LOUNGE        MAIN ENTRANCE       SUPPORT / ACCESS    │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -360,6 +374,9 @@ Map rules:
 - Quiet Lane และ Support Station มองเห็นได้โดยไม่ต้องค้นเมนู
 - Booth interaction radius แสดง outline และ prompt ชัด
 - ไม่มี proximity media autoplay
+- Background environment มี resolution อ้างอิง 1536×1024 และกล้องแสดงเพียงส่วนที่เกี่ยวข้องเพื่อให้รู้สึกว่าเป็นฮอลล์จริง ไม่ย่อทั้งฮอลล์เป็น thumbnail
+- Player/NPC/prop เป็น layer แยกจาก background เพื่อทำ animation, depth sort, tint, hover และเปลี่ยน fixture ได้
+- NPC density ต้องไม่ปิดทางหลักหรือบัง booth entrance; crowd movement เป็น ambient เท่านั้นและไม่ชน/ผลัก player ใน R0
 
 ### 8.2 Original booth set
 
@@ -502,9 +519,9 @@ Interaction:
 
 Avatar เป็น cosmetic เท่านั้น ห้ามอธิบายสัตว์ว่าแทนบุคลิกหรือคุณสมบัติการทำงาน
 
-### SC-06 — Career City World
+### SC-06 — Neon Career Hall World
 
-**Goal:** สร้าง wow moment พร้อม path สู่ recommended job
+**Goal:** สร้าง wow moment ที่รู้สึกว่าอยู่ในฮอลล์ Job Fair ที่มีผู้คนจริง พร้อม path สู่ recommended job
 
 Desktop low-fi:
 
@@ -541,7 +558,11 @@ Mobile low-fi:
 
 Prototype behavior:
 
-- movement + collision
+- smooth camera-follow movement + world bounds
+- NPC crowd อย่างน้อย 12 ตัว พร้อม idle/walk variation, hover/tap highlight และ synthetic speech bubble
+- booth proximity prompt + `E` interaction และ tap/click booth zone
+- logo plate/monogram ของแต่ละ booth เป็น dynamic layer
+- ambient light/booth glow/central hub pulse และ stationary Reduced Motion variant
 - POI hover/focus/tap label
 - recommended route marker
 - World/Navigator selection sync
@@ -1166,6 +1187,16 @@ attribution requirement
 - Keep UI copy out of bitmap
 - Atlas grouped by core/district/booth to control loading
 - Decorative art marked decorative; interactive POI has DOM/list equivalent
+
+### 17.4 R0 generated asset registry (Revision 1.1)
+
+| Asset ID | File | Role | Provenance / allowed use |
+|---|---|---|---|
+| `world.hall.v3` | `public/assets/world/neon-career-hall-v3.png` | Indoor hall environment, 1536×1024 | Generated original for MaskedMatch; references used for mood/density only; project use |
+| `world.atlas.source.v1` | `public/assets/world/career-hall-atlas-v1.png` | Raw generated 4×4 character/prop atlas | Generated original; source retained; not loaded at runtime |
+| `world.atlas.runtime.v3` | `public/assets/world/career-hall-atlas-v3.png` | Transparent normalized 1280×1280 Phaser atlas | Derived mechanically from source atlas; project use |
+
+ไฟล์ `neon-career-city-v2.png` เป็น exploration draft กลางแจ้ง ไม่ใช่ runtime direction ของ Revision 1.1 และห้ามนำกลับมาใช้โดยไม่สร้าง decision ใหม่
 
 ---
 

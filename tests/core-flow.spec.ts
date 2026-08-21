@@ -13,7 +13,7 @@ test('candidate can reach an idempotent active queue', async ({ page }) => {
   await page.getByRole('button', { name: /ใช้ Resume ตัวอย่าง/ }).click()
   await page.getByRole('button', { name: /ยืนยัน Masked Profile/ }).click()
   await page.getByRole('button', { name: /พร้อมเข้า Career City/ }).click()
-  await page.getByRole('button', { name: /ดูรายละเอียดงาน/ }).click()
+  await page.getByRole('button', { name: /เข้าไปที่บูธ|ดูรายละเอียดงาน/ }).click()
   await page.getByRole('button', { name: 'เข้าคิวสัมภาษณ์' }).click()
   await expect(page.getByText(/อยู่ในคิวแล้ว/)).toBeVisible()
   await page.reload()
