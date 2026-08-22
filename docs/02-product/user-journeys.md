@@ -1,7 +1,7 @@
 # End-to-End Role Journeys — Demo-Executable / API-Ready
 
 > **Document role:** Canonical owner ของ flow ผู้ใช้ทั้งสามฝั่ง
-> **Version:** 3.1 · 22 August 2026
+> **Version:** 3.1 · 23 August 2026
 
 ทุก flow ในเอกสารนี้ต้องทำงานได้สองโหมดโดยไม่เปลี่ยนหน้าจอหรือกฎธุรกิจ:
 
@@ -56,20 +56,30 @@ flowchart TD
 
 | Step | Canonical route | Demo behavior | Connected behavior |
 |---|---|---|---|
-| Event | `/event/:eventId` | synthetic schedule/companies | event API snapshot |
-| Sign in / verify | `/auth/sign-in`, `/onboarding/verify` | create mock verified alias | OIDC/ThaID-approved provider callback |
-| Consent | `/onboarding/consent` | persist versioned local record | consent API + audit |
+| Event | `/events/:eventSlug` (demo: `/event/demo`) | synthetic schedule/companies | event API snapshot |
+| Sign in / verify | `/auth/sign-in`, `/app/onboarding` (demo: `/demo/verify`) | create mock verified alias | OIDC/approved identity-provider callback |
+| Consent | `/app/onboarding` | persist versioned local record | consent API + audit |
 | CV/profile source | `/candidate/profile/import` | sample CV, manual form หรือ local file simulation | signed upload URL, malware scan, parser job |
 | Processing | `/candidate/profile/processing/:resumeId` | deterministic progress through real lifecycle states | poll/WebSocket processing state |
 | Masked review | `/candidate/profile/review` | synthetic extracted fields + redaction spans | immutable profile version from API |
 | Avatar | `/candidate/avatar` | local persisted compositor options | save `AvatarAppearance` through profile API |
-| Hall | `/event/:eventId/world` | Phaser world + local fixtures | presence/WebSocket + server-authoritative state |
-| Booth/jobs | `/event/:eventId/booths/:boothId`, `/jobs/:jobId` | same synthetic catalog used by World/Navigator | company/booth/job APIs |
-| Queue | persistent Queue Chip + `/candidate/queue` | shared scenario store; exactly one active ticket | durable queue API + WebSocket |
-| Preflight | `/interviews/:sessionId/preflight` | real browser permission checks where available; deterministic fallback | policy + short-lived media token |
-| Interview | `/interviews/:sessionId` | same-device/two-tab simulated peer or configured media provider | WebRTC room; transformed tracks only |
-| Decision | `/decisions/:caseId` | private per-role demo state | encrypted server decision |
-| Result/reveal | `/matches/:matchId` | resolver waits for both demo roles | atomic server resolver + reveal APIs |
+| Hall | `/app/events/:eventId/world` (demo: `/event/demo/world`) | Phaser world + local fixtures | presence/WebSocket + server-authoritative state |
+| Booth/jobs | `/app/booths/:boothId`, `/app/jobs/:jobId` | same synthetic catalog used by World/Navigator | company/booth/job APIs |
+| Queue | persistent Queue Chip + `/app/queue` | shared scenario store; exactly one active ticket | durable queue API + WebSocket |
+| Preflight | `/app/interviews/:sessionId/preflight` | real browser permission checks where available; deterministic fallback | policy + short-lived media token |
+| Interview | `/app/interviews/:sessionId` | same-device/two-tab simulated peer or configured media provider | WebRTC room; transformed tracks only |
+| Decision | `/app/interviews/:sessionId/decision` | private per-role demo state | encrypted server decision |
+| Result/reveal | `/app/matches/:matchId/result`, `/app/matches/:matchId/reveal` | resolver waits for both demo roles | atomic server resolver + reveal APIs |
+| Recruiter console | `/recruiter/demo` (alias `/company/demo`) | company/job form, publish state, live synthetic queue, interview readiness, decision and contact-field request persist locally | organization, job, queue, interview, decision and reveal-request APIs |
+| Operations console | `/operations/demo` (alias `/admin/demo`) | service-health board and resolvable synthetic support inbox | telemetry, audit, incident, support and privileged queue-control APIs |
+
+### 1.2.1 R0 browser-visible implementation status
+
+- Candidate routes ตั้งแต่ Event → Verify → Profile → Review → Avatar → Career Hall ทำงานผ่าน visible controls และ local persistence
+- Recruiter Demo ทำงานผ่าน visible controls สำหรับ publish booth/job, call queue, interview readiness, `INTERESTED`/`PASS` และเลือก field request หลังสนใจ
+- Operations Demo แสดง event health และเปิด/ปิด support ticket ได้จาก UI
+- Media, mutual-decision resolver, candidate per-field grant และ connected API adapters ยังเป็น production integration gap; UI ต้องติดป้าย Demo และห้ามอ้างว่าเชื่อม backend แล้ว
+- Phaser 4 avatar compositor ต้อง flush `DynamicTexture.render()` หลัง draw ทุกครั้ง; regression test ครอบคลุม Player, NPC และ Avatar Preview ที่ใช้ compositor กลาง
 
 ### 1.3 CV and contact data contract
 
@@ -214,4 +224,4 @@ DemoScenario
 | Reveal request denied/partial | recruiter sees only granted fields; no coercive retry |
 | API unavailable in connected mode | truthful offline/error state; never silently switch to demo data |
 
-Flow จะถือว่า demo-complete เมื่อผู้ทดสอบทำ Happy Match และ No Match ได้ครบจาก visible controls ในสาม role tabs โดยไม่แก้ local storage หรือเรียก developer console
+Flow จะถือว่า production-demo-complete เมื่อผู้ทดสอบทำ Happy Match และ No Match ได้ครบจาก visible controls ในสาม role tabs โดยไม่แก้ local storage หรือเรียก developer console ปัจจุบัน R0 ครบถึง recruiter decision/field request และ operations support แต่ mutual resolver + candidate grant ยังเป็น gap ตาม section 1.2.1

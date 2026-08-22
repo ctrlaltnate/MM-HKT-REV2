@@ -6,7 +6,7 @@
 
 - **DOM-First for Task UI:** ฟอร์ม, การนำทาง, HUD, กล่องข้อความ และเครื่องมือควบคุมทั้งหมดทำงานบน Semantic HTML/DOM เพื่อความเข้าถึงได้ (Accessibility) โดยใช้ Phaser/Canvas สำหรับ World Rendering เท่านั้น
 - **Strict Generated Assets (No Emojis):** ทุกองค์ประกอบภาพในเกม, ฉาก, บูธ, ตัวละคร และ Web UI ต้องเป็น Original Generated Assets / Vector SVGs ทั้งหมด ห้ามใช้อิโมจิ
-- **Realtime Client-side Privacy Engines:** การประมวลผลกล้องจริง, Face Tracking, การเรนเดอร์ Face Mask Overlay, และการดัดเสียง (Voice DSP) ทำงานบนเครื่องผู้ใช้ (Client-Side) 100% เพื่อลด Latency และป้องกันข้อมูลชีวมิติรั่วไหล
+- **Realtime Client-side Privacy Engines:** Face tracking, mask composition และ optional voice DSP ทำบนเครื่องผู้ใช้เพื่อลด latency/การส่งข้อมูลดิบ โดยต้องวัด capability และ fail closed; ห้ามกล่าวอ้างว่าการทำ client-side รับประกัน anonymity หรือ zero leakage
 - **Server-Authoritative Core State:** คิวสัมภาษณ์, เวลา Session, การตัดสินใจ (Decision), ผลการเปิดเผยข้อมูล (Reveal), และสถานะ Event ต้องถูกควบคุมและตัดสินโดย Server
 - **Separate Identity Vault Plane:** ข้อมูลยืนยันตัวตน (PII) ถูกแยกขาดจาก Data Plane ของงานแฟร์และการจับคู่ทักษะ
 - **Durable Persistence vs Realtime Broker:** PostgreSQL รับผิดชอบ Transactional Source of Truth ในขณะที่ Redis รับผิดชอบ Presence, Caching, และ WebSocket Realtime Fanout
@@ -106,16 +106,16 @@ flowchart TB
 
 ### 1. Real Face Landmark Tracking & Avatar Overlay Pipeline
 - **Engine Selection:** ใช้ Lightweight Vision Engine (เช่น MediaPipe FaceMesh / TensorFlow.js WASM Backend) ทำงานที่ 30–60 FPS
-- **Landmark Mapping:** ตรวจจับพิกัด 468 จุดบนใบหน้า เพื่อคำนวณ:
+- **Landmark Mapping:** ใช้จุด landmark ตาม approved runtime/version เพื่อคำนวณเฉพาะ movement ที่จำเป็น:
   - ศีรษะ (Head Pose Yaw / Pitch / Roll)
   - การขยับปากและการพูด (Mouth Open / Close Ratio)
   - การกระพริบตา (Eye Blink Landmark Status)
 - **Realtime Canvas Compositing:** เรนเดอร์ 2D/3D Animal Mask ครอบทับตำแหน่งพิกัดใบหน้าของผู้ใช้ลงบน Offscreen Canvas และส่งออกเป็น `MediaStream`
-- **Fail-Closed Hardware Protection:** หาก Landmark Detection ขัดข้อง หรือผู้ใช้หันหน้าออกจากกล้องเกิน 3 เฟรม ระบบจะตัดภาพวิดีโอออกทันที และสลับเป็นภาพ Avatar นิ่ง เพื่อรับประกันว่า **ใบหน้าจริงของผู้สมัครจะไม่รั่วไหลออกไปเด็ดขาด**
+- **Fail-Closed Guard:** หาก Landmark Detection ขัดข้องหรือ tracking confidence ต่ำกว่า policy threshold ระบบต้อง disable outgoing video ก่อน raw frame ออก แล้วสลับเป็น Avatar; threshold/latency ต้องมาจาก browser/device tests
 
 ### 2. Real Voice Alteration (AudioWorklet DSP Pipeline)
 - **Web Audio API Integration:** สัญญาณเสียงจากไมโครโฟนถูกส่งเข้า `AudioContext`
-- **AudioWorklet DSP Node:** ทำการแปลงความถี่ (Pitch Shifting & Formant Modulation) ในระดับ Low-latency Buffer (128 samples, <10ms added latency)
+- **AudioWorklet DSP Node:** ทำ pitch/formant processing ด้วย buffer ที่ browser รองรับ; latency target ต้องวัดบน device matrix ก่อนกำหนด SLO
 - **Speech Intelligibility:** ปรับเปลี่ยนโทนเสียงให้จำแนกเอกลักษณ์ไม่ได้ แต่ยังคงความชัดเจนของคำพูด (Clear & Intelligible)
 
 ---

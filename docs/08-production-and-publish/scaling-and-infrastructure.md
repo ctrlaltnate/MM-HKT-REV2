@@ -1,39 +1,65 @@
-# 4. คู่มือการสเกลระบบ (Scaling) เมื่องานมีผู้ใช้งานจำนวนมาก
+# Scaling and Infrastructure Capacity Plan
 
-> **แนวคิด:** บริการอย่าง Vercel, Supabase, และ MongoDB ได้รับการออกแบบให้รองรับการขยายตัว (Auto-scaling) อยู่แล้ว เมื่อคนเข้ามาใช้งานพร้อมกันหลักพันหรือหลักหมื่น คุณเพียงแค่เลือกปรับตั้งค่าบางจุดตามคำแนะนำนี้
-
----
-
-## 4.1 แผนการสเกลตามจำนวนผู้ใช้งาน (Scaling Milestones)
-
-| จำนวนผู้ใช้งานพร้อมกัน (CCU) | Vercel Tier | Supabase Plan | MongoDB Tier | LiveKit SFU Plan |
-|---|---|---|---|---|
-| **ทดสอบ / Demo (1–100 คน)** | **Hobby (ฟรี)** | **Free Tier (ฟรี)** | **Shared M0 (ฟรี)** | **Community Cloud (ฟรี)** |
-| **งานแฟร์ขนาดเล็ก (100–1,000 คน)** | Pro ($20/เดือน) | Pro ($25/เดือน) | Shared M2/M5 (~$10/เดือน) | Cloud Boost (จ่ายตามนาทีใช้งาน) |
-| **งานแฟร์ระดับประเทศ (10,000+ คน)** | Pro / Enterprise | Pro + Compute Add-on (4–8 Core) | Dedicated M10+ | LiveKit Cloud Dedicated Egress |
+> Scale from measurements, not an assumed provider tier or advertised CCU. Vendor limits/prices are verified during procurement and load rehearsal, outside canonical requirements.
 
 ---
 
-## 4.2 วิธีทำให้ Phaser และ Supabase รองรับคนเดินพร้อมกัน 10,000 คน
+## 1. Capacity Model
 
-1. **ลดภาระ Realtime ด้วยการจำกัดโซน (Spatial Grid):**
-   - ในแผนที่ฮอลล์งานแฟร์ ไม่จำเป็นต้องส่งตำแหน่งของทุกคนให้ทุกคนเห็น
-   - ใช้ **Supabase Realtime Broadcast Channel** แยกตามโซนย่อย (เช่น `room:zone_a1`, `room:zone_central`) ทำให้ผู้เล่นส่งและรับเฉพาะตำแหน่งคนที่อยู่ใกล้เคียงเท่านั้น
+Record a target event profile before choosing infrastructure:
 
-2. **ระบบคิวที่ไม่มีวันพัง (Atomic Queue Locks):**
-   - เมื่อผู้สมัครกดเข้าคิวพร้อมกันหลายร้อยคน ให้ใช้ SQL Function บน Supabase ทำการเพิ่มคิวแบบ Atomic Transaction ป้องกันปัญหาคิวชนกัน
+| Dimension | Required estimate/evidence |
+|---|---|
+| registered / peak concurrent participants | arrival curve and reconnect spike |
+| world presence | zones, visible neighbors, movement update rate/payload |
+| queue | joins/minute, active tickets, Ready Checks/minute, recruiters/job |
+| interviews | concurrent rooms, duration, video/audio modes and TURN percentage |
+| resume processing | upload/parse jobs per minute, file size and retry rate |
+| realtime/notifications | subscribed streams, messages/sec and snapshot size |
+| operations | support/incident staffing and recovery objectives |
 
-3. **ใช้ On-Device Privacy เสมอ:**
-   - การประมวลผล Face Mask (MediaPipe) และ Voice DSP (Web Audio API) ทำงานบนเครื่องผู้ใช้ 100% ทำให้ **เซิร์ฟเวอร์ของคุณไม่ต้องรับภาระแปลงภาพหรือเสียงเลยแม้แต่เปอร์เซ็นต์เดียว** ไม่ว่าจะมีผู้ใช้ 10 คนหรือ 10,000 คน
+Demo fixtures and frontend render FPS are not evidence that a backend supports the same number of real users.
 
 ---
 
-## 4.3 Checklist ตรวจสอบความพร้อมก่อนเปิดงาน (Pre-Launch Checklist)
+## 2. Scaling Boundaries
 
-- [ ] เชื่อมต่อ Supabase URL และ Anon Key ครบถ้วน
-- [ ] รันคำสั่ง SQL สร้างตาราง `candidate_profiles`, `queue_tickets`, `decision_cases` ใน Supabase เรียบร้อย
-- [ ] ใส่ API Key ของ OpenAI / Gemini บน Vercel เรียบร้อย
-- [ ] ใส่ LiveKit URL และ Secret Key สำหรับห้องสัมภาษณ์ WebRTC เรียบร้อย
-- [ ] ทดสอบสร้างตัวละคร 8-bit และกดปุ่มสุ่มสไตล์ (Randomize) ทำงานถูกต้อง
-- [ ] ทดสอบเปิดกล้องในหน้า Preflight พบว่า Face Mask ขยับตามใบหน้าจริง และตัดภาพเมื่อหันหน้าหนี (Fail-Closed)
-- [ ] ทดสอบส่ง Private Decision แยก 2 จอ (ผู้สมัคร และ ผู้สัมภาษณ์) และเกิด Mutual Match เมื่อกดตรงกัน
+- Partition world presence by event/instance/zone and send interest-scoped neighbors; never broadcast all coordinates to all users.
+- Keep movement/presence ephemeral, but persist queue, interview, decision, reveal, event and support transitions in PostgreSQL.
+- Enforce one active queue and atomic recruiter claim with database constraints/transactions. Cache/Redis can schedule or fan out but is not the source of truth.
+- Use snapshot + sequence cursor + deduplication after reconnect; cap payload size and apply backpressure.
+- Process resume scanning/parsing asynchronously with bounded concurrency, quarantine and dead-letter/manual recovery.
+- Issue short-lived media tokens; scale SFU/TURN from measured concurrent rooms, bitrate and relay percentage.
+- Client-side media transformation reduces server compute for effects, but does **not** remove SFU/TURN bandwidth, token, state, monitoring or support capacity.
+- Load Phaser assets by event/zone chunks and cap visible actors/effects independently of actual event attendance.
+
+---
+
+## 3. Test Stages and Exit Evidence
+
+| Stage | Workload | Exit evidence |
+|---|---|---|
+| Functional | deterministic 3-role scenarios | AC-41..44 and adapter contract tests pass |
+| Component load | DB queue/decision/reveal, WebSocket fanout, worker, media separately | no invariant violation; latency/error/lag within approved SLO |
+| Event rehearsal | agreed peak + reconnect/arrival burst with synthetic tenants | stable queue ordering, session timers, ops visibility and support recovery |
+| Failure rehearsal | DB/cache/realtime/media/AI/worker outage | truthful degraded behavior, no fixture fallback/data leak, recovery objective met |
+| Soak | sustained event duration + cleanup/retention jobs | no memory/connection leak or unbounded backlog |
+
+Publish exact target CCU, SLO and cost only after the capacity profile is approved and tests provide evidence.
+
+---
+
+## 4. Pre-Launch Capacity Checklist
+
+- [ ] event capacity and admission controls are configured and visible to Operations
+- [ ] database constraints, indexes, pool limits, backups and restore rehearsal pass
+- [ ] queue join/claim/ready/requeue invariants pass under concurrent load
+- [ ] WebSocket sequence/resync and notification deduplication pass reconnect storms
+- [ ] resume worker has quarantine, retry limits, dead-letter/manual route and lag alert
+- [ ] media browser matrix, SFU/TURN capacity and fail-closed fallback are measured
+- [ ] Decision/Reveal privacy and requester-first subset authorization pass concurrency tests
+- [ ] provider quotas/rate limits/billing alerts and named escalation owners are recorded
+- [ ] Organizer/Support dashboard reports sanitized health and can pause/resume safely
+- [ ] rollback, incident communication and synthetic rehearsal data purge are complete
+
+See [Performance & Reliability](../06-engineering-and-qa/performance-and-reliability.md) for SLO ownership and [Production Deployment Guide](./production-deployment-guide.md) for promotion/rollback.

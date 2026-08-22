@@ -77,7 +77,14 @@ Booth, counter, kiosk, prop, player และ NPC ไม่อยู่ใน Co
 | `MediaControlDock` | mic/camera/avatar/caption/leave controls |
 | `PrivacyStatusBar` | mask/recording/transcription status |
 | `DecisionCard` | private interested/pass submit |
-| `RevealFieldPicker` | independent consent per contact field |
+| `RevealRequestComposer` | Recruiter selects fields, purpose and expiry after Mutual Match; postal address never default |
+| `RevealFieldPicker` | Candidate sees requester/purpose and grants subset/all or denies |
+| `CompanyEditor` | company/job/JD/salary/rubric draft, validation and version conflict |
+| `ShowcaseEditor` | provenance-aware item add/order/moderation state |
+| `PublicationPanel` | Preview/Validate/Publish/Pause/Unpublish aggregate version |
+| `RecruiterQueueBoard` | scoped masked queue, availability and atomic claim feedback |
+| `IntegrationHealthList` | sanitized dependency status and degraded action; never secret values |
+| `SupportTicketPanel` | create/assign/update/resolve with pseudonymous context |
 | `SupportEntry` | support/report/emergency leave path |
 
 ---

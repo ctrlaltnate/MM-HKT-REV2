@@ -17,7 +17,7 @@
   3. สำรวจบูธผ่าน Interactive World หรือ Navigator
   4. เข้าคิวสัมภาษณ์และรับ Ready Check
   5. สัมภาษณ์แบบ Speed Interview 10–15 นาทีพร้อม Privacy Fallback (Avatar-only)
-  6. ส่งผลการตัดสินใจส่วนตัวและเลือกเปิดเผยข้อมูล (Consent-based Reveal)
+  6. ส่งผลการตัดสินใจส่วนตัว ตรวจคำขอ field จาก Recruiter และ grant บางส่วน/ทั้งหมดหรือ deny
 
 ### B. Recruiter / Interviewer
 - **Goals & Needs:**
@@ -30,7 +30,7 @@
   2. ดู Masked Profile และ Evidence-based Match Explanation
   3. สัมภาษณ์ผู้สมัครและจดบันทึก Rubric ส่วนตัว
   4. ส่งผลการตัดสินใจแบบ Private
-  5. รับข้อมูลติดต่อของผู้สมัครเมื่อเกิด Mutual Match และ Candidate ยินยอม
+  5. หลัง Mutual Match ส่ง `RevealRequest` ระบุ field + purpose แล้วรับเฉพาะข้อมูลที่ Candidate grant
 
 ### C. Company Admin
 - **Goals & Needs:**
@@ -66,9 +66,9 @@
 | Role | Demo capability | Must not see / do |
 |---|---|---|
 | **Candidate** | Onboarding, profile review, world/list, queue, interview, decision, reveal consent | Recruiter rubric ส่วนตัว, decision ของอีกฝ่าย, ข้อมูล candidate คนอื่น |
-| **Recruiter** | Availability, assigned job, queue/session, masked profile, interview, private decision | PII ก่อน reveal, raw resume, integrity timeline, candidate decision ก่อนปิดผล |
-| **Organizer** | Event health และ pause/resume ใน optional admin demo | เปิด PII หรือแก้ decision |
-| **Demo Controller** | Reset scenario, select preset (Happy, No match, Media denied, Queue timeout, Offline) และ speed dispatch | ปรากฏเป็น production role หรืออยู่ใน navigation ของผู้ใช้จริง |
+| **Recruiter/Company** | Company/job/booth/showcase publication, availability, queue/session, masked profile, interview, private decision, reveal request/follow-up | PII ก่อน grant, raw resume, integrity timeline, candidate decision ก่อนปิดผล |
+| **Organizer/Support** | Aggregate event/integration health, pause/resume/broadcast, moderation and support recovery | เปิด PII/private decision โดยไม่มี scoped break-glass หรือแก้ decision |
+| **Demo Controller** | Reset scenario, select deterministic preset and speed scenario clock | ปรากฏเป็น production role, อยู่ใน navigation ผู้ใช้จริง หรือแก้ private state ผ่าน role UI |
 
 ---
 
@@ -94,51 +94,50 @@
 
 ---
 
-## 3.4 Multi-Role Demo Login & 3 Production Workspaces (ทำงานได้จริงครบ 3 บทบาท)
+## 3.4 Target Multi-Role Demo and Three Production Workspaces
 
-เพื่อความสะดวกในการทดสอบ นำเสนอ และใช้งานจริง ระบบมี **Multi-Role One-Click Demo Login Bar** ที่หน้าแรก (`/` หรือ `/auth/sign-in`) ให้สามารถสลับเข้าใช้งานได้ทันทีใน 3 บทบาทหลักที่ **ทำงานได้จริง 100% (Fully Functional & Operable)**:
+ส่วนนี้คือ completion target ตาม AC-41..44 ไม่ใช่คำกล่าวอ้างสถานะปัจจุบัน Demo ใช้ synthetic role entry และ shared scenario; connected mode ใช้ authentication/capability จริงผ่าน backend โดยหน้าจอและ canonical state เหมือนกัน ดูสถานะจริงที่ [Information Architecture](../03-design/information-architecture.md#f-r0-website-implementation-status-22-august-2026)
 
 ```mermaid
 flowchart TD
     DEMO_BAR["Multi-Role Demo Login Bar (1-Click Switcher)"]
     
-    DEMO_BAR -->|"1. เข้าเป็น Candidate"| JOBSEEKER["🟢 Jobseeker Workspace (/event/demo)\n• ยืนยันตัวตนแบบ ThaID\n• อัปโหลด Resume & ให้ AI สกัดทักษะ\n• แต่งตัวละคร 8-bit (The Sims Studio)\n• เดินใน Career Hall หรือใช้ Navigator\n• เข้าคิวสด & รับแจ้งเตือน Ready Check\n• ห้องสัมภาษณ์กล้องครอบหน้ากาก + ดัดเสียง\n• ส่ง Private Decision & เลือกแชร์ข้อมูล"]
+    DEMO_BAR -->|"1. เข้าเป็น Candidate"| JOBSEEKER["Job Seeker Workspace (/event/demo)\nMock verify + consent\nCV sample/upload/manual + masked review\nCharacter Studio + Hall/Navigator\nSingle queue + interview preflight\nPrivate decision\nReview recruiter request + grant subset"]
 
-    DEMO_BAR -->|"2. เข้าเป็น Recruiter"| RECRUITER["🟣 Recruiter Workspace (/recruiter/dashboard)\n• เลือกบูธ Cyber Orchard & ตำแหน่งงาน\n• สลับสถานะความพร้อม (Online / Break)\n• ดูคิวผู้สมัครสดแบบ Real-time\n• กด [เรียกคิวคนถัดไป] สัมภาษณ์สด\n• ให้คะแนน Rubric ระหว่างคุยวิดีโอคอลล์\n• ส่งผลการตัดสินใจ Private Decision\n• ตรวจสอบ Pipeline ผู้สมัครที่ Match แล้ว"]
+    DEMO_BAR -->|"2. เข้าเป็น Recruiter/Company"| RECRUITER["Recruiter/Company Workspace\nCompany + job/JD/salary/rubric\nBooth/showcase validate + publish\nAvailability + atomic queue claim\nInterview + private decision\nReveal request + follow-up"]
 
-    DEMO_BAR -->|"3. เข้าเป็น Admin"| ADMIN["🔵 Website Admin Workspace (/ops/dashboard)\n• ติดตามสถิติงวดสด (Live CCU & Queues)\n• จัดการเปิด/ปิดบูธ และแก้ไขตำแหน่งงาน\n• สั่ง Pause / Resume งานเมื่อฉุกเฉิน\n• ส่งข้อความประกาศด่วน (Live Broadcast)\n• ตรวจสอบรายงานปัญหา (User Reports)\n• ดูบันทึกความปลอดภัย (Audit Log Viewer)"]
+    DEMO_BAR -->|"3. เข้าเป็น Organizer/Support"| ADMIN["Organizer/Support Workspace\nAggregate event/queue/interview health\nSanitized integration health\nPause/resume/broadcast\nCompany moderation\nSupport/incident recovery + audit"]
 ```
 
 ### 1. ฝั่งผู้สมัครงาน (Jobseeker / Candidate Workspace)
-- **1-Click Demo Login:** เข้าเป็น `Candidate #8F3A` ได้ทันที (หรือล็อกอินด้วย Supabase Auth)
-- **ฟังก์ชันทำงานจริง:**
-  1. ยืนยันตัวตนผ่าน ThaID (พร้อมป้าย DEMO)
+- **Demo Login:** เข้าเป็น synthetic `Candidate #8F3A`; connected mode ใช้ identity adapter ที่ได้รับอนุมัติ
+- **Completion flow:**
+  1. Mock Verify ที่ไม่อ้างว่าเชื่อม ThaID จริง หรือ connected verification ตาม provider/policy
   2. นำเข้า Resume ให้ AI สกัดทักษะ พร้อมหน้าจอ Side-by-Side Review
   3. สตูดิโอสร้างตัวละคร 8-Bit (สุ่มเสื้อผ้า ทรงผม สีผิว หน้ากากสัตว์)
   4. เดินในฮอลล์งานแฟร์ Phaser 4 หรือเปิดโหมดรายการ Navigator
   5. ดูรายละเอียดบูธและคะแนนความตรงกัน 0–100 พร้อมคำอธิบาย AI
   6. กดเข้าคิวสัมภาษณ์สด และรับการแจ้งเตือน Ready Check (60s)
-  7. เข้าห้องสัมภาษณ์ LiveKit WebRTC เปิดกล้องจริง ครอบหน้ากาก และดัดเสียง
-  8. ส่งผลการตัดสินใจส่วนตัว และเลือกฟิลด์ข้อมูลติดต่อที่จะเปิดเผย
+  7. ผ่าน Media Preflight แล้วใช้ provider จริงหรือ fallback ที่ติดป้ายตาม health/capability
+  8. ส่งผลส่วนตัว รอผลทันทีเมื่อครบสองฝ่าย แล้วตอบ `RevealRequest` เป็นราย field
 
 ### 2. ฝั่งผู้สัมภาษณ์และบริษัท (Recruiter Workspace)
-- **1-Click Demo Login:** เข้าเป็น `Recruiter #R12` (Cyber Orchard Co.) ได้ทันที
-- **ฟังก์ชันทำงานจริง:**
-  1. สลับสถานะความพร้อมรับคิว (`พร้อมรับคิว`, `กำลังสัมภาษณ์`, `พัก`, `ออฟไลน์`)
-  2. หน้าจอ Live Queue Board แสดงรายชื่อผู้สมัครที่กำลังรอคิวแบบ Real-time
-  3. ปุ่ม **`[เรียกผู้สมัครคนถัดไป]`** ส่งสัญญาณ Ready Check ไปยังผู้สมัครทันที
-  4. เข้าห้องสัมภาษณ์ร่วมกับ Candidate ใน WebRTC Room เดียวกัน
-  5. แผงประเมินรูบริก (Structured Rubric) และบันทึกโน้ตส่วนตัว
-  6. ส่งผลการตัดสินใจส่วนตัว (Private Decision)
-  7. ดูรายชื่อผู้สมัครที่เกิด Mutual Match พร้อมข้อมูลติดต่อที่ได้รับอนุญาตแล้ว
+- **Demo Login:** เข้าเป็น synthetic `Recruiter #R12`; connected mode ตรวจ organization role จาก server
+- **Completion flow:**
+  1. กรอก company, job/JD/salary/rubric, booth และ showcase แล้ว Draft/Preview/Validate/Publish
+  2. สลับสถานะ `AVAILABLE`, `BUSY`, `BREAK`, `OFFLINE`
+  3. Live Queue Board แสดง alias/job/wait/masked summary และ claim แบบ atomic
+  4. เข้าห้องเดียวกับ Candidate ผ่าน configured media mode และใช้ rubric ส่วนตัว
+  5. ส่ง Private Decision โดยไม่เห็นคำตอบ Candidate ล่วงหน้า
+  6. หลัง Mutual Match ส่ง field request + purpose (default name/email/phone/resume)
+  7. ดูเฉพาะ subset ที่ Candidate grant และส่ง follow-up
 
 ### 3. ฝั่งผู้ดูแลระบบและผู้จัดงาน (Website Admin & Operations Workspace)
-- **1-Click Demo Login:** เข้าเป็น `Event Lead / System Admin` ได้ทันที
-- **ฟังก์ชันทำงานจริง:**
+- **Demo Login:** เข้าเป็น synthetic `Event Lead / Support`; connected mode ใช้ scoped operations role
+- **Completion flow:**
   1. **Live Event Operations Dashboard:** ตรวจสอบผู้ใช้งานออนไลน์สด (CCU), ปริมาณคิวสะสม, สถานะเซิร์ฟเวอร์ และสถิติการเกิด Mutual Match
-  2. **Booth & Job Manager:** เปิด/ปิดบูธ, แก้ไขรายละเอียดงาน, สลับตำแหน่งบูธในแผนที่ 2D
+  2. **Company Moderation:** ตรวจ verification/publication/provenance และ pause invalid content; Company Admin เป็นผู้แก้รายละเอียด
   3. **Emergency Controls:** สั่ง **Pause / Resume Event** หรือระงับการรับคิวชั่วคราว
   4. **Live Broadcast Banner:** ส่งข้อความประกาศด่วนแจ้งเตือนทุกคนในงานแบบ Real-time
   5. **Moderation & Incident Desk:** ตรวจสอบข้อร้องเรียน รายงานปัญหา และระงับผู้ใช้ที่ทำผิดกฎ
-  6. **Security & Audit Viewer:** ตรวจสอบ Log การเปิดเผยข้อมูลและการเข้าถึงระบบ (Tamper-evident Audit)
-
+  6. **Support & Maintenance:** assign/resolve ticket, ดู sanitized integration/worker health และตรวจ audited action โดยไม่มี PII/private decision เป็นค่าเริ่มต้น

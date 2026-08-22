@@ -22,7 +22,10 @@
 | **Network Reconnect** | `การเชื่อมต่อขาดชั่วคราว กำลังนำสถานะล่าสุดกลับมา` | `Connection lost. Restoring your session...` |
 | **Ready Timeout** | `หมดเวลาตอบรับครั้งนี้ คุณเข้าคิวใหม่ได้โดยไม่ถูกลงโทษ` | `Ready check expired. You can requeue without penalty.` |
 | **No Match Result** | `ครั้งนี้ยังไม่มีขั้นตอนต่อ ข้อมูลติดต่อของคุณยังไม่ถูกเปิดเผย` | `No mutual match this time. Your contact remains private.` |
+| **Mutual Match / No PII Yet** | `สนใจตรงกันแล้ว ข้อมูลติดต่อยังไม่ถูกเปิดเผย รอคำขอจากบริษัท` | `It's a mutual match. Your contact is still private while the company prepares a request.` |
+| **Recruiter Field Request** | `บริษัทขอข้อมูลต่อไปนี้เพื่อดำเนินการขั้นถัดไป คุณเลือกแชร์เพียงบางรายการหรือไม่แชร์ก็ได้` | `The company requested these fields for the next step. You may share some or none.` |
 | **Consented Reveal** | `แชร์เฉพาะข้อมูลที่คุณเลือก บริษัทจะไม่เห็นข้อมูลอื่น` | `Only your selected fields will be shared with the employer.` |
+| **Connected Service Down** | `บริการนี้เชื่อมต่อไม่ได้ในขณะนี้ ข้อมูลสาธิตจะไม่ถูกนำมาแทนข้อมูลจริง` | `This service is unavailable. Demo data will not replace connected data.` |
 
 ---
 

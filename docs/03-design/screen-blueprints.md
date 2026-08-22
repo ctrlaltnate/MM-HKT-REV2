@@ -20,8 +20,8 @@
 | **SC-10** | Interview Preflight (Real Cam & Voice DSP) | Candidate & Recruiter | `/app/interviews/:id/preflight` |
 | **SC-11** | Private Speed Interview (Realtime Face Mask) | Candidate & Recruiter | `/app/interviews/:id` |
 | **SC-12** | Private Decision | Candidate & Recruiter | `/app/interviews/:id/decision` |
-| **SC-13** | Result Summary | Candidate & Recruiter | `/app/matches/:id/result` |
-| **SC-14** | Field-level Reveal Consent | Candidate | `/matches/:id/reveal` |
+| **SC-13** | Result Summary | Candidate & Recruiter | `/app/matches/:matchId/result` |
+| **SC-14** | Field-level Reveal Consent | Candidate | `/app/matches/:matchId/reveal` |
 | **SC-15** | Recruiter Dashboard | Recruiter | `/recruiter/demo/dashboard` |
 | **SC-16** | Organizer Live Operations | Event Organizer | `/ops/events/:id/live` |
 | **SC-17** | Demo Controller | Demo Presenter | `/demo/control` |

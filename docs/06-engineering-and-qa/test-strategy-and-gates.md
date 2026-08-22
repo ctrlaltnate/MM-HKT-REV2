@@ -56,7 +56,7 @@
 - [ ] Booth variant library ผ่านจำนวนขั้นต่ำ, booth ติดกันไม่ใช้ combination เดียวกัน และ collider/sensor/depth ตรงกับ entity
 - [ ] Directional prop ผ่าน N/E/S/W หรือมี radial-symmetry waiver; ไม่มี one-view runtime rotate/flip ทดแทนมุมที่ขาด
 - [ ] Floor/road/aisle/wall test map ผ่าน straight/turn/corner/T/cross/end/transition/opening โดยไม่มี seam หรือ collider ปิดช่องเปิด
-- [ ] Booth partition test ประกอบ straight/L/U/shared-wall จาก left/center/right modules ได้ และประตู/ช่องเปิดซ้าย–กลาง–ขวารวม accessible opening เดินผ่านได้โดยไม่มี collider ซ้อน
+- [ ] Booth partition gate: automated geometry tests ของ straight/L/U/shared-wall, L-corner alignment, owner sharing และ segmented opening collider ผ่านแล้ว; ยังต้องเก็บ Chrome visual traversal ของประตูซ้าย–กลาง–ขวาและ wide accessible opening ก่อนปิด gate
 - [ ] Palette-slot test เปลี่ยน skin/hair/top/bottom/shoes/material/accent แยกกัน และ prefab อย่างน้อย 3 layouts rearrange ได้โดยไม่ redraw
 - [ ] มี runtime evidence ของ World ที่ 390 และ 1440 px พร้อม collision/depth interaction ไม่ใช่เฉพาะภาพ concept
 - [ ] ไม่มีข้อมูล PII บุคคลจริง, ชื่อบริษัทจริง, หรือ Asset ที่ละเมิดลิขสิทธิ์

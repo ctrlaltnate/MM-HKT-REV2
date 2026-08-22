@@ -564,7 +564,7 @@ Screenshot สวยหนึ่งภาพไม่ถือว่าผ่า
 | Modular avatar source v2 | Base 4×3, hair 5×4, top 4×4, lower/shoes/accessory 10×4 generated as RGBA source sheets | normalize anchors, author per-step overlays, palette map และ pack compositor atlases |
 | NPC actors | 12 synthetic NPC ใช้ seeded `AvatarAppearance` + shared player compositor; legacy full-body atlas ไม่ถูกโหลดใน current World | เพิ่ม directional movement schedules และ seed/combination browser evidence |
 | Runtime shadow layer | Implemented owner-linked layer สำหรับ player, NPC, partition และหลัก props | เพิ่ม state-responsive shadow profile และ debug toggle ตาม 6.4 |
-| Booth partition compositor | U-shaped booth ใช้ left/center/right, glass, authored left/right side returns, door-left/center/right และ wide-opening modules พร้อม segmented colliders; layout model รองรับ ownerIds สองบูธสำหรับ shared wall | เพิ่ม L/corner/join, adjacent-booth demo layout, low-divider/material variants และ runtime doorway traversal evidence |
+| Booth partition compositor | continuous L-corner/side-return ใช้ left/center/right, glass, door-left/center/right และ wide-opening พร้อม segmented colliders; A1/A2 วางติดกันและใช้ shared wall/collider ชุดเดียวที่มี ownerIds สองบูธ | เพิ่ม low-divider/material variants และ Chrome runtime doorway traversal/collider screenshot evidence |
 | Collision/Y-depth | Implemented vertical slice | เพิ่ม automated collider/depth evidence scene |
 | Browser visual QA | Pending browser session | เก็บ 390/1440 screenshots และ interaction evidence |
 | Streamed/endless module | Not implemented | ห้ามอ้างว่า endless จนมี wrap/stream + navigation continuity |

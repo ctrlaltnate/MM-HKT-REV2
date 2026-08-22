@@ -64,6 +64,16 @@ uncertain_reasons:
   - ยังไม่มีหลักฐานทักษะ Observability ใน Profile
 ```
 
+### Browser-visible role fixtures
+
+| Role | Demo route | Local state | Working R0 actions |
+|---|---|---|---|
+| Job seeker | `/event/demo` → `/event/demo/world` | `maskedmatch.demo.journey.v1`, `maskedmatch.avatar` | verify, profile, avatar, world, booth/Navigator, one active queue chip |
+| Recruiter/company | `/recruiter/demo` | `maskedmatch.demo.recruiter.v1` | edit/publish company and job, call synthetic queue, media readiness, decide, select/send field request |
+| Operations/support | `/operations/demo` | component-local deterministic fixture | inspect health, open/resolve support tickets, jump to Recruiter or World |
+
+ทุกหน้าต้องติดป้าย local/demo adapter และบอก API boundary อย่างชัดเจน ห้ามแสดง `CONNECTED` สำหรับ media, backend หรือ production monitoring ที่ยังไม่ได้ต่อจริง
+
 ---
 
 ## 2. Runtime Asset Source of Truth
@@ -75,7 +85,8 @@ uncertain_reasons:
 | `world.hall.v1` | `packages/assets/game/world/neon-career-hall-v1.png` | Reference only | archived composition study; ห้ามโหลดเป็น flat world |
 | `world.hall.study.v2` | `packages/assets/game/world/neon-career-hall-v2.png` | Reference only | brightness/readability study; ห้ามโหลดเป็น flat world |
 | `world.floor.atlas.v1` | `packages/assets/game/generated/mm-career-floor-v1.png` | Runtime | floor surfaces เท่านั้น |
-| `world.props.atlas.v1` | `packages/assets/game/generated/mm-career-props-v1.png` | Runtime | modular prop atlas; solid instance ต้องมี owner-linked collider |
+| `world.props.atlas.v1` | `packages/assets/game/generated/mm-career-props-v1.png` | Legacy only | retained for provenance; current Career Hall does not load it |
+| `world.environment.parts.runtime.v2` | `packages/assets/game/generated/mm-topfront-environment-parts-runtime-v2.png` | Runtime | normalized 384×384 no-shadow atlas; Phaser owns shadow/collider |
 | `world.npcs.atlas.v1` | `packages/assets/game/generated/mm-career-npcs-v1.png` | Legacy retained / unused by current World | prebuilt synthetic NPC atlas; current NPC runtime ใช้ shared avatar compositor แล้ว |
 | `world.environment.parts.source.v2` | `packages/assets/game/generated/mm-topfront-environment-parts-source-v2.png` | Source only | 12 no-shadow top-front environment parts; RGBA จริง |
 | `avatar.base.turnaround.source.v2` | `packages/assets/game/generated/mm-avatar-base-turnaround-source-v2.png` | Source only | base body 4 directions × 3 poses; neutral underlayer; no shadow |
@@ -139,7 +150,7 @@ Provenance record ระดับไฟล์ใน `packages/assets/manifest.js
 | Directional NPC | Shared seeded compositor implemented; ยังต้องเพิ่ม movement schedule, generated-source atlas normalization และ browser evidence |
 | Runtime shadow | Owner-linked Phaser shadow layer implemented สำหรับ actor/partition/หลัก props; ยังต้องเพิ่ม debug toggle และ state profiles ตาม `FR-WORLD-037` |
 | Floor/road/wall tiles | สร้าง reusable autotile families ครบ topology, transition, opening และ collision metadata ตาม `FR-WORLD-038` |
-| Booth partition kit | U-shaped left/center/right + authored side returns + glass + door left/center/right + wide-opening พร้อม segmented colliders และ multi-owner shared-wall model implemented; เพิ่ม adjacent-booth demo, L/corners/joins และ low-divider/material variants |
+| Booth partition kit | continuous L-corner/side-return + glass + door left/center/right + wide-opening พร้อม segmented colliders; A1/A2 เป็น adjacent demo ใช้ shared wall/collider ที่มี owner สองบูธ | เพิ่ม low-divider/material variants และ Chrome doorway traversal evidence |
 | Recolor/rearrange | เพิ่ม semantic palette slots, anchors, occlusion parts และ prefab metadata ตาม `FR-WORLD-039` |
 | Evidence | เพิ่ม camera lineup, collider/depth capture และ screenshots ที่ 390/1440 px |
 

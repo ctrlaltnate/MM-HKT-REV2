@@ -4,16 +4,16 @@
 
 ## 1.0 Current Phase — R0 Implementation Started
 
-**สถานะ ณ 22 สิงหาคม 2026: Website foundation, Candidate Preparation และ World vertical slice implemented**
+**สถานะ ณ 23 สิงหาคม 2026: Website foundation, Candidate Preparation และ World vertical slice implemented; three-role executable flow remains target work**
 
 - scaffold `apps/web` (React DOM) และ `apps/game` (Phaser 4.2.1) เป็นคนละ workspace แล้ว
 - มี Product Landing, Event Landing, Mock Verify/Consent, Profile Import/Masked Review, Character Setup, legal/status/404 และ route journey ที่ resume/reset ผ่าน local demo state ได้
 - มี Career Hall 1 ฉาก, 4 synthetic booths, NPC crowd, player movement, collision, proximity interaction, DOM booth detail, queue fixture และ Navigator parity ขั้นต้น
 - Generated V2 source sheets มี environment parts และ avatar base/hair/top/bottom/shoes/accessory แบบ RGBA/no-shadow แล้ว แต่ยังต้อง normalize/pack และยังไม่ถูกใช้เป็น runtime atlas
-- Game runtime แยก top/bottom/shoes และใช้ shared seeded player/NPC compositor พร้อม owner-linked shadows, U-shaped side-return partition และ multi-owner shared-wall model แล้ว; visual gate ยังไม่ครบเพราะ generated source atlas normalization, adjacent-booth/L/corner-join demo, complete autotiles/prop orientations, booth variant library, shadow debug toggle และ browser collision/depth evidence ยัง pending จึงห้ามเรียก World ว่า Done
+- Game runtime แยก top/bottom/shoes และใช้ shared seeded player/NPC compositor พร้อม owner-linked shadows; environment V2 ถูก normalize เป็น 384×384 no-shadow runtime atlas แล้ว; partition มี continuous L-corner/side returns และ A1/A2 เป็น adjacent-booth demo ที่ใช้ shared wall/collider owner สองบูธจริง; visual gate ยังไม่ครบเพราะ character source atlas normalization, complete autotiles/prop orientations, booth variant library, shadow debug toggle และ Chrome doorway/collision/depth evidence ยัง pending จึงห้ามเรียก World ว่า Done
 - Web–Game ติดต่อผ่าน versioned typed contract ใน `packages/contracts`; domain fixtures และ runtime asset แยก package
 - ผ่าน typecheck, unit test และ production build; Browser visual QA ยังต้องทำซ้ำเมื่อ browser control พร้อม
-- backend, database, production authentication, realtime multiplayer, durable queue, interview media, decision/reveal, recruiter/ops portal และ deployment pipeline ยังไม่เริ่ม และห้ามแสดงว่าเป็นของจริง
+- backend, database, production authentication, realtime multiplayer, durable queue, interview media, decision/reveal, Recruiter/Company, Organizer/Support และ deployment pipeline ยังไม่เริ่ม และห้ามแสดงว่าเป็นของจริง
 
 ## 1.1 Release Strategy Overview
 
@@ -43,10 +43,12 @@
 - **Explainable Skill Match:** สูตรคำนวณคะแนนตามหลักฐาน (Deterministic Match Rule) พร้อมเหตุผล 3–5 ข้อจาก Evidence
 - **Queue Management:** 1 Active Queue ต่อ Candidate, Position/ETA, Ready Check Alert Dialog และ Refresh Recovery
 - **Interview Sandbox:** สัมภาษณ์แบบ 2 บทบาท (Candidate & Recruiter) หรือ Media Sandbox พร้อม Timer, Control Dock, Avatar-only Fallback
-- **Private Decision & Consent-based Reveal:** ส่งผลแยกสองฝ่าย, ไม่เปิดเผยว่าใคร Pass, และเลือก Field ข้อมูลติดต่อหลัง Mutual Match
-- **Recruiter Dashboard:** หน้าสำหรับรับคิว, ตรวจสอบ Masked Profile, และส่งผลการตัดสินใจ
+- **Private Decision & Requester-first Reveal:** ส่งผลแยกสองฝ่าย, resolve ทันทีเมื่อครบ, ไม่เปิดเผยว่าใคร Pass; หลัง Mutual Match Recruiter ขอ field + purpose ก่อน แล้ว Candidate grant subset/deny
+- **Recruiter/Company Workspace:** กรอก company, job/JD/salary/rubric, booth/showcase, preview/validate/publish, รับคิว, ตรวจ Masked Profile, interview, decision, reveal request และ follow-up
+- **Organizer/Support Workspace:** event/queue/interview/integration overview, pause/resume/broadcast, company moderation และ support ticket recovery ด้วย scoped aggregate data
 - **State Recovery & Error Handling:** รองรับ Refresh ระหว่างรอคิว, Ready Check Timeout, Media Denied และ Network Reconnect
-- **Demo Controller:** สำหรับ Reset ข้อมูล และสลับ Scenario Presets (Happy match, No match, Media denied, Queue timeout, Offline recovery)
+- **Shared Three-role Demo:** Candidate, Recruiter และ Ops tabs ใช้ `DemoScenarioStore` เดียวกันและ flow ทุก action ผ่าน adapter/canonical state
+- **Demo Controller:** สำหรับ Reset ข้อมูล และสลับ Scenario Presets (Happy match, No match, Media denied, Queue timeout, Offline recovery, Reveal partial grant, Publication invalid)
 - **Accessibility & Motion:** รองรับ Keyboard Core Flow, Reduced Motion และ Color Contrast AA
 
 ### R0 Must Not Pretend to Ship (ข้อห้ามสำหรับการสาธิต):

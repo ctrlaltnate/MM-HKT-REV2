@@ -21,7 +21,11 @@
 | Route Path | Screen Title & Purpose |
 |---|---|
 | `/app/onboarding` | Identity Verification, Consent & Resume Upload |
+| `/candidate/profile/import` | CV sample/upload/manual entry and processing start |
+| `/candidate/profile/processing/:resumeId` | Recoverable scan/parse/redaction progress |
+| `/candidate/profile/review` | Masked Profile comparison, correction and approval |
 | `/app/avatar` | Avatar Customization & World Controls Tutorial |
+| `/candidate/avatar` | Current/demo alias for Character Studio; converge to `/app/avatar` before production |
 | `/app/events/:eventId/world` | Interactive 2D Neon Career Hall World |
 | `/app/events/:eventId/navigator` | Accessible Semantic List / Search Mode |
 | `/app/booths/:boothId` | Company Overview, Tech Stack & Active Jobs |
@@ -30,6 +34,7 @@
 | `/app/interviews/:sessionId/preflight` | Device, Mask, and Network Preflight Check |
 | `/app/interviews/:sessionId` | 1:1 Private Speed Interview Room |
 | `/app/interviews/:sessionId/decision` | Private Post-interview Decision Submission |
+| `/app/matches/:matchId/result` | Immediate resolved Mutual Match/No Match summary |
 | `/app/matches` | Mutual Matches, Consented Reveal & Next Steps |
 | `/app/matches/:matchId/reveal` | Review Recruiter field request, grant subset or deny |
 | `/app/settings/privacy` | Consent Management, Reveal Grants & Data Deletion |

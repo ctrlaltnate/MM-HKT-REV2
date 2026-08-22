@@ -54,11 +54,11 @@ Current frontend เป็นภาพพิสูจน์แนวทาง �
 |---|---|---|
 | Website | Product Landing, Event Landing, candidate preparation, legal/status/404 และ local resume/reset journey มีแล้ว | backend/auth/production state |
 | Game boundary | `apps/web` และ `apps/game` แยก workspace; Phaser `4.2.1` | full production integration |
-| Career Hall | plain floor, entity props, 4 booths, movement/collision, basic interactions, Navigator bridge และ U-shaped partition compositor ที่มี left/center/right, authored side returns, door left/center/right, wide opening และ shared-owner layout model | L/corner joins, adjacent-booth shared-wall demo, all-angle prop kit, complete floor/road/wall autotiles, variant library และ full browser evidence |
+| Career Hall | plain floor, V2 no-shadow runtime props, 4 booths, movement/collision, Navigator bridge, continuous L-corner/side returns, door left/center/right, wide opening และบูธ A1/A2 ที่ติดกันด้วย shared wall/collider owner เดียวสองบูธ | all-angle prop kit, complete floor/road/wall autotiles, larger variant library และ Chrome visual/doorway traversal evidence |
 | Avatar source v2 | RGBA base 4×3, hair 5×4, top 4×4, lower/shoes/accessory 10×4 generated | crop/register/per-step alignment/palette masks และ runtime atlas ยังไม่เสร็จ |
 | Actor/NPC runtime | player และ NPC ใช้ shared 4-direction × 3-frame Dynamic Texture compositor; NPC appearance เป็น seeded layers; skin/hair/top/bottom/shoes/accessory แยกเปลี่ยนได้; runtime shadow แยก owner | normalize generated source atlases, NPC movement behavior, shadow debug toggle และ combinatorial browser evidence |
 | Product loop | discovery/queue fixture บางส่วน | AC-41..44: complete Job Seeker, Recruiter/Company, Organizer/Support, shared demo state, interview, requester-first reveal และ connected adapters |
-| Visual QA | reference/provenance และ local runtime assets มีแล้ว | 390/1440 interaction captures, camera lineup, collider/depth evidence |
+| Visual QA | reference/provenance, normalized environment V2 atlas และ geometry/unit evidence มีแล้ว | Chrome extension connection, 390/1440 interaction captures, doorway traversal, camera lineup และ collider/depth screenshots |
 
 ห้ามเรียก concept, fixture, mock, planned service หรือ static screenshot ว่า production implementation
 

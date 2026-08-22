@@ -18,14 +18,14 @@ flowchart LR
     A["1. Verify & Prepare\n(Mock ThaID + Masked Profile)"] --> B["2. Explore\n(Neon Career Hall / Navigator)"]
     B --> C["3. Queue & Interview\n(Atomic Queue + Speed Interview)"]
     C --> D["4. Private Decision\n(Double-blind Choice)"]
-    D --> E["5. Mutual Reveal\n(Consented Field-Level Reveal)"]
+    D --> E["5. Request and Consent\n(Recruiter asks; Candidate grants fields)"]
 ```
 
 1. **Verify & Prepare / Pre-event Quick Assessment** — ยืนยันบัญชี, อัปโหลด Resume/Portfolio, ให้ AI preprocess, ตรวจผล anonymization และเลือก avatar
 2. **Explore** — เข้าสู่ Neon Career Hall ที่มีบูธ/NPC/props แบบ interactive, ค้นหาบูธด้วย map/list/search และดูคำแนะนำจากทักษะ
 3. **Queue & Interview** — เข้าคิวแบบ server-authoritative, ยืนยัน ready check และเข้าสัมภาษณ์ 10–15 นาที
 4. **Private Decision** — ผู้สมัครและ recruiter ตัดสินใจอย่างอิสระ โดยไม่เห็นคำตอบอีกฝ่าย
-5. **Mutual Reveal** — เมื่อทั้งสองฝ่ายสนใจตรงกันและยืนยัน consent จึงเปิดเผยข้อมูลที่เลือกและเข้าสู่ hiring pipeline
+5. **Request and Consent** — เมื่อทั้งสองฝ่ายสนใจตรงกัน Recruiter ระบุ field + purpose ที่ต้องการก่อน Candidate grant บางส่วน/ทั้งหมดหรือ deny แล้วจึงเข้าสู่ follow-up pipeline
 
 ---
 
