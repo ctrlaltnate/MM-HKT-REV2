@@ -106,7 +106,12 @@ Score (0–100):
 | **FR-WORLD-018** | R0 | Generated/third-party world asset ทุกไฟล์ต้องมี provenance/allowed-use record และห้ามคัดลอก asset/trade dress จากภาพอ้างอิง |
 | **FR-WORLD-019** | R0 | **Strict No-Emoji Policy:** ทุก Element ประกอบฉาก, พร็อพ, บูธ, ตัวละคร NPC, และ Web UI Icons ต้องเป็น **Generated Pixel Art / SVG Assets** ทั้งหมด ห้ามใช้อิโมจิ |
 | **FR-WORLD-020** | R0 | **Realistic Booth Showcase:** ดีไซน์การเยี่ยมชมบูธต้องมีองค์ประกอบเสมือนจริง: เคาน์เตอร์ต้อนรับ, จอแสดง Tech Stack, สถานะคิวสด, และจุดประจำของ Recruiter |
-| **FR-WORLD-021** | R0 | **8-Bit Character Studio (The Sims Customizer):** รองรับการเลือก/ปรับแต่งตัวละคร 8-bit (สีผิว, ทรงผม, เสื้อผ้า, หน้ากากสัตว์) พร้อมปุ่มสุ่ม (`Randomize 🎲`) และแสดงผล Live 8-Bit Animated Preview ใน Phaser Mini-Stage Canvas |
+| **FR-WORLD-021** | R0 | **8-Bit Character Studio (The Sims Customizer):** รองรับการเลือก/ปรับแต่งตัวละคร 8-bit (สีผิว, ทรงผม, เสื้อผ้า, หน้ากากสัตว์) พร้อมปุ่มสุ่มที่ใช้ Custom SVG/Pixel Icon และแสดงผล Live 8-Bit Animated Preview ใน Phaser Mini-Stage Canvas |
+| **FR-WORLD-022** | R0 | **Seamless Endless Hall:** World ใช้ hall module ที่เดินวนกลับได้ด้วย toroidal wrap หรือ streamed repeating modules; corridor, collision และ navigation graph ต้องต่อเนื่อง และ UI ต้องสื่อว่าเป็น Seamless Career Hall อย่างตรงไปตรงมา |
+| **FR-WORLD-023** | R0 | **Open Booth Pads:** Hall ต้องมีพื้นที่โล่งและ BoothPad แบบ modular สำหรับวาง/ย้าย booth โดยไม่ต้อง redraw map; ทุก active booth ยังต้องค้นหาและเข้าถึงได้จาก Navigator/List Mode 100% |
+| **FR-WORLD-024** | R0 | **Booth Sign & Info Kiosk:** ทุก booth ต้องมีชื่อหรือโลโก้บริษัทเป็น dynamic sign layer และมีจอประกาศ/Info Kiosk ที่กดด้วย keyboard, click หรือ tap เพื่อเปิดข้อมูล booth/job แบบ Semantic DOM ได้ |
+| **FR-WORLD-025** | R0 | **Physics-backed Interaction:** Player, NPC และ solid prop ต้องมี collision body / collision metadata; interaction ต้องใช้ sensor แยกจาก solid collision; hitbox ต้องสะท้อนฐานวัตถุจริง ไม่ใช่ใช้ภาพหรือ CSS hotspot เพียงอย่างเดียว |
+| **FR-WORLD-026** | R0 | **Layered Game Rendering:** World ต้องแยก `FloorBase`, `FloorDecal`, `CollisionGeometry`, `Actor`, `PropMid`, `ForegroundOccluder`, `LightingFX` และ Semantic DOM Overlay พร้อม dynamic Y-depth เพื่อให้การเดินหน้า/หลังวัตถุสมจริง |
 
 ---
 

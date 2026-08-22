@@ -51,5 +51,5 @@
 ### 7. หมวดคู่มือปฏิบัติการและการสาธิต (07-playbooks-and-operations)
 - [07-playbooks-and-operations/agent-playbook.md](./07-playbooks-and-operations/agent-playbook.md) — คู่มือ AI Coding Agent (Invariants, Slices 0-6)
 - [07-playbooks-and-operations/demo-runbook-and-storyboard.md](./07-playbooks-and-operations/demo-runbook-and-storyboard.md) — แผนการนำเสนอ 5 นาทีบนเวที
-- [07-playbooks-and-operations/demo-fixtures-and-assets.md](./07-playbooks-and-operations/demo-fixtures-and-assets.md) — ชุดข้อมูลจำลองมาตรฐาน (Fixtures) และ Asset Registry
+- [07-playbooks-and-operations/demo-fixtures-and-assets.md](./07-playbooks-and-operations/demo-fixtures-and-assets.md) — ชุดชุดข้อมูลมาตรฐานมาตรฐาน (Fixtures) และ Asset Registry
 - [07-playbooks-and-operations/architecture-decision-records.md](./07-playbooks-and-operations/architecture-decision-records.md) — บันทึกการตัดสินใจทางสถาปัตยกรรม (ADR-001 ถึง ADR-010)

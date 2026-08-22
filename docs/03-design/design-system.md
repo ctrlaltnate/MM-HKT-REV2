@@ -28,13 +28,26 @@ MaskedMatch นำเฉพาะแนวคิด **Spatial Presence, Contextu
 
 1. **อุปกรณ์ประกอบฉาก (Scene Props):** เก้าอี้, โต๊ะสัมภาษณ์, Kiosk ข้อมูล, Coffee Cart, ตู้เซิร์ฟเวอร์, ฉากกั้น (Partitions), และโคมไฟนีออน ต้องเป็น Pixel Sprite ที่ Generate ขึ้นมาเฉพาะ
 2. **ตัวละครและ NPC (Characters & NPCs):** ผู้สมัคร (Candidates), ผู้สัมภาษณ์ (Recruiters), เจ้าหน้าที่จัดงาน (Staff), และผู้เชี่ยวชาญด้านการเข้าถึง (A11y Guides) ต้องมี Sprite Sheet 4 ทิศทาง พร้อม Walk/Idle Animation
-3. **บูธบริษัทจำลอง (Exhibitor Booths):** โครงสร้างบูธ, Dynamic Logo Fixtures, เคาน์เตอร์ต้อนรับ และจอแสดงผลสื่อประชาสัมพันธ์
+3. **บูธบริษัทจัดแสดง (Exhibitor Booths):** โครงสร้างบูธ, Dynamic Logo Fixtures, เคาน์เตอร์ต้อนรับ และจอแสดงผลสื่อประชาสัมพันธ์
 4. **ของตกแต่งในแผนที่ (Map Decorations):** กระถางต้นไม้ไซเบอร์, ลวดลายพื้นกระเบื้อง, พรมทางเดิน, และเส้นแสงนีออนนำทาง
 5. **Web UI Elements:** ไอคอนสถานะ, ป้าย Badge, สัญลักษณ์นำทาง, ปุ่มควบคุมมัลติมีเดีย ต้องใช้ Custom Pixel SVG Icons แทนอิโมจิ
 
 ---
 
-## 1.3 Realistic & Immersive Booth Visitation Experience
+## 1.3 Strict Prohibition: Zero Unfinished / Raw UI Standard (ข้อห้ามเด็ดขาด: ห้าม UI ดิบหรือไม่เสร็จ)
+
+> ⛔ **ข้อห้ามเด็ดขาด (Strict Prohibition):**
+> **ห้ามปล่อยให้หน้าเว็บแสดงผลเป็น Raw HTML ดิบๆ ที่ขาดการโหลด CSS/Tailwind, ขาด Flexbox/Grid จัดกึ่งกลาง, ขาดสี/Gradient/Neon Glow, หรือปุ่ม/การ์ดดูเหมือน MVP ไม่เสร็จโดยเด็ดขาด!**
+
+ทุกหน้าจอและคอมโพเนนต์ต้องปฏิบัติตามมาตรฐานดังนี้:
+1. **Complete CSS Compilation:** ต้องมี Tailwind CSS / PostCSS หรือ CSS System ที่คอมไพล์สมบูรณ์ 100% ห้ามมี Utility Class ที่หลุดหรือไม่ทำงาน
+2. **Rich Visual Polish:** ทุก Card, Modal, Button ต้องมี Background Surface ชัดเจน (`#17162E` / `#262047`), Border เรืองแสง (`#8B5CF6` / `#37E7FF` / `#FF4FD8`), และ Hover/Active Transitions
+3. **Structured Responsive Containers:** จัด Layout กลางจออย่างประณีต มี `max-w-6xl mx-auto`, Grid Columns ที่มีสัดส่วน, และ Padding สม่ำเสมอ ไม่กองข้อความชิดขอบซ้าย
+4. **No Default Browser Controls:** ห้ามใช้ปุ่มปุ่มเหลี่ยมสีเทามาตรฐานหรือฟอร์มดิบของเบราว์เซอร์ ต้องใช้ `PixelButton`, `DialogWindow`, `PixelCard` และไอคอน SVG ที่จัดสไตล์แล้ว 100%
+
+---
+
+## 1.4 Realistic & Immersive Booth Visitation Experience
 
 การออกแบบประสบการณ์เยี่ยมชมบูธต้องมีความสมจริง (Realistic Career Fair Simulation):
 - **Booth Layout & Atmosphere:** บูธแต่ละแห่งมีโครงสร้างสถาปัตยกรรมที่ชัดเจน ประกอบด้วย:
@@ -82,7 +95,7 @@ flowchart LR
 | Token Name | Hex Code | Purpose & Semantic Meaning |
 |---|---|---|
 | `bg.canvas` | `#070816` | พื้นหลังหลักของแอปพลิเคชัน |
-| `bg.world-night` | `#0D1025` | พื้นหลังของโลกจำลอง / พื้นผิวแผนที่ |
+| `bg.world-night` | `#0D1025` | พื้นหลังของฮอลล์งานเสมือนจริง 2.5D / พื้นผิวแผนที่ |
 | `surface.1` | `#17162E` | Card, Panel, Floating HUD พื้นฐาน |
 | `surface.2` | `#262047` | Elevated Modal, Active Panel, Dropdown |
 | `brand.purple` | `#8B5CF6` | Primary Action, Selected State |
@@ -143,7 +156,24 @@ flowchart LR
 
 ---
 
-## 1.9 Final Design Test (5 คำถามประเมินก่อนอนุมัติ Frame)
+## 1.9 Two-Zone React, GSAP & Minimalism Standard (Revision 2.4)
+
+ประสบการณ์ต้องแยกเป็นสอง surface ที่มีหน้าที่ต่างกันอย่างชัดเจน:
+
+| Zone | Technology | หน้าที่ | Visual Rule |
+|---|---|---|---|
+| **Website Shell** | **React + Semantic DOM + GSAP + Lottie** | Landing, onboarding, profile, Navigator, booth detail, queue, interview, recruiter/admin และ dialog ทั้งหมด | **Minimalist Liquid Glass**: whitespace กว้าง, content hierarchy ชัด, surface โปร่ง 70–82%, blur 16–24 px, ขอบบาง, contrast ผ่าน AA |
+| **Career Hall World** | **Phaser 3** | โลกเดินสำรวจ, player/NPC, collision, booth/Info Kiosk, camera และ depth layer | Original 2D pixel-art game scene; ห้ามใช้ glass overlay หรือ web-card จำนวนมากบดบัง world |
+
+- **React first for product UI:** ทุก task, form, navigation, status, queue, modal และ accessibility fallback ต้องเป็น React/DOM; Phaser เป็น renderer ของโลกเกมเท่านั้น
+- **GSAP with purpose:** ใช้ GSAP สำหรับ page entry, modal/sheet, card hover และ state transition ที่นุ่มนวล (150–220 ms) เท่านั้น; ห้ามใช้ animation เพื่อทำให้ข้อมูลสำคัญอ่านยากหรือเพิ่มความหนาแน่นของ UI
+- **Minimalism:** หนึ่งหน้าต้องมี primary action เด่นเพียงหนึ่ง action ต่อ state, generous spacing ตาม grid 4/8 px, หลีกเลี่ยง dashboard ที่อัด widget และต้องไม่มี decorative element ที่ไม่มีหน้าที่
+- **Liquid Glass boundary:** Glassmorphism ใช้บน DOM Task Zone เท่านั้น; world pixel art ต้องอ่านเส้นทาง, booth, collision landmark และ Info Kiosk ได้ชัดเจนแม้ไม่มี overlay
+- **Reduced motion:** เมื่อ `prefers-reduced-motion` เปิดอยู่ ให้ GSAP transition จบแบบทันทีและมี static state ที่อ่านได้เท่ากัน
+
+---
+
+## 1.10 Final Design Test (5 คำถามประเมินก่อนอนุมัติ Frame)
 
 1. ผู้สมัครรู้หรือไม่ว่าตอนนี้ Recruiter มองเห็นข้อมูลอะไรจากตนเองบ้าง?
 2. ทุกองค์ประกอบในฉากและ UI ใช้ Generated Assets โดยปราศจากอิโมจิหรือไม่?

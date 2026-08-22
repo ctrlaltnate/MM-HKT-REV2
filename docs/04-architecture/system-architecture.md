@@ -131,3 +131,10 @@ flowchart TB
 - **Realtime Media:** WebRTC + MediaPipe FaceMesh / WASM + Web Audio API AudioWorklet
 - **UI Overlay:** Semantic HTML/DOM สำหรับ Navigation, Forms, HUD, Dialogs, และ Captions
 - **Testing:** Vitest + React Testing Library (Unit/Component), Playwright (E2E & Viewport Smoke), Axe-core (Accessibility Smoke)
+
+### Two-Zone Client Boundary (Revision 2.4)
+
+- **Zone 1 — Website Shell:** React เป็น owner ของ route, state, accessibility, form, modal, queue, recruiter/admin desk และ semantic Navigator ทั้งหมด ใช้ GSAP สำหรับ purposeful micro-transition และใช้ Minimalist Liquid Glass เฉพาะ DOM surface
+- **Zone 2 — Career Hall Runtime:** Phaser 3 เป็น owner เฉพาะ world simulation: seamless module streaming/wrap, physics/collision, actor movement, camera follow, dynamic Y-depth, booth sign และ Info Kiosk sensor
+- **Contract:** Phaser ส่ง semantic interaction event (`boothSelected`, `infoKioskActivated`, `queueIntent`) ไปยัง React; React เปิด context/detail UI และสามารถสั่ง navigation target กลับไปยัง Phaser ได้ ไม่มี form, modal หรือข้อมูลสำคัญถูกวาดอยู่ใน Canvas
+- **No flat-scene shortcut:** world ต้อง compose จาก pre-generated floor/prop/foreground sprite layers และ collision metadata; ห้ามใช้เพียงภาพ background เดียวร่วมกับ CSS hotspot เพื่ออ้างว่าเป็นเกม

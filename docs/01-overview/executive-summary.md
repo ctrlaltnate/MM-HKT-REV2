@@ -9,7 +9,7 @@
 
 ## 1.1 Product Overview
 
-MaskedMatch คือ **Virtual Job Fair แบบ 2D top-down pixel world ภายในฮอลล์จัดงานขนาดใหญ่ (Neon Career Hall)** ที่ช่วยให้ผู้สมัครค้นหางาน เดินดูบูธ พูดคุยกับ NPC จำลอง เข้าคิว และสัมภาษณ์แบบ speed interview ผ่าน browser โดยบริษัทจะเห็น **Masked Candidate Profile** ที่เน้นทักษะและหลักฐานผลงานก่อนเห็นชื่อ รูป ประวัติส่วนตัว หรือข้อมูลติดต่อ การเลือกมุมมอง top-down และ indoor Career Hall เป็น `[USER + PROPOSED]`; PDF เดิมเปิดกว้างทั้ง third-person/top view
+MaskedMatch คือ **Virtual Job Fair แบบ 2D top-down pixel world ภายในฮอลล์จัดงานขนาดใหญ่ (Neon Career Hall)** ที่ช่วยให้ผู้สมัครค้นหางาน เดินดูบูธ พูดคุยกับ NPC เจ้าหน้าที่และผู้สัมภาษณ์ เข้าคิว และสัมภาษณ์แบบ speed interview ผ่าน browser โดยบริษัทจะเห็น **Masked Candidate Profile** ที่เน้นทักษะและหลักฐานผลงานก่อนเห็นชื่อ รูป ประวัติส่วนตัว หรือข้อมูลติดต่อ การเลือกมุมมอง top-down และ indoor Career Hall เป็น `[USER + PROPOSED]`; PDF เดิมเปิดกว้างทั้ง third-person/top view
 
 ### 5-Step Core Experience Arc
 

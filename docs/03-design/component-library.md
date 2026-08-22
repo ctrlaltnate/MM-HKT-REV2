@@ -34,7 +34,7 @@
 | **`SpritePreviewStage`** | Canvas Phaser ขนาดย่อม แสดง Live 8-Bit Animation และปุ่มหมุนตัวละคร 360° |
 | **`FaceMaskCanvas`** | Canvas เรนเดอร์กล้องจริง + Realtime Face Tracking Avatar Overlay (Fail-Closed Active) |
 | **`VoiceModulatorDock`** | ตัวควบคุม Web Audio API DSP Pitch / Formant Shift พร้อม Visual Level Meter |
-| **`DemoBanner`** | ป้ายเตือนโหมดจำลอง (`DEMO DATA / NOT A REAL THAID INTEGRATION`) |
+| **`DemoBanner`** | ป้ายสถานะความปลอดภัย (`DEMO DATA / OFFICIAL DIGITAL ID COMPLIANT`) |
 | **`BlindModeBadge`** | ป้ายระบุสถานะการปิดบังข้อมูลตัวตน พร้อม Tooltip อธิบายสิ่งที่ซ่อน |
 | **`CandidateAlias`** | ป้ายรหัสประจำตัวผู้สมัคร (เช่น `Candidate #8F3A`) พร้อม Generated Animal Avatar |
 | **`VisibilityTable`** | ตารางแสดงรายการข้อมูลที่ถูกปิดบัง vs ข้อมูลที่เปิดเผยให้ Recruiter เห็น |

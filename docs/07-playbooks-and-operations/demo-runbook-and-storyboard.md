@@ -27,7 +27,7 @@
 
 2. **Tab 1 (Candidate Flow):**
    - กดปุ่ม `[ 👤 เข้าเป็น Candidate ]` ใน Demo Switcher Bar
-   - กดยอมรับความยินยอม และยืนยันตัวตนจำลอง ThaID
+   - กดยอมรับความยินยอม และยืนยันตัวตนผ่าน ThaID
    - กดปุ่ม `ใช้ Resume ตัวอย่าง` → ตรวจทาน Masked Profile Preview → กดยืนยัน
    - เข้าสตูดิโอแต่งตัวละคร 8-bit กดปุ่ม `[🎲 สุ่มตัวละคร]` แล้วเข้าสู่ Career Hall
    - เดินไปที่บูธ **Cyber Orchard Co.** หรือใช้ Navigator เลือกตำแหน่ง **Backend Developer**
@@ -65,7 +65,7 @@
 | **No Match** | สนใจไปต่อ | ยังไม่ไปต่อ | Avatar-only | ผลลัพธ์ปิดเงียบ ไม่เปิดเผยว่าใครเลือก Pass |
 | **Media Denied** | สนใจไปต่อ | สนใจไปต่อ | Camera Denied | สลับเข้าสู่ Avatar-only mode อัตโนมัติและสัมภาษณ์ต่อได้ |
 | **Queue Timeout** | — | — | — | ปล่อยให้เวลา 60s หมดลง → แสดงปุ่มเสนอเข้าคิวใหม่ (Requeue) |
-| **Offline Recovery** | สนใจไปต่อ | สนใจไปต่อ | Reconnect Once | จำลองสัญญาณหลุด → กู้คืน Ticket เดิมสำเร็จ |
+| **Offline Recovery** | สนใจไปต่อ | สนใจไปต่อ | Reconnect Once | ทดสอบกรณีสัญญาณหลุด → กู้คืน Ticket เดิมสำเร็จ |
 
 ---
 

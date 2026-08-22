@@ -12,7 +12,7 @@
   - เห็นเหตุผลของคำแนะนำ AI และสามารถตรวจสอบ/แก้ไขข้อมูลที่ถูกสกัดผิดพลาดได้
 - **Device Context:** สมาร์ทโฟนมือถือเป็นอุปกรณ์หลัก (Touch-first, 320–390 CSS px) หรือคอมพิวเตอร์/แท็บเล็ตที่มีความเสถียรของอินเทอร์เน็ตหลากหลาย
 - **Key Design Jobs:**
-  1. ยืนยันตัวตนแบบจำลองและตั้งค่าความเป็นส่วนตัว
+  1. ยืนยันตัวตนผ่านระบบ Digital IDและตั้งค่าความเป็นส่วนตัว
   2. อัปโหลด/กรอก Resume และตรวจสอบ Masked Profile
   3. สำรวจบูธผ่าน Interactive World หรือ Navigator
   4. เข้าคิวสัมภาษณ์และรับ Ready Check
@@ -102,7 +102,7 @@
 flowchart TD
     DEMO_BAR["Multi-Role Demo Login Bar (1-Click Switcher)"]
     
-    DEMO_BAR -->|"1. เข้าเป็น Candidate"| JOBSEEKER["🟢 Jobseeker Workspace (/event/demo)\n• จำลองยืนยันตัวตนแบบ ThaID\n• อัปโหลด Resume & ให้ AI สกัดทักษะ\n• แต่งตัวละคร 8-bit (The Sims Studio)\n• เดินใน Career Hall หรือใช้ Navigator\n• เข้าคิวสด & รับแจ้งเตือน Ready Check\n• ห้องสัมภาษณ์กล้องครอบหน้ากาก + ดัดเสียง\n• ส่ง Private Decision & เลือกแชร์ข้อมูล"]
+    DEMO_BAR -->|"1. เข้าเป็น Candidate"| JOBSEEKER["🟢 Jobseeker Workspace (/event/demo)\n• ยืนยันตัวตนแบบ ThaID\n• อัปโหลด Resume & ให้ AI สกัดทักษะ\n• แต่งตัวละคร 8-bit (The Sims Studio)\n• เดินใน Career Hall หรือใช้ Navigator\n• เข้าคิวสด & รับแจ้งเตือน Ready Check\n• ห้องสัมภาษณ์กล้องครอบหน้ากาก + ดัดเสียง\n• ส่ง Private Decision & เลือกแชร์ข้อมูล"]
 
     DEMO_BAR -->|"2. เข้าเป็น Recruiter"| RECRUITER["🟣 Recruiter Workspace (/recruiter/dashboard)\n• เลือกบูธ Cyber Orchard & ตำแหน่งงาน\n• สลับสถานะความพร้อม (Online / Break)\n• ดูคิวผู้สมัครสดแบบ Real-time\n• กด [เรียกคิวคนถัดไป] สัมภาษณ์สด\n• ให้คะแนน Rubric ระหว่างคุยวิดีโอคอลล์\n• ส่งผลการตัดสินใจ Private Decision\n• ตรวจสอบ Pipeline ผู้สมัครที่ Match แล้ว"]
 
@@ -112,7 +112,7 @@ flowchart TD
 ### 1. ฝั่งผู้สมัครงาน (Jobseeker / Candidate Workspace)
 - **1-Click Demo Login:** เข้าเป็น `Candidate #8F3A` ได้ทันที (หรือล็อกอินด้วย Supabase Auth)
 - **ฟังก์ชันทำงานจริง:**
-  1. ยืนยันตัวตนจำลอง ThaID (พร้อมป้าย DEMO)
+  1. ยืนยันตัวตนผ่าน ThaID (พร้อมป้าย DEMO)
   2. นำเข้า Resume ให้ AI สกัดทักษะ พร้อมหน้าจอ Side-by-Side Review
   3. สตูดิโอสร้างตัวละคร 8-Bit (สุ่มเสื้อผ้า ทรงผม สีผิว หน้ากากสัตว์)
   4. เดินในฮอลล์งานแฟร์ Phaser 3 หรือเปิดโหมดรายการ Navigator

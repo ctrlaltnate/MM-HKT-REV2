@@ -55,7 +55,7 @@ docs/
 ├── 07-playbooks-and-operations/              # คู่มือสำหรับ Agent และการนำเสนองาน
 │   ├── agent-playbook.md                     # คู่มือ AI Coding Agent (Invariants, Slices 0-6, Workflows)
 │   ├── demo-runbook-and-storyboard.md        # แผนการนำเสนอ 5 นาทีบนเวที, สคริปต์, Scenario Presets
-│   ├── demo-fixtures-and-assets.md           # ชุดข้อมูลจำลองมาตรฐาน (Fixtures) และ Asset Registry
+│   ├── demo-fixtures-and-assets.md           # ชุดชุดข้อมูลมาตรฐานมาตรฐาน (Fixtures) และ Asset Registry
 │   └── architecture-decision-records.md      # บันทึกการตัดสินใจทางสถาปัตยกรรม (ADR-001 ถึง ADR-010)
 │
 └── 08-production-and-publish/                # คู่มือการติดตั้งและปล่อยใช้งานจริง (Production & Scale)
@@ -94,7 +94,7 @@ docs/
 
 - 🎤 **สำหรับ Demo Presenters & Event Operators:**
   1. อ่าน [07-playbooks-and-operations/demo-runbook-and-storyboard.md](./07-playbooks-and-operations/demo-runbook-and-storyboard.md) สำหรับสคริปต์ 5 นาทีและวิธีใช้งาน `/demo/control`
-  2. ตรวจสอบข้อมูลจำลองใน [07-playbooks-and-operations/demo-fixtures-and-assets.md](./07-playbooks-and-operations/demo-fixtures-and-assets.md)
+  2. ตรวจสอบชุดข้อมูลมาตรฐานใน [07-playbooks-and-operations/demo-fixtures-and-assets.md](./07-playbooks-and-operations/demo-fixtures-and-assets.md)
 
 ---
 

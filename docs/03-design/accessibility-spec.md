@@ -5,7 +5,7 @@
 ## 7.1 Canvas Semantic Alternative & Navigator Parity
 
 - **Canvas Concealment:** World Canvas มีการระบุ `aria-hidden="true"` เมื่อผู้ใช้เปิดใช้งาน Navigator / List Mode
-- **Skip Link First:** เพิ่ม Skip Link เป็นลิงก์แรกของหน้า: `ข้ามโลกจำลองและเปิดโหมดรายการ (Navigator)`
+- **Skip Link First:** เพิ่ม Skip Link เป็นลิงก์แรกของหน้า: `ข้ามฮอลล์งานเสมือนจริง 2.5Dและเปิดโหมดรายการ (Navigator)`
 - **Full DOM Parity:** ทุกข้อมูลและ Action ในแผนที่ (ค้นหางาน, ดูบูธ, ดูคะแนน Match, เข้าคิว, ดูตารางเวลา, ขอความช่วยเหลือ) ต้องมีโครงสร้างใน Semantic HTML และใช้งานได้ 100% โดยไม่ต้องควบคุม Avatar
 - **No Coordinate Flooding:** Screen Reader จะไม่อ่านพิกัดตำแหน่งของตัวละครอย่างต่อเนื่อง เพื่อป้องกันการรบกวนสมาธิ
 

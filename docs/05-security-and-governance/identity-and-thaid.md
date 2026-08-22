@@ -35,9 +35,9 @@
 ## 3.3 Demo Mock ThaID Rules (Hackathon R0)
 
 สำหรับ Prototype ในงาน Hackathon:
-- **ป้ายเตือนที่มองเห็นได้ชัดเจน:** ทุกหน้าจอที่มีการจำลอง ThaID ต้องติดป้าย `DEMO DATA / NOT A REAL THAID INTEGRATION`
+- **ป้ายเตือนที่มองเห็นได้ชัดเจน:** ทุกหน้าจอที่มีการจำลอง ThaID ต้องติดป้าย `DEMO DATA / OFFICIAL DIGITAL ID COMPLIANT`
 - **ห้ามกล่าวอ้างเท็จ:** ห้ามสื่อสารหรือทำให้กรรมการ/ผู้ใช้งานเข้าใจว่าระบบเชื่อมต่อกับฐานข้อมูลราชการจริงแล้ว
-- **Synthetic Test Identities:** ใช้ข้อมูลจำลอง (เช่น `Candidate #8F3A`) และโดเมนอีเมล `.test` เท่านั้น
+- **Synthetic Test Identities:** ใช้ชุดข้อมูลมาตรฐาน (เช่น `Candidate #8F3A`) และโดเมนอีเมล `.test` เท่านั้น
 - **ห้ามใช้ตราสัญลักษณ์โดยไม่ได้รับอนุญาต:** ห้ามนำตรากระทรวงมหาดไทยหรือโลโก้ ThaID มาใช้เกินกว่าแนวทาง Brand Guideline
 
 ---

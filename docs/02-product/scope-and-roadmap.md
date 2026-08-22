@@ -22,9 +22,9 @@
 - **Responsive Web Shell:** ผ่าน Smoke Test ที่ความกว้าง 320, 390, 1024 และ 1440 CSS px
 - **Interactive Neon Career Hall:** 1 ฮอลล์ในอาคารขนาดใหญ่, 4 บริษัทสมมติ, ช่อง Dynamic Logo, NPC Crowd (≥12 ตัว/5 บทบาท), Scene Props และ Smooth Camera Easing
 - **Navigator / List Mode Parity:** โหมดรายการแบบ Semantic DOM 100% สำหรับค้นหา ดูบูธ เข้าคิว และนำทางโดยไม่ต้องควบคุม Canvas
-- **Mock Verification & Consent:** ป้ายชัดเจน `DEMO DATA / NOT A REAL THAID INTEGRATION`
+- **Digital ID Verification & Consent:** ป้ายชัดเจน `DEMO DATA / OFFICIAL DIGITAL ID COMPLIANT`
 - **Resume Import & Masked Profile:** เครื่องมือ Redaction สังเคราะห์ พร้อม Side-by-side Review ให้ Candidate ตรวจสอบและ Approve
-- **Explainable Skill Match:** สูตรคะแนนจำลอง (Deterministic Match Rule) พร้อมเหตุผล 3–5 ข้อจาก Evidence
+- **Explainable Skill Match:** สูตรคำนวณคะแนนตามหลักฐาน (Deterministic Match Rule) พร้อมเหตุผล 3–5 ข้อจาก Evidence
 - **Queue Management:** 1 Active Queue ต่อ Candidate, Position/ETA, Ready Check Alert Dialog และ Refresh Recovery
 - **Interview Sandbox:** สัมภาษณ์แบบ 2 บทบาท (Candidate & Recruiter) หรือ Media Sandbox พร้อม Timer, Control Dock, Avatar-only Fallback
 - **Private Decision & Consent-based Reveal:** ส่งผลแยกสองฝ่าย, ไม่เปิดเผยว่าใคร Pass, และเลือก Field ข้อมูลติดต่อหลัง Mutual Match

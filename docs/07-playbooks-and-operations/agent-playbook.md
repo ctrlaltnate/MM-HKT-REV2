@@ -8,7 +8,7 @@
 ## 1.1 Core Mission
 
 สร้าง **MaskedMatch R0 Hackathon Prototype** เพื่อพิสูจน์ว่า Virtual Job Fair แบบ 2D Top-Down สามารถพาผู้สมัครผ่านลูป 5 ขั้นตอนได้จริงบน Web Browser ทั้งบนสมาร์ทโฟน แท็บเล็ต และคอมพิวเตอร์:
-1. เข้า Event และยืนยันตัวตนแบบจำลอง (Mock Verification)
+1. เข้า Event และยืนยันตัวตนผ่านระบบ Digital ID (Digital ID Verification)
 2. สร้างและตรวจ Masked Profile ที่เน้นทักษะและผลงานจริง
 3. สำรวจ Neon Career Hall หรือใช้ Navigator โหมดรายการ
 4. เปิดบูธเสมือนจริง ดูงาน เหตุผลความตรงกัน และกดเข้าคิว
@@ -30,8 +30,11 @@
 8. **Mobile is complete:** ห้ามซ่อน Action สำคัญไว้หลัง Hover หรือจำกัดให้ใช้เฉพาะโหมดแนวนอน (Landscape-only)
 9. **Status is explicit:** สถานะคิว เครือข่าย และสื่อ ต้องมี Icon + Text กำกับเสมอ ไม่ใช้สีเพียงอย่างเดียว
 10. **AI explains and defers:** แสดงเหตุผลจากหลักฐานผลงานเสมอ และผู้ใช้สามารถแก้ไขข้อมูลได้
-11. **Synthetic data only:** ใช้เฉพาะโดเมน `.test` และข้อมูลบุคคล/บริษัทจำลองเท่านั้น
+11. **Synthetic data only:** ใช้เฉพาะโดเมน `.test` และข้อมูลบุคคล/บริษัทจัดแสดงเท่านั้น
 12. **Truthful demo:** ทุกส่วนที่มีการจำลอง (Mock) ต้องมีป้ายกำกับชัดเจนโดยไม่ต้องเปิด DevTools
+13. **React + GSAP minimalist shell:** ทุกหน้าที่ไม่ใช่ Career Hall ต้องเป็น React Semantic DOM ใช้ GSAP อย่างพอดี และรักษา Minimalist Liquid Glass ที่มี whitespace/contrast ชัดเจน
+14. **Seamless physics world:** Career Hall ต้องเป็น Phaser world แบบ loop/streaming ที่มี collision, sensor, Y-depth และ foreground occlusion จริง; ห้ามใช้ภาพแบนร่วมกับ CSS hotspot เป็นตัวแทนเกม
+15. **Zero Unfinished/Raw UI Standard (ห้าม UI ดิบ/ไม่เสร็จโดยเด็ดขาด):** ห้ามแสดงผลเป็น Raw HTML ดิบที่ขาด CSS/Tailwind, ขาด Flexbox/Grid, ขาด Card/Container, ขาดสี Gradient/Glow หรือปุ่มรูปทรงดั้งเดิมของเบราว์เซอร์ ทุกหน้าจอต้องเรนเดอร์ UI ระดับ Production-grade ที่สวยงาม คมชัด มี Responsive Padding, Typography, Glassmorphism และ Neon Aesthetics ที่สมบูรณ์พร้อมใช้งานจริง 100%
 
 ---
 
@@ -42,7 +45,7 @@ Slice 0: Foundation (Router, Shell, Design Tokens, Primitives, Demo Store, Test 
   │
   ├─► Slice 1: Event & Profile (Landing, Mock Verify, Consent, Resume Import, Masked Review)
   │
-  ├─► Slice 2: World & Discovery (Phaser Map, Camera Follow, Realistic Booths, AI Explanation)
+  ├─► Slice 2: World & Discovery (Seamless Phaser Hall, Physics/Depth Layers, Info Kiosks, Navigator parity, AI Explanation)
   │
   ├─► Slice 3: Queue Management (1 Active Ticket, Ready Check Alert, Recovery)
   │

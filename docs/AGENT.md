@@ -31,7 +31,7 @@
   👉 [05-security-and-governance/security-and-pdpa.md](./05-security-and-governance/security-and-pdpa.md)  
   👉 [05-security-and-governance/ai-governance.md](./05-security-and-governance/ai-governance.md)
 
-- **🎤 คู่มือการสาธิตบนเวที 5 นาทีและชุดข้อมูลจำลอง (Fixtures):**  
+- **🎤 คู่มือการสาธิตบนเวที 5 นาทีและชุดชุดข้อมูลมาตรฐาน (Fixtures):**  
   👉 [07-playbooks-and-operations/demo-runbook-and-storyboard.md](./07-playbooks-and-operations/demo-runbook-and-storyboard.md)  
   👉 [07-playbooks-and-operations/demo-fixtures-and-assets.md](./07-playbooks-and-operations/demo-fixtures-and-assets.md)
 

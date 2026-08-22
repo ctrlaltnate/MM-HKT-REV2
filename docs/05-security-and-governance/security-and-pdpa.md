@@ -60,7 +60,7 @@
 | **ผลการตัดสินใจรั่วไหลก่อนส่งครบ** | เข้ารหัสคำตอบของแต่ละฝ่าย และประมวลผลพร้อมกันเฉพาะใน Resolver Transaction |
 | **การเข้าถึงข้อมูลติดต่อโดยไม่ได้รับอนุญาต** | Field-Scoped Short-Lived Access Token พร้อม Consent Verification |
 | **การคุกคามในงาน (Harassment / Abuse)** | ระบบรายงานปัญหา (Report), พักการใช้งานชั่วคราว, Mute เสียง, และบันทึก Audit |
-| **Client ปลอมแปลงตำแหน่งในโลกจำลอง** | Server-Authoritative Movement Resolution พร้อม Speed & Collision Clamping |
+| **Client ปลอมแปลงตำแหน่งในฮอลล์งานเสมือนจริง 2.5D** | Server-Authoritative Movement Resolution พร้อม Speed & Collision Clamping |
 | **การแทรกซึมห้องสัมภาษณ์ (Room Hijack)** | Short-lived Room-Scoped WebRTC Token ที่ผูกกับรหัส Session โดยเฉพาะ |
 | **Prompt Injection ผ่านไฟล์ Resume / JD** | แยก Parser Sandbox, จำกัดสิทธิ์การเรียก Tool, ตรวจสอบ Schema ของผลลัพธ์ |
 | **ความลับรั่วไหลใน Log / Telemetry** | Structured Allowlist Logging ห้ามบันทึก Resume Text, Contact, Media, Decision |
@@ -72,7 +72,7 @@
 - **On-Device Face Landmark Engine:** การประมวลผล Face Mesh / Landmark Detection จากกล้องจริงทำงานบนอุปกรณ์ของผู้ใช้ (Client-Side) 100% โดย **ห้ามส่งภาพใบหน้าจริงหรือพิกัด Landmark ดิบขึ้นเซิร์ฟเวอร์**
 - **Fail-Closed Principle:** หาก Face Tracking หรือ Mask Compositor ทำงานล้มเหลว (เช่น หันหน้าหลุดเฟรม หรือกล้องกระตุกเกิน 3 เฟรม) ระบบจะระงับการส่งสัญญาณภาพวิดีโอทันที เพื่อป้องกันไม่ให้ใบหน้าจริงหลุดออกไป
 - **Zero Recording by Default:** ปิดการบันทึกวิดีโอและเสียงในทุกกรณี เว้นแต่จะมีความยินยอมชัดเจน
-- **Persistent Trust Signals:** แสดงสถานะ Blind Mode, สถานะกล้อง/ไมค์, สถานะหน้ากาก, และป้ายเตือนโหมดจำลองตลอดเวลา
+- **Persistent Trust Signals:** แสดงสถานะ Blind Mode, สถานะกล้อง/ไมค์, สถานะหน้ากาก, และป้ายสถานะความปลอดภัยตลอดเวลา
 - **Prohibited UI Dark Patterns:**
   - ✕ ห้ามทำ Pre-checked Checkbox สำหรับการเปิดเผยข้อมูลติดต่อ
   - ✕ ห้ามใช้อิโมจิในองค์ประกอบ UI หรือหลอกลวงว่าเป็นฟังก์ชันความปลอดภัย

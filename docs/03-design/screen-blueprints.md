@@ -9,7 +9,7 @@
 | Screen ID | Screen Title | Primary User Role | Route Path |
 |---|---|---|---|
 | **SC-01** | Event Landing | Candidate / Visitor | `/events/:id` หรือ `/event/demo` |
-| **SC-02** | Mock Verification & Consent | Candidate | `/app/onboarding/verify` |
+| **SC-02** | Digital ID Verification & Consent | Candidate | `/app/onboarding/verify` |
 | **SC-03** | Resume / Skill Import | Candidate | `/candidate/profile/import` |
 | **SC-04** | Masked Profile Review | Candidate | `/candidate/profile/review` |
 | **SC-05** | Avatar & Tutorial | Candidate | `/candidate/avatar` |
@@ -38,7 +38,7 @@
 │ [SVG LOGO] MASKEDMATCH            [เข้าสู่ระบบ] [ช่วยเหลือ] │
 ├────────────────────────────────────────────────────────────┤
 │ [DEMO ROLE SWITCHER BAR]                                   │
-│ เข้าใช้งานแบบจำลองด่วน (1-Click Demo Access):              │
+│ เลือกบทบาทเข้าใช้งาน (1-Click Demo Access):              │
 │ [ 👤 ผู้สมัคร (Candidate) ] [ 💼 ผู้สัมภาษณ์ (Recruiter) ] [ ⚙️ ผู้ดูแลระบบ (Admin) ] │
 ├────────────────────────────────────────────────────────────┤
 │                    NEON CAREER CITY 2026                   │
@@ -53,8 +53,8 @@
 └────────────────────────────────────────────────────────────┘
 ```
 
-### SC-02 — Mock Verification & Consent
-- **Goal:** ยืนยันตัวตนแบบจำลอง (ติดป้าย DEMO) และขอความยินยอมตาม PDPA
+### SC-02 — Digital ID Verification & Consent
+- **Goal:** ยืนยันตัวตนผ่านระบบ Digital ID (ติดป้าย DEMO) และขอความยินยอมตาม PDPA
 - **Wireframe:**
 ```text
 ┌────────────────────────────────────────────────────────────┐
@@ -63,7 +63,7 @@
 │ [ALERT ICON] โหมดสาธิต — ไม่ได้เชื่อมต่อ ThaID จริง        │
 │                                                            │
 │ กรุณาเลือกวิธีการยืนยันตัวตนจำลอง:                         │
-│ (o) จำลองยืนยันผ่าน ThaID Digital ID                       │
+│ (o) ยืนยันผ่าน ThaID Digital ID                       │
 │ ( ) ยืนยันผ่าน Email OTP สำรอง                             │
 │                                                            │
 │ ความยินยอมในการประมวลผลข้อมูล (PDPA):                       │
@@ -115,7 +115,11 @@
 ```
 
 ### SC-06 — Neon Career Hall World
-- **Goal:** เดินสำรวจบูธเสมือนจริง, พบปะ NPC, และเข้าใกล้บูธเพื่อดูงานที่แนะนำ
+- **Goal:** เดินสำรวจ Seamless / Endless Career Hall แบบ top-down, พบ NPC, เดินวนกลับผ่าน corridor ได้อย่างต่อเนื่อง และกดป้ายชื่อ/โลโก้หรือ Info Kiosk ของบูธเพื่อดูงานที่แนะนำ
+- **World behavior:** Hall เป็น open modular floor plan ที่ wrap หรือ stream กลับเข้าหา landmark เดิมได้; ไม่ใช่ภาพแบนหรือฉากทางเดินตัน
+- **Interaction contract:** Booth ทุกแห่งมี Dynamic Logo/Name Sign, Info Kiosk และ proximity prompt; รองรับ `E`, click, tap และ Navigator equivalent
+- **Game integrity:** player/NPC/prop ใช้ collision body และ sensor แยกกัน; render แยก layer `Floor → PropMid → Actor → Foreground Occluder → Lighting` พร้อม Y-depth sorting
+- **Web boundary:** Top HUD, context panel, queue control และ mobile bottom sheet เป็น React DOM แบบ Minimalist Liquid Glass; Phaser แสดงเฉพาะโลกเกม
 
 ### SC-07 — Navigator / List Mode
 - **Goal:** สำรวจและเข้าถึงทุกฟังก์ชันในงานโดยไม่ต้องควบคุม Canvas
@@ -130,7 +134,7 @@
 │ [แท็บ: ข้อมูลบูธ]  [ตำแหน่งงาน (2)]  [สถานะคิวสด]  [ผลงานเด่น]│
 │                                                            │
 │ ตำแหน่ง: Backend Developer (Hybrid / กทม.)                 │
-│ เงินเดือนจำลอง: 45,000 – 70,000 บาท                        │
+│ ช่วงเงินเดือน: 45,000 – 70,000 บาท                        │
 │                                                            │
 │ ความตรงกันของทักษะ: 92/100 (Evidence-based Match Score)    │
 │ • [CHECK] Node.js ตรงกับ Must-have ความต้องการหลัก          │
