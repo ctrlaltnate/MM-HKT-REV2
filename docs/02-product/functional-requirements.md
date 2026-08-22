@@ -8,6 +8,26 @@
 
 ---
 
+## 3.0 Website, Landing Page & End-to-End Journey
+
+> [!IMPORTANT]
+> **P0 WEBSITE GATE — สำคัญเท่ากับ P0 WORLD GATE:** MaskedMatch ต้องเป็นผลิตภัณฑ์เว็บที่มี Website, Product Landing, Event Landing และ Virtual Job Fair เชื่อมเป็น journey เดียวกัน ไม่ใช่มีเฉพาะหน้าเกมหรือ Canvas แยกเดี่ยว งาน World ห้ามถือว่าเสร็จหากผู้ใช้ยังเข้า Event, เตรียม Profile, เลือก Avatar, กลับ/รีโหลดหน้า หรือใช้เส้นทาง Semantic DOM ไม่ได้จริง
+
+| ID | Pri | Requirement Description |
+|---|:---:|---|
+| **FR-WEB-001** | **P0-GATE** | **Complete Website Surface:** Website workspace ต้องเป็น owner ของ global shell, Product Landing, Event Landing, candidate preparation flow, legal/status pages และ error/recovery UI; Phaser workspace เป็น owner เฉพาะ interactive Career Hall runtime |
+| **FR-WEB-002** | **P0-GATE** | **Functional Product Landing:** `/` ต้องสื่อ value proposition, วิธีทำงาน, privacy/accessibility principles, World/List parity และมี CTA ที่นำไป Event จริง ห้ามมีปุ่มหรือลิงก์ที่กดแล้วไม่เกิด action ตาม label |
+| **FR-WEB-003** | **P0-GATE** | **Functional Event Landing:** `/event/demo` และ canonical event route ต้องแสดงสถานะ Demo, schedule, participating booths/jobs, accessibility, privacy, journey progress และ Resume/Start/Guest World action ที่ทำงานจริง |
+| **FR-WEB-004** | **P0-GATE** | **Executable Candidate Preparation:** Mock Verify/Consent → Profile Import → Masked Review → Avatar Setup → Career Hall ต้องเดินหน้า ย้อนกลับ validation และ recover เมื่อเข้า direct URL ได้ โดยใช้ synthetic data และติดป้าย mock อย่างเห็นได้ชัด |
+| **FR-WEB-005** | **P0-GATE** | **Route & State Reliability:** browser back/forward, direct URL, reload และ local demo resume/reset ต้องคงหรือกู้ state ได้ตาม policy; route ที่ไม่รู้จักต้องแสดง 404 พร้อมทางกลับ ไม่ render หน้าว่าง |
+| **FR-WEB-006** | **P0-GATE** | **Real Controls Only:** ทุก primary/secondary control ใน Website, Landing, Event และ flow ต้อง navigate, submit, validate, scroll, reset หรือเปลี่ยน state จริง; ห้ามใช้ dead control, decorative fake form หรือ label ที่อ้าง capability เกิน implementation |
+| **FR-WEB-007** | **P0-GATE** | **Responsive & Semantic Website:** ทุก route P0 ต้อง reflow ที่ 320, 390, 768, 1024 และ 1440 CSS px, ไม่มี horizontal overflow ใน core flow, ใช้ semantic DOM, keyboard-visible focus, skip link และ text alternative ที่เหมาะสม |
+| **FR-WEB-008** | **P0-GATE** | **World Lifecycle Boundary:** เข้า World แล้ว Website ต้อง mount Phaser 4 runtime เพียงหนึ่ง instance; เมื่อออกจาก World ต้อง destroy/unmount runtime และกลับ Event/Landing ได้ โดยไม่มี duplicated canvas, listener หรือ game input ค้าง |
+| **FR-WEB-009** | **P0-GATE** | **Truthful Completeness:** สิ่งที่เป็น frontend fixture, mock identity, local persistence หรือยังไม่มี backend/media engine ต้องติดป้ายชัดเจนบน UI และเอกสาร ห้ามใช้คำว่า production-ready จนผ่าน server, security, media, accessibility และ operational gates ที่เกี่ยวข้อง |
+| **FR-WEB-010** | **P0-GATE** | **Cohesive Product UI:** Website, Landing, Event, candidate flow และ World HUD ต้องใช้ design language เดียวกัน มี hierarchy, spacing, type scale, surface, focus/hover/pressed/disabled state และ responsive navigation ที่ตั้งใจออกแบบ; ห้ามใช้ raw browser control, card ที่กระจายไร้ grid, overlay ที่บัง world โดยไม่จำเป็น หรือเอฟเฟกต์ neon/glass จำนวนมากแทน information hierarchy |
+
+---
+
 ## 3.1 Authentication, Identity & Consent
 
 | ID | Pri | Requirement Description |
@@ -86,7 +106,7 @@ Score (0–100):
 
 | ID | Pri | Requirement Description |
 |---|:---:|---|
-| **FR-WORLD-001** | P0 | Top-down 2D map ใช้ server-authoritative zone/instance และ client-predicted movement |
+| **FR-WORLD-001** | P0 | Orthographic top-front 2D world ใช้ server-authoritative zone/instance และ client-predicted movement |
 | **FR-WORLD-002** | P0 | Desktop รองรับ WASD, arrow, point-and-click และ remappable controls |
 | **FR-WORLD-003** | P0 | Mobile ใช้ tap-to-move เป็น default; optional joystick ต้องไม่บัง action/UI |
 | **FR-WORLD-004** | P0 | ทุก interactive object มี outline, label, context prompt และ semantic DOM equivalent |
@@ -106,12 +126,28 @@ Score (0–100):
 | **FR-WORLD-018** | R0 | Generated/third-party world asset ทุกไฟล์ต้องมี provenance/allowed-use record และห้ามคัดลอก asset/trade dress จากภาพอ้างอิง |
 | **FR-WORLD-019** | R0 | **Strict No-Emoji Policy:** ทุก Element ประกอบฉาก, พร็อพ, บูธ, ตัวละคร NPC, และ Web UI Icons ต้องเป็น **Generated Pixel Art / SVG Assets** ทั้งหมด ห้ามใช้อิโมจิ |
 | **FR-WORLD-020** | R0 | **Realistic Booth Showcase:** ดีไซน์การเยี่ยมชมบูธต้องมีองค์ประกอบเสมือนจริง: เคาน์เตอร์ต้อนรับ, จอแสดง Tech Stack, สถานะคิวสด, และจุดประจำของ Recruiter |
-| **FR-WORLD-021** | R0 | **8-Bit Character Studio (The Sims Customizer):** รองรับการเลือก/ปรับแต่งตัวละคร 8-bit (สีผิว, ทรงผม, เสื้อผ้า, หน้ากากสัตว์) พร้อมปุ่มสุ่มที่ใช้ Custom SVG/Pixel Icon และแสดงผล Live 8-Bit Animated Preview ใน Phaser Mini-Stage Canvas |
+| **FR-WORLD-021** | R0 | **8-Bit Character Studio (The Sims Customizer):** รองรับการเลือก/ปรับแต่งตัวละคร 8-bit โดยแยกสีผิว, ทรง/สีผม, เสื้อ, กางเกง/ท่อนล่าง, รองเท้า และ accessory พร้อมปุ่มสุ่มที่ใช้ Custom SVG/Pixel Icon และแสดงผล Live 4-direction Animated Preview ใน Phaser Mini-Stage Canvas |
 | **FR-WORLD-022** | R0 | **Seamless Endless Hall:** World ใช้ hall module ที่เดินวนกลับได้ด้วย toroidal wrap หรือ streamed repeating modules; corridor, collision และ navigation graph ต้องต่อเนื่อง และ UI ต้องสื่อว่าเป็น Seamless Career Hall อย่างตรงไปตรงมา |
 | **FR-WORLD-023** | R0 | **Open Booth Pads:** Hall ต้องมีพื้นที่โล่งและ BoothPad แบบ modular สำหรับวาง/ย้าย booth โดยไม่ต้อง redraw map; ทุก active booth ยังต้องค้นหาและเข้าถึงได้จาก Navigator/List Mode 100% |
 | **FR-WORLD-024** | R0 | **Booth Sign & Info Kiosk:** ทุก booth ต้องมีชื่อหรือโลโก้บริษัทเป็น dynamic sign layer และมีจอประกาศ/Info Kiosk ที่กดด้วย keyboard, click หรือ tap เพื่อเปิดข้อมูล booth/job แบบ Semantic DOM ได้ |
 | **FR-WORLD-025** | R0 | **Physics-backed Interaction:** Player, NPC และ solid prop ต้องมี collision body / collision metadata; interaction ต้องใช้ sensor แยกจาก solid collision; hitbox ต้องสะท้อนฐานวัตถุจริง ไม่ใช่ใช้ภาพหรือ CSS hotspot เพียงอย่างเดียว |
 | **FR-WORLD-026** | R0 | **Layered Game Rendering:** World ต้องแยก `FloorBase`, `FloorDecal`, `CollisionGeometry`, `Actor`, `PropMid`, `ForegroundOccluder`, `LightingFX` และ Semantic DOM Overlay พร้อม dynamic Y-depth เพื่อให้การเดินหน้า/หลังวัตถุสมจริง |
+| **FR-WORLD-027** | R0 | **Native Phaser Entity Standard:** Booth, wall, counter, display, kiosk, queue marker, planter, NPC, player, sign และ light ต้องถูก instantiate เป็น Phaser 4 `GameObject`, `Container`, `Sprite`, `Layer` หรือ physics object จริงใน scene graph มี lifecycle/state ของตัวเอง ห้ามใช้ภาพฉากแบนแล้ววาง transparent hotspot หรือ DOM element ให้ดูเหมือนเป็นวัตถุในเกม |
+| **FR-WORLD-028** | R0 | **Plain World Base:** Background มีหน้าที่เป็นเพียงพื้นโล่ง, tile/grid, aisle และ boundary ที่ Phaser render; องค์ประกอบฉากที่สื่อความหมายหรือโต้ตอบได้ต้องวางเป็น runtime entity ภายหลัง จึงสามารถย้าย, ซ่อน, เปลี่ยน state, depth-sort และชนได้โดยไม่ redraw ภาพพื้นหลัง |
+| **FR-WORLD-029** | R0 | **Functional Mode Completeness:** World, Navigator/List Mode, Booth Detail, Queue join/cancel, NPC Dialogue, Info Hub และ Character Studio ต้องเปิด-ปิดและทำ primary action ได้จริง; ห้ามมีปุ่มโหมดหรือ control ที่ไม่เปลี่ยน state/ไม่ส่ง command ตามที่ label ระบุ และเมื่อ DOM panel/dialogue เปิดต้องหยุด Game input เพื่อไม่ให้ตัวละครเดินโดยไม่ตั้งใจ |
+| **FR-WORLD-030** | R0 | **Runtime Avatar Composition:** การเลือก skin, hair style/color, top style/color, bottom/trousers style/color, shoes style/color และ accessory ต้อง compose เป็น Phaser Dynamic Texture จริง, preview ใน Phaser mini-scene, apply กับ player ทันที และ persist local preference; ห้ามสลับภาพตัวละครสำเร็จรูปทั้งตัวเพื่อจำลอง customization |
+
+> [!IMPORTANT]
+> **P0 WORLD GATE — ลำดับความสำคัญสูงสุด:** `FR-WORLD-025`, `FR-WORLD-027` และ `FR-WORLD-031..036` เป็น release blockers ที่อยู่เหนือ glow, HUD polish, animation และ feature เพิ่มทั้งหมด ห้ามยอมรับ scene ที่ “ทำงานได้แต่ยังใช้กล่องแบน”, วัตถุคนละมุม, avatar หน้าเดียวแล้ว flip หรือ booth clone ทั้งหมดเป็น Done
+
+| ID | Pri | Requirement Description |
+|---|:---:|---|
+| **FR-WORLD-031** | **P0-GATE** | **Authentic Rendered Element:** Visual final ของ booth, facade, counter, desk, monitor, kiosk, plant, queue rail, truss, lounge, player และ NPC ต้องใช้ original/licensed pre-rendered pixel asset หรือ authored sprite/tile ที่มี silhouette, ด้านหน้า/ด้านข้าง, material detail, grounded shadow และมุมมอง top-front 3/4 สอดคล้องกัน Primitive rectangle/ellipse ใช้ได้เฉพาะ floor geometry, collision, sensor, debug หรือ FX; ห้ามใช้เป็นตัวแทนวัตถุ final |
+| **FR-WORLD-032** | **P0-GATE** | **Master Reference Fidelity:** Art direction และการตกแต่งต้องอิง `00_MAIN_virtual_job_fair_map.jpg` และ `00_MAIN_spritesheet_booths_characters_props.png` เป็น master references สูงสุดด้าน scale, density, booth anatomy, furniture vocabulary, palette และ readability โดยสร้าง asset ต้นฉบับใหม่ ห้ามคัดลอก company, logo, character หรือ map layout จาก reference |
+| **FR-WORLD-033** | **P0-GATE** | **Game-Grade Movement & Collision:** ทุก solid rendered prop ต้องมี collision geometry ที่ผูก `ownerId/entityId`, ตรงกับฐานวัตถุ ไม่ใช้ full transparent frame; player/NPC ใช้ foot hitbox, sensor แยกจาก solid body, navigation ต้องหยุดที่ approach point ที่เดินถึงได้ และ actor ต้องเดินหน้า/หลัง prop ตาม Y-depth โดยไม่ทะลุหรือค้างชนเป้าหมาย |
+| **FR-WORLD-034** | **P0-GATE** | **True Directional Sims-style Avatar:** Player avatar ต้องมี authored/composed sprite จริงอย่างน้อย 4 ทิศ `down/front`, `up/back`, `left profile`, `right profile` และอย่างน้อย 3 เฟรมต่อทิศ `idle`, `step-left`, `step-right`; side/back ต้องมี anatomy, hair, เสื้อ, กางเกง/ท่อนล่าง, รองเท้า และ accessory ของมุมนั้นจริง ห้ามใช้ front frame, horizontal flip หรือ rotation หลอกเป็นด้านหลัง ผู้ใช้ต้องปรับ skin tone, hair style/color, top style/color, bottom/trousers style/color, shoe style/color และ accessory ได้แยกกันโดยไม่ล็อกตามเพศ พร้อม preview 4 ด้านและ apply/persist ใน World |
+| **FR-WORLD-035** | **P0-GATE** | **Single Top-Front Camera Convention:** Floor, booth facade, desk, monitor, kiosk, chair, plant, queue rail, NPC และ player ต้องใช้ orthographic top-front 3/4 view เดียวกัน เห็น top plane + front plane ตามชนิดวัตถุ, เส้นตั้งไม่บรรจบ, baseline/grid scale คงที่ และรับแสงจาก top-left/ทอดเงา down-right; ห้ามกลับ booth แถวล่างให้เปิดคนละทิศ, ผสม isometric/side/front camera หรือย่อขยายวัตถุจนสัดส่วนเทียบ actor ผิด |
+| **FR-WORLD-036** | **P0-GATE** | **Modular Booth Variant Library:** Booth ต้องประกอบจาก runtime entities แยกชิ้นและมีอย่างน้อย facade 3 แบบ, counter 3 แบบ, showcase 3 แบบ, kiosk 2 แบบ, queue setup 3 แบบ และ decoration/seating/plant อย่างละ 3 แบบ; booth ที่ติดกันห้ามใช้ combination เหมือนกันทุกหมวด ความหลากหลายต้องมาจาก authored variant, approved palette, prop cluster และ dynamic sign ห้ามใช้ arbitrary scale/flip/rotation ที่ทำให้ top-front perspective, light หรือ collider ผิด |
 
 ---
 

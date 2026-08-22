@@ -2,7 +2,7 @@
 
 ---
 
-## 4.1 Acceptance Criteria (AC-01 to AC-31)
+## 4.1 Acceptance Criteria (AC-01 to AC-37)
 
 ### AC-01 Candidate anonymity
 - **Given:** Job เปิด Blind Mode และ candidate อนุมัติ Masked Profile
@@ -159,17 +159,48 @@
 - **When:** ใช้ WASD/ลูกศร หรือ Tap-to-move เข้าใกล้บูธและแตะ NPC
 - **Then:** กล้องเคลื่อนตาม Avatar อย่างนุ่มนวล, บูธแสดง Interactive Glow, NPC แสดงบทสนทนาสังเคราะห์, Logo Plate เปลี่ยนตาม Fixture, และ Reduced Motion หยุด Ambient Animation ได้
 
+### AC-32 Native Phaser scene composition
+- **Given:** เปิด Career Hall และ inspect Phaser scene graph/runtime
+- **When:** ซ่อนหรือลบ floor/background layer แล้วตรวจ booth, kiosk, counter, display, planter, player และ NPC
+- **Then:** วัตถุทั้งหมดต้องยังเป็น entity แยกชิ้นที่ render, interactive, depth-sort และมี physics/state ได้เอง; ไม่มีภาพ hall สำเร็จรูปหรือ transparent hotspot ทำหน้าที่แทนวัตถุ และ collision body ตรงกับฐานวัตถุที่มองเห็น
+
+### AC-33 Complete modes and avatar customization
+- **Given:** Candidate อยู่ใน World แล้วเปิดทุกโหมดจาก keyboard/pointer ที่ viewport Desktop, 390 px และ 320 px
+- **When:** สลับ World/Navigator/Booth/Character Studio, ค้นหาและนำทาง, join/cancel queue, คุย NPC, เปิด Info Hub และปรับตัวละครทุกหมวด
+- **Then:** ทุก control เปลี่ยน state หรือส่ง typed command จริง, Game input หยุดขณะใช้ DOM panel/dialogue, avatar preview และ player ใช้ Dynamic Texture เดียวกัน และค่าที่บันทึกกลับมาใช้หลัง reload
+
+### AC-34 P0 reference fidelity and collision
+- **Given:** Reviewer เปิด runtime คู่กับ `00_MAIN_virtual_job_fair_map.jpg` และ `00_MAIN_spritesheet_booths_characters_props.png` พร้อมเปิด physics debug overlay
+- **When:** ตรวจ floor, booth facade, recruiter desk, workstation, display, kiosk, queue rail, plant, truss, lounge, player และ NPC แล้วเดินชน/อ้อม/ผ่านหน้า–หลังทุกชนิด
+- **Then:** Visual final เป็น original pre-rendered pixel elements ที่มี top-front 3/4 silhouette, material detail และ grounded shadow ใกล้เคียงระดับ readability ของ reference; ไม่มี primitive placeholder ทำหน้าที่เป็น final object; collider ตรงฐานและมี owner link, sensor แยกจาก solid body, navigation ไม่ target กลางวัตถุ และ Y-depth ถูกต้อง
+
+### AC-35 Complete Website, Landing and Virtual Fair journey
+- **Given:** ผู้ใช้เปิด `/` ใหม่บน viewport 320, 390, 768, 1024 หรือ 1440 CSS px โดยยังไม่มี demo state
+- **When:** ใช้เฉพาะ controls ที่เห็นบนหน้าเพื่อไป Product Landing → Event Landing → Mock Verify/Consent → Profile Import → Masked Review → Avatar Setup → Phaser Career Hall แล้วใช้ browser back/forward, reload, Resume และ Reset
+- **Then:** ทุก step navigate/validate/persist/recover ตาม label, ไม่มี dead control หรือ horizontal overflow ใน core flow, Demo/Mock แสดงชัด, World mount เพียงหนึ่ง instance และถูก destroy เมื่อออก, direct URL/404 มี recovery path และผู้ใช้กลับ Website/Event ได้โดยไม่ต้องแก้ URL เอง
+
+### AC-36 Directional avatar, scene perspective and cohesive UI
+- **Given:** Reviewer เปิด Character Studio และ Career Hall เทียบกับ perspective guide ที่ viewport 390 และ 1440 CSS px
+- **When:** เปลี่ยน skin, hair, เสื้อ, กางเกง/ท่อนล่าง, รองเท้า และ accessory แยกชั้น/แยกสี กดดูหน้า–หลัง–ซ้าย–ขวา บันทึก เดินครบสี่ทิศ และตรวจ booth/desk/kiosk/plant/NPC ทุกโซน
+- **Then:** Avatar แสดง sprite 4 ทิศจริงและ walk cycle 3 เฟรมต่อทิศโดยไม่มี front-frame flip แทนด้านหลัง ทุก layer ตรง frame และไม่เหลื่อม, customization คงหลัง reload, ทุก scene element ใช้ orthographic top-front 3/4 พร้อม top-left light/down-right shadow และ scale/grid เดียวกัน, booth ทุกแถวหันตาม camera convention เดียว และ Website/World UI มี hierarchy, navigation และ state feedback ที่สอดคล้องโดยไม่บดบัง core world action
+
+### AC-37 Modular booth variety without perspective breaks
+- **Given:** Career Hall แสดง booth อย่างน้อย 4 จุดและ reviewer เปิด entity/collider overlay
+- **When:** เปรียบเทียบ facade, counter, showcase, kiosk, queue setup, decoration, seating และ plant ของ booth ที่ติดกัน
+- **Then:** Library มีจำนวนขั้นต่ำตาม `FR-WORLD-036`, ไม่มี booth คู่ติดกันที่ใช้ combination เหมือนกันทุกหมวด, ทุกชิ้นยังเป็น runtime entity แยกพร้อม pivot/collider/sensor ที่ถูกต้อง และไม่มีการ flip/rotate/arbitrary scale เพื่อหลอกเป็น variant จน camera, light, shadow หรือสัดส่วนกับ actor ผิด
+
 ---
 
 ## 4.2 Requirement Traceability Matrix (R2 Pilot Scope)
 
 | Capability | Requirements | Canonical State | Primary Endpoint / Event | Main Entities | Key Acceptance Criteria |
 |---|---|---|---|---|---|
+| **Website & Landing Journey** | FR-WEB-001..010 | Local Demo Journey / Future Server Session | `/`, `/event/demo`, candidate preparation routes | `DemoJourneyState`, `AvatarAppearance` | AC-04, AC-16, AC-35, AC-36 |
 | **Identity & Consent** | FR-AUTH, FR-CONSENT | Active / Withdrawn | `/auth`, `/consents` | `User`, `IdentityClaim`, `ConsentRecord` | AC-01, AC-21 |
 | **Resume & Profile** | FR-PROFILE | Section 9.6 Lifecycle | `/resumes`, `/profiles` | `ResumeAsset`, `CandidateProfile`, `CandidateEventAlias` | AC-02, AC-28 |
 | **Organization & Job** | FR-ORG, FR-JOB, FR-BOOTH | Draft / Published | `/company/jobs`, `/company/booths` | `OrganizationMembership`, `JobPosting`, `Booth` | AC-18, AC-22 |
 | **Skill Recommendation** | FR-MATCH | Versioned Result | `/jobs/:id/recommendation` | `RecommendationResult` | AC-03, AC-20 |
-| **World & Navigator** | FR-WORLD-001..018 | Presence Snapshot / Delta | `world.*` | `Presence`, `EventPolicy` | AC-04, AC-05, AC-23, AC-31 |
+| **World & Navigator** | FR-WORLD-001..036 | Presence Snapshot / Delta | `world.*` | `Presence`, `EventPolicy`, `AvatarAppearance`, `WorldEntity` | AC-04, AC-05, AC-23, AC-31..34, AC-36, AC-37 |
 | **Queue Management** | FR-QUEUE | Section 9.2 State Machine | `/queue-tickets`, `queue.*` | `QueueTicket` | AC-06..09, AC-17, AC-26, AC-29 |
 | **Interview Sandbox** | FR-INT | Section 9.3 State Machine | `/interviews`, `interview.*` | `InterviewSession` | AC-10, AC-11, AC-24 |
 | **Integrity Signals** | FR-INTEGRITY | Advisory Store | Restricted Event Store | `IntegrityEvent` | AC-12 |

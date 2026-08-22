@@ -1,6 +1,7 @@
 # MCP-Assisted Research, Asset Iteration & Visual QA
 
-> **Status:** Required workflow for future world/visual implementation · D0 permits documentation research only
+> **Status:** Required workflow for active R0 world/visual implementation
+> **Version:** 3.0 · 22 August 2026
 
 ## 1. Objective
 
@@ -38,18 +39,19 @@ MCP เป็น **development and QA tooling** เท่านั้น ห้�
 
 ไม่ต้องใช้ “Phaser MCP” โดยเฉพาะเพื่อผ่าน workflow นี้ Browser/DevTools MCP, filesystem tooling, official Phaser documentation/skills และ local test harness สามารถเป็นชุดเครื่องมือพื้นฐานได้ การซื้อ Phaser Editor ไม่ใช่ acceptance criterion
 
-## 4. Realism Review Checklist
+## 4. Visual Evidence Gate
 
-คำว่า “สมจริง” ในโครงการนี้หมายถึง world ที่เชื่อได้ภายในภาษา 8-bit ไม่ใช่ photorealism งานจะผ่านเมื่อมีหลักฐานว่า:
+นิยาม “สมจริง”, top-front camera, booth variants, avatar layers, collision/depth และ test scenes มีเจ้าของเพียงแห่งเดียวใน [Game Visual & World Specification](../03-design/world-and-scene-design.md) ส่วน workflow นี้กำหนดหลักฐานที่ต้องแนบ:
 
-- booth มี scale, counter, seating, signage, queue lane และ interaction distance ที่สอดคล้องกัน
-- actor ใช้ foot hitbox, Y-depth และ foreground occlusion จนเดินหน้า/หลังวัตถุได้ถูกต้อง
-- idle/run/ambient animation มี timing คงที่และรองรับ Reduced Motion
-- landmark, floor material, lighting และ prop density ช่วยนำทางโดยไม่ทำให้ข้อมูลสมัครงานอ่านยาก
-- DOM HUD/media controls ไม่บดบัง world ใน mobile/desktop และทุก action สำคัญมี Navigator/List Mode
-- frame time, texture budget และ initial download อยู่ใน performance budget จริง
+- camera lineup และ character turnaround
+- collider/sensor/approach-point overlay
+- การเดินหน้า–หลัง prop เพื่อยืนยัน Y-depth/occlusion
+- booth combination ที่ไม่ซ้ำติดกัน
+- Character Studio ที่เปลี่ยน skin, hair, top, bottom/trousers, shoes และ accessory
+- interactive capture ที่ viewport 390 และ 1440 CSS px
+- performance trace และ asset provenance
 
-ภาพสวยเพียงหนึ่ง viewport ไม่ถือว่าผ่าน ต้องมี interactive capture และผลตรวจอย่างน้อย mobile + desktop
+ภาพนิ่งสวยเพียงภาพเดียวหรือผลจาก generator โดยยังไม่ integrate ใน Phaser runtime ไม่ถือว่าผ่าน
 
 ## 5. Privacy, Security & IP Boundary
 

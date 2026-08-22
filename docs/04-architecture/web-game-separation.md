@@ -1,7 +1,7 @@
 # Web–Game Separation & Phaser 4 Direction
 
-> **Status:** Approved documentation direction · D0 Documentation only · 22 August 2026
-> **Implementation:** Not started
+> **Status:** Implemented boundary · R0 Vertical Slice 1 · 22 August 2026
+> **Implementation:** `apps/web`, `apps/game`, `packages/contracts`, `packages/domain`, `packages/assets`
 
 ## 1. Intent
 
@@ -11,25 +11,25 @@ MaskedMatch จะใช้แนวคิดของ [Hideout](https://gethide
 
 ## 2. Engine Decision
 
-เลือก **Phaser 4.x stable line** สำหรับ Career Hall runtime ในอนาคต
+เลือกและ pin **Phaser 4.2.1** สำหรับ Career Hall runtime ใน R0
 
 เหตุผล:
 
 - เหมาะกับ 2D top-down world, sprite animation, tilemap, camera, input และ collision ซึ่งเป็นแกนของ Career Hall
-- Phaser 4 เป็น stable release line แล้วและยังมี active releases; ก่อนเริ่ม R0 ต้อง pin exact version จาก stable release ล่าสุด
+- Phaser 4 เป็น stable release line และ R0 pin exact version ที่ `4.2.1`; ห้ามใช้ floating range ใน Game workspace
 - แยก game simulation ออกจาก product UI ได้ชัดเจน โดย React ไม่ต้องเป็น owner ของ game loop
 
 ข้อควรระวัง:
 
 - ตรวจสอบ public production payload และ Console banner เมื่อ 22 August 2026 แล้ว พบว่า Hideout ใช้ **Phaser 4.1.0 (WebGL/Web Audio)** จริง หลักฐานนี้ยืนยันความเป็นไปได้ของแนวทาง แต่การเลือก engine/version ของเรายังต้องยืนด้วย requirement และ spike ของ MaskedMatch เอง
-- plugin/ตัวอย่างบางส่วนอาจยังไม่รองรับ Phaser 4 หรือยังอิง API รุ่นก่อน จึงต้องผ่าน compatibility spike ก่อน scaffold ตัวจริง
+- plugin/ตัวอย่างบางส่วนอาจยังไม่รองรับ Phaser 4 หรือยังอิง API รุ่นก่อน จึงต้องผ่าน compatibility gate ก่อนเพิ่มหรืออัปเกรด dependency
 - ห้ามคัดลอก version `4.1.0` หรือ pin `latest` แบบลอยตัวโดยอัตโนมัติ; ต้องเลือก exact stable version ณ วันเริ่ม implementation และบันทึก migration policy
 
 Primary references: [Phaser releases](https://github.com/phaserjs/phaser/releases), [Phaser API documentation](https://docs.phaser.io/api-documentation/namespace/phaser), [Gather spatial audio/video](https://support.gather.town/articles/4624155403-overview-of-spatial-audio-video)
 
-## 3. Future Repository Boundary
+## 3. Implemented Repository Boundary
 
-เมื่อผู้ใช้อนุมัติให้เริ่ม implementation ให้ scaffold เป็นคนละ workspace:
+โครงสร้าง implementation ปัจจุบันแยกเป็นคนละ workspace:
 
 ```text
 apps/
@@ -70,6 +70,7 @@ Web เริ่ม/หยุด Game ผ่าน adapter ที่มี versi
 - `setWorldSnapshot(snapshot)`
 - `navigateTo({ targetId })`
 - `setInputEnabled({ enabled })`
+- `setAvatarAppearance({ appearance })`
 - `suspendWorld()` / `destroyWorld()`
 
 **Game → Web events**
@@ -79,13 +80,20 @@ Web เริ่ม/หยุด Game ผ่าน adapter ที่มี versi
 - `interactionRequested({ objectId, action })`
 - `zoneEntered({ zoneId })` / `zoneExited({ zoneId })`
 - `navigationCompleted({ targetId })`
+- `avatarAppearanceApplied({ appearance })`
 - `runtimeError({ code, recoverable })`
+
+### Native scene ownership (mandatory)
+
+`apps/game` ต้องสร้าง plain floor และ runtime entities ด้วย Phaser 4 โดยตรง: `Layer` แยก background/structure/actors/foreground/lighting, `Container` สำหรับ prefab ที่ประกอบหลายชิ้น, Arcade static/dynamic bodies บนวัตถุจริง และ `DynamicTexture` สำหรับ avatar compositor. Website รับเฉพาะ typed event และห้ามเป็นเจ้าของ visual object ในโลกเกม การโหลดภาพ hall สำเร็จรูปที่มี booth/คน/prop แล้วใช้ DOM/CSS/transparent hotspot ทับ ถือว่าละเมิด boundary นี้
+
+Implementation note (22 August 2026): ตรวจ Phaser official API ผ่าน Context7 MCP ก่อนลงมือ โดยยืนยันการใช้ `setInteractive()` กับ Game Object/Container, `Layer` สำหรับจัดกลุ่ม scene graph, Arcade `collide`/`overlap` และ static body สำหรับ geometry/sensor รวมถึง `textures.addDynamicTexture()`, `DynamicTexture.draw()` และ `Texture.setFilter(NEAREST)` สำหรับ avatar compositor. MCP เป็นแหล่งตรวจ API ระหว่างพัฒนา ไม่ถูก bundle เป็น production dependency
 
 Contract payload ต้องเป็น serializable data, มี version และไม่มี DOM node, Phaser object, token, PII ที่ไม่จำเป็น หรือ mutable shared state
 
-## 6. Phaser 4 Compatibility Spike Gate
+## 6. Phaser 4 Compatibility Gate
 
-ก่อนเริ่ม vertical slice แรก ให้ทำ spike แบบ time-boxed และผ่านทุกข้อ:
+R0 ผ่านการเลือก engine และ pin Phaser `4.2.1` แล้ว ทุก upgrade หรือการเปลี่ยน plugin ต้องรัน gate ต่อไปนี้ซ้ำ:
 
 1. โหลด tilemap/atlas ที่มี floor, collision, foreground occlusion และ animated sprites ได้
 2. รองรับ keyboard, pointer/tap และ virtual joystick โดยไม่ผูก input กับ DOM form
@@ -108,7 +116,7 @@ Contract payload ต้องเป็น serializable data, มี version แ�
 - World/presence ใช้ authenticated WebSocket แยกจาก LiveKit media channel; Game คำนวณ spatial membership แต่ DOM/media layer เป็น owner ของ consent และ track subscription
 - Public implementation เชื่อม Phaser กับ shared app stores/API ค่อนข้างแน่น MaskedMatch จึงคง typed adapter และ workspace boundary ที่เข้มกว่า
 
-รายละเอียดการตรวจสอบอยู่ที่ local research note `/home/ctrlaltnate/hd/HIDEOUT-TECHNICAL-NOTES.md`; ห้าม commit browser-save ที่มี session/account data หรือ proprietary bundle เข้า repository
+ข้อสรุปที่อนุญาตให้อ้างในโครงการอยู่ใน section นี้เท่านั้น; local capture/research file ภายนอก repository ไม่ใช่ canonical documentation ห้าม commit browser-save ที่มี session/account data หรือ proprietary bundle เข้า repository
 
 รับมาเป็นหลักการ:
 

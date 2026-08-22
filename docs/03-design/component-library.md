@@ -1,70 +1,117 @@
-# 5. Component Library, UI Primitives & Media Engines
+# Product Component Library
 
-> **Visual Guideline:** ทุก Component และ Icon ในระบบสร้างขึ้นด้วย **Custom Vector SVGs และ Pixel Art** โดยเฉพาะ **ห้ามใช้อิโมจิ** เป็นตัวแทนของไอคอน ปุ่ม หรือสถานะ
+> **Document role:** Semantic DOM component contracts and naming
+> **Visual tokens/states:** [Website & Product UI Design System](./design-system.md)
+> **Game entities/character layers:** [Game Visual & World Specification](./world-and-scene-design.md)
 
 ---
 
-## 5.1 Design System Primitives
+## 1. Foundation Components
 
-ทุก Primitive Component ในระบบจะต้องรองรับสถานะพื้นฐานครบถ้วน: `default`, `hover`, `focus-visible`, `pressed`, `selected`, `disabled`, `loading`, และ `error`
-
-| Component Name | Variants & Styles | Required States & Behaviors |
+| Component | Required variants/states | Accessibility contract |
 |---|---|---|
-| **`PixelButton`** | `primary`, `secondary`, `danger`, `quiet` | รองรับ Focus-visible 4px ring, ขนาดขั้นต่ำ 44×44px, Loading spinner |
-| **`IconButton`** | `standard`, `compact`, `floating` | ใช้ Custom SVG Icons (No Emoji), มี Accessible Name เสมอ |
-| **`TextField`** | `text`, `search`, `textarea`, `OTP` | Valid, Invalid พร้อม `aria-describedby` เชื่อม Error Text |
-| **`Checkbox / Radio`** | `standard`, `consent-card` | Checked, Unchecked, Indeterminate, Error State |
-| **`Select / Dropdown`** | `standard`, `menu-popup` | รองรับ Keyboard Navigation (Arrow up/down, Enter, Esc) |
-| **`Card`** | `flat`, `raised`, `interactive-glow` | Hover feedback, Selected border, Accessible container |
-| **`DialogWindow`** | `modal`, `alertdialog` | Trap focus ภายใน, คืน Focus ให้ Trigger เมื่อปิด, Esc เพื่อปิด |
-| **`BottomSheet`** | `snap-50dvh`, `snap-90dvh` | มีปุ่มขยายเต็มจอ/ปิดชัดเจน ไม่พึ่งพาการ Swipe เพียงอย่างเดียว |
-| **`Tabs`** | `line-tabs`, `pixel-segmented` | Arrow key switching, `aria-selected` status |
-| **`Toast`** | `info`, `success`, `warning`, `danger` | Live Region Announcement, ข้อความสำคัญไม่หายเองอัตโนมัติ |
-| **`Skeleton`** | `card-skeleton`, `list-skeleton` | แสดงโครงสร้างชั่วคราว, หยุดการกระพริบเมื่อ Reduced Motion |
+| `Button` | primary, secondary, tertiary, danger; default/focus/pressed/disabled/loading | native button, visible label, no duplicate submit |
+| `IconButton` | default/focus/pressed/disabled | accessible name required |
+| `TextField` / `TextArea` | default/focus/filled/error/disabled | persistent label + described error/help |
+| `Select` / `Combobox` | closed/open/result/empty/error | keyboard listbox behavior |
+| `Checkbox` / `RadioGroup` | unchecked/checked/indeterminate/disabled | native semantics and group label |
+| `Card` | static, selectable, actionable | card itselfไม่ interactive หากมี nested action |
+| `Dialog` | info, confirm, danger, ready-check | focus trap, Escape policy, focus return |
+| `Drawer` / `BottomSheet` | closed/50dvh/90dvh/full | explicit open/close/expand; swipe not required |
+| `Tabs` | default/selected/disabled | arrow-key navigation + `aria-selected` |
+| `StatusBadge` | success/warning/danger/offline/demo | icon/shape + text; not color-only |
+| `Toast` | info/success/warning/error | live region; critical message persists |
+| `Skeleton` | card/list/profile | Reduced Motion-safe |
 
 ---
 
-## 5.2 Domain Product Components & Media Canvas
+## 2. Website and Journey Components
 
-| Component Name | Description & Essential Content |
+| Component | Responsibility |
 |---|---|
-| **`CharacterStudioPicker`** | แผงเลือกหมวดหมู่แต่งตัว (ผิว, ทรงผม, เสื้อผ้า, หน้ากาก) พร้อมรายการ Style Grid |
-| **`PaletteSwatch`** | จานสี 8-Bit สำหรับเลือกเฉดสีผิว สีผม และสีเสื้อผ้า |
-| **`DiceRandomizerButton`** | ปุ่มกดสุ่มสไตล์ตัวละครแบบ The Sims (`[🎲 สุ่มตัวละคร]`) พร้อม Sound/Haptic |
-| **`SpritePreviewStage`** | Canvas Phaser ขนาดย่อม แสดง Live 8-Bit Animation และปุ่มหมุนตัวละคร 360° |
-| **`FaceMaskCanvas`** | Canvas เรนเดอร์กล้องจริง + Realtime Face Tracking Avatar Overlay (Fail-Closed Active) |
-| **`VoiceModulatorDock`** | ตัวควบคุม Web Audio API DSP Pitch / Formant Shift พร้อม Visual Level Meter |
-| **`DemoBanner`** | ป้ายสถานะความปลอดภัย (`DEMO DATA / OFFICIAL DIGITAL ID COMPLIANT`) |
-| **`BlindModeBadge`** | ป้ายระบุสถานะการปิดบังข้อมูลตัวตน พร้อม Tooltip อธิบายสิ่งที่ซ่อน |
-| **`CandidateAlias`** | ป้ายรหัสประจำตัวผู้สมัคร (เช่น `Candidate #8F3A`) พร้อม Generated Animal Avatar |
-| **`VisibilityTable`** | ตารางแสดงรายการข้อมูลที่ถูกปิดบัง vs ข้อมูลที่เปิดเผยให้ Recruiter เห็น |
-| **`MatchScoreCard`** | การ์ดแสดงคะแนนความตรงกัน (0–100), ระดับความมั่นใจ, และเหตุผล 3–5 ข้อ |
-| **`BoothCard`** | การ์ดข้อมูลบูธสมจริง: โลโก้, รายการตำแหน่งงาน, สถานะคิวสด, โต๊ะ Recruiter |
-| **`JobCard`** | การ์ดรายละเอียดงาน: คุณสมบัติหลัก (Must-have), โหมดการทำงาน, และปุ่มเข้าคิว |
-| **`QueueChip`** | ชิปแสดงสถานะคิวบน Floating HUD: บูธ, ลำดับคิว, เวลานับถอยหลัง, ปุ่มขยาย |
-| **`ReadyCheckDialog`** | กล่องแจ้งเตือนเมื่อถึงคิวสัมภาษณ์: เวลาถอยหลัง 60s, ปุ่มพร้อม, ปุ่มขอเลื่อน |
-| **`NetworkBadge`** | ป้ายแสดงคุณภาพสัญญาณเน็ต: `ดีมาก`, `ไม่เสถียร`, `กำลังเชื่อมต่อใหม่`, `ออฟไลน์` |
-| **`MediaControlDock`** | แถบควบคุมมัลติมีเดียในห้องสัมภาษณ์: ปุ่มไมค์, กล้อง, สลับ Avatar, ออกจากห้อง |
-| **`PrivacyStatusBar`** | แถบสถานะความปลอดภัย: แสดงสถานะ Face Mask, Recording Off, End-to-End |
-| **`DecisionCard`** | การ์ดส่งผลการตัดสินใจส่วนตัว: ข้อความเตือนความลับ และปุ่ม `สนใจ` / `ยังไม่ไปต่อ` |
-| **`RevealFieldPicker`** | แบบฟอร์มเลือก Checkbox ข้อมูลที่จะเปิดเผย (Email, Phone, Portfolio, Resume) |
-| **`SupportEntry`** | เมนูลัดสำหรับขอความช่วยเหลือฉุกเฉิน หรือแจ้งเรื่องร้องเรียน |
+| `GlobalHeader` | product/event/status navigation + functional mobile menu |
+| `EventHero` | demo label, event summary, Start/Resume/Guest World actions |
+| `JourneyProgress` | verify/profile/avatar/world progress and resume target |
+| `DemoIdentityCard` | mock label, alias, consent and privacy explanation |
+| `ProfileImportForm` | validated synthetic/manual input and sample data action |
+| `MaskedProfileReview` | source vs recruiter view, redaction and approve/edit actions |
+| `PolicyPage` | privacy/terms with truthful prototype limitations |
+| `SystemStatusList` | implemented vs demo-only services without production claims |
+| `RouteRecovery` | 404/direct-route recovery action |
 
 ---
 
-## 5.3 Component Naming & Hierarchy in Design Tool
+## 3. World Bridge Components
 
-ใช้โครงสร้าง Slash Naming Hierarchy เพื่อให้สอดคล้องระหว่าง Figma / UI Kit และ Code:
+ส่วนเหล่านี้เป็น DOM UI รอบ Phaser ไม่ใช่วัตถุใน Canvas:
+
+| Component | Responsibility |
+|---|---|
+| `GameSurface` | mount one Phaser runtime, dispatch typed commands, destroy on unmount |
+| `WorldStatus` | loading/ready/error/renderer state |
+| `MissionCard` | one current objective; must not cover core destination |
+| `NavigatorPanel` | search/filter/booth list and complete Canvas-action parity |
+| `BoothDetailPanel` | role, match evidence, recruiter/queue and navigate/join actions |
+| `QueueChip` | active local/server ticket, position/ETA and cancel |
+| `NpcDialogue` | synthetic role/message, dismiss and paused game input |
+| `CharacterStudio` | customization controls; all layer options have text labels |
+| `AvatarPreviewStage` | Phaser preview with front/back/left/right controls |
+
+Booth, counter, kiosk, prop, player และ NPC ไม่อยู่ใน Component Library นี้; ใช้ prefab/entity contract ใน [Game Visual & World Specification](./world-and-scene-design.md)
+
+---
+
+## 4. Product Domain Components
+
+| Component | Essential content |
+|---|---|
+| `DemoBanner` | explicit synthetic/mock status |
+| `BlindModeBadge` | what is hidden and until when |
+| `CandidateAlias` | event-scoped pseudonym only |
+| `VisibilityTable` | hidden vs visible fields |
+| `MatchScoreCard` | score, confidence/fixture label and evidence reasons |
+| `BoothCard` | company/job, status, wait and action |
+| `JobCard` | job requirements/evidence/work mode/queue action |
+| `ReadyCheckDialog` | server time, accept/request-delay path |
+| `NetworkBadge` | good/unstable/reconnecting/offline with text |
+| `MediaControlDock` | mic/camera/avatar/caption/leave controls |
+| `PrivacyStatusBar` | mask/recording/transcription status |
+| `DecisionCard` | private interested/pass submit |
+| `RevealFieldPicker` | independent consent per contact field |
+| `SupportEntry` | support/report/emergency leave path |
+
+---
+
+## 5. Character Studio Control Contract
+
+รายละเอียด sprite/layer/variant เป็นของ Game Visual Spec ส่วน DOM controls ต้องมี:
+
+- `SkinTonePicker`
+- `HairStylePicker` + `HairColorPicker`
+- `TopStylePicker` + `TopColorPicker`
+- `BottomStylePicker` + `BottomColorPicker`
+- `ShoeStylePicker` + `ShoeColorPicker`
+- `AccessoryPicker`
+- `RandomizeCharacterButton` พร้อม custom SVG icon และ text
+- `DirectionSelector` สำหรับ front/back/left/right
+- `SaveAvatarButton`
+
+ทุก picker ใช้ button/radio semantics, มี selected state และไม่พึ่ง thumbnail/color อย่างเดียว
+
+---
+
+## 6. Naming
 
 ```text
 Button/Primary/Default
-Button/Primary/Hover
 Button/Primary/Loading
-Media/FaceMaskCanvas/TrackingActive
-Media/VoiceModulator/PitchShifted
 Status/Network/Reconnecting
 Queue/Chip/ReadyCheck
 Dialog/ReadyCheck/Mobile
 Card/Job/Recommended
+World/Navigator/Panel
+Avatar/Direction/Back
+Avatar/Bottom/Trousers
+Avatar/Shoe/Neutral
 Media/Control/Mic/Muted
 ```

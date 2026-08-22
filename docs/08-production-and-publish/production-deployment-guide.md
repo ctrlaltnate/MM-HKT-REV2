@@ -1,6 +1,6 @@
 # 1. คู่มือการ Deploy สู่ Production ฉบับเข้าใจง่าย (Vercel + Supabase + MongoDB)
 
-> **สถานะ:** Future-state runbook ในช่วง D0 Documentation only; ยังไม่มี application หรือ deployment configuration ให้ deploy
+> **สถานะ:** Future-state runbook ระหว่าง R0; มี local Web/Game vertical slice แล้ว แต่ยังไม่มี production deployment configuration ให้ deploy
 > **แนวคิดหลัก:** ใช้บริการ Cloud และ Serverless สมัยใหม่เพื่อลดภาระดูแล Server โดยต้องผ่าน security, cost และ data-governance review ก่อนใช้งานจริง
 
 ---

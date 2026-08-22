@@ -64,6 +64,19 @@
 | `/event/demo` | R0 Standalone Hackathon Prototype Entry |
 | `/demo/control` | Demo Scenario Switcher, Data Reset & Instant Dispatch |
 
+### F. R0 Website Implementation Status (22 August 2026)
+
+| Surface | Implemented Route | Current Status |
+|---|---|---|
+| Product Website / Landing | `/` | **Implemented:** value proposition, how-it-works, World/Navigator parity และ Event CTA |
+| Event Landing | `/event/demo`, `/events/neon-career-city` | **Implemented:** schedule, 4 booths, privacy/a11y, progress, resume/reset และ Guest World |
+| Candidate Preparation | `/demo/verify`, `/candidate/profile/import`, `/candidate/profile/review`, `/candidate/avatar` | **Implemented as synthetic frontend demo:** consent, validation, masked side-by-side review, Phaser avatar preview และ local recovery |
+| Virtual Job Fair | `/event/demo/world`, `/app/events/event-neon-career-city/world` | **Implemented vertical slice:** Phaser 4 Career Hall, Navigator, booth detail, local queue, NPC dialogue, Info Hub และ Character Studio |
+| Legal / Recovery | `/legal/privacy`, `/legal/terms`, `/system-status`, unknown route | **Implemented:** truthful demo policy/status และ 404 recovery |
+| Queue orchestration, Interview, Decision/Reveal, Recruiter/Ops | canonical routes in sections B–E | **Not implemented yet:** อยู่ใน R0 slices 3–6 และห้ามนำเสนอว่า production-ready |
+
+> Route inventory คือ target architecture; ตารางนี้เป็นหลักฐานสถานะ runtime ปัจจุบัน เพื่อไม่ให้คำว่า “ทุกส่วนทำงานจริง” ถูกตีความเกิน vertical slice ที่ส่งมอบแล้ว
+
 ---
 
 ## 2.2 Responsive Breakpoints & Viewport Grid

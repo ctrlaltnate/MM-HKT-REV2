@@ -128,13 +128,13 @@ flowchart TB
 
 ## 1.5 Recommended Prototype Architecture (R0 Baseline)
 
-> เอกสารส่วนนี้เป็น **future-state architecture**; ไม่มี runtime implementation อยู่ใน repository ณ ช่วง D0
+> โครงสร้าง frontend/workspace ส่วนนี้เริ่มใช้งานแล้วใน R0; backend, durable realtime, production identity และ media infrastructure ด้านล่างยังเป็น future-state จนกว่าจะมี implementation/evidence จริง
 
 ### Tech Stack
 - **Framework:** Vite + React + TypeScript
 - **Routing:** React Router (รองรับการแชร์และ Refresh URL)
 - **Styling & Tokens:** CSS Custom Properties (Design Tokens) + Scoped CSS Modules
-- **Game Engine:** Phaser 4.x stable line (pin exact version หลัง compatibility spike ก่อนเริ่ม R0)
+- **Game Engine:** Phaser `4.2.1` ใน R0 Game workspace; การอัปเกรดต้องผ่าน compatibility/performance gate
 - **Realtime Media:** WebRTC + MediaPipe FaceMesh / WASM + Web Audio API AudioWorklet
 - **UI Overlay:** Semantic HTML/DOM สำหรับ Navigation, Forms, HUD, Dialogs, และ Captions
 - **Testing:** Vitest + React Testing Library (Unit/Component), Playwright (E2E & Viewport Smoke), Axe-core (Accessibility Smoke)

@@ -1,186 +1,354 @@
-# 3. Neon Career Hall World & Realistic Scene Design
+# Game Visual & World Specification — P0 Canonical
+
+> **Document role:** Single Source of Truth สำหรับภาพและพฤติกรรมของ Phaser Career Hall
+> **Version:** 3.0 · 22 August 2026
+> **Normative requirements:** `FR-WORLD-014..036`, `AC-31..37`
+
+เอกสารนี้เป็นเจ้าของข้อกำหนดเรื่องมุมมอง, มิติ, grid, scale, booth, props, character, animation, collision และ visual QA ของเกมทั้งหมด ไฟล์อื่นต้องอ้างถึงเอกสารนี้แทนการเขียนกฎชุดเดียวกันซ้ำ
 
 ---
 
-## 3.1 Spatial Concept: Seamless Endless Neon Career Hall (Revision 2.4)
+## 1. P0 Non-Negotiable Gates
 
-ฉากหลักของ MaskedMatch คือ **Grand Indoor Career Hall แบบ Seamless / Endless** ที่ผู้ใช้เดินสำรวจต่อเนื่องได้ และเมื่อเดินวนรอบ hall จะกลับมาพบ landmark และโซนเดิมได้อย่างมีเหตุผลเหมือนเกม 2D แบบ Game Boy — **ไม่ใช่ภาพพื้นหลังแบนหนึ่งภาพที่เลื่อนไปมา**
+งาน World จะถือว่า Done ได้เมื่อผ่านทุก gate ต่อไปนี้พร้อมกัน:
 
-- **Logical module:** แผนผัง hall มาตรฐานมีขนาด `1536 × 1024 logical px` ต่อ 1 โมดูล แต่ runtime ต้องทำงานแบบ **toroidal wrap หรือ streamed repeating modules**: เดินพ้นขอบ corridor แล้วเข้ามายัง corridor ฝั่งตรงข้าม/โมดูลถัดไปอย่างไร้รอยต่อ จึงเดินวนกลับมาจุดเดิมได้เสมอ
-- **Open modular floor plan:** พื้นหลักต้องเป็น hall โล่ง มีทางเดินกว้างและพื้นที่ว่างสำหรับวาง/ย้าย booth module ได้ตาม event configuration; ห้ามออกแบบเป็นด่านคับแคบหรือ maze ที่ขวางการค้นพบงาน
-- **Stable landmarks:** Central Hub, Arrival Lobby, Exit Portal, Support/A11y Desk และ Device Test Pods เป็น landmark ซ้ำที่ช่วยให้ผู้ใช้รู้ตำแหน่ง แม้จะเดินผ่านขอบ loop หรือ streamed module
-- **Renderer:** ใช้ Phaser 4 พร้อม Smooth Camera-Follow และ time-based easing; background, floor, props, foreground และ sprites ถูก compose จาก pre-generated asset layers / tile chunks ไม่ใช่ procedural canvas drawing
-- **Multi-Control:** รองรับ Keyboard (WASD / Arrow keys), Point-and-Click บน Desktop, Tap-to-Move บน Mobile และมี Navigator/List Mode ที่ทำงานได้เทียบเท่า 100%
-- **Strict No-Emoji Standard:** ทุก Element ภายในฉาก (NPC, พร็อพ, บูธ, ของตกแต่ง) ต้องเป็น **Generated Pixel Art / SVG Assets** ทั้งหมด ห้ามใช้อิโมจิ
-- **Visual Language Standards (Office / Convention Hall / Exhibition Booth):** ศึกษาโครงสร้างผัง, พร็อพอุปกรณ์สำนักงาน, โต๊ะ Recruiter, และซุ้มประตูทางเดินจากภาพอ้างอิงทั้ง 5 ภาพใน [docs/ref_pics/](../ref_pics/) และ [docs/03-design/reference-visual-language.md](./reference-visual-language.md)
-
-```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                   SEAMLESS NEON CAREER HALL MODULE                          │
-│          (1536×1024 logical px · wraps / streams endlessly)                │
-│                                                                             │
-│  ┌──────────────────┐                     ┌──────────────────┐              │
-│  │  Cyber Orchard   │                     │ Riverbyte Studio │              │
-│  │   (Cloud / IoT)  │                     │   (Creative AI)  │              │
-│  └─────────┬────────┘                     └─────────┬────────┘              │
-│            │                                        │                       │
-│            └───────────────┐        ┌───────────────┘                       │
-│                            │        │                                       │
-│                    ┌───────┴────────┴───────┐                               │
-│                    │      CENTRAL HUB       │ ── [Quiet Lounge]             │
-│                    │  Wayfinding & Info POI │                               │
-│                    └───────┬────────┬───────┘                               │
-│                            │        │                                       │
-│            ┌───────────────┘        └───────────────┐                       │
-│            │                                        │                       │
-│  ┌─────────┴────────┐                     ┌─────────┴────────┐              │
-│  │    Apex Cloud    │                     │ SolarPulse Energy│              │
-│  │  (Infra / Sec)   │                     │  (Green Tech/Fin)│              │
-│  └──────────────────┘                     └──────────────────┘              │
-│                                                                             │
-│  [Support / A11y Desk] ── [Device Test Pods] ── [Grand Arrival Lobby]       │
-│                                                                             │
-│       ← Loop corridor / streamed module boundary / loop corridor →         │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 3.1.1 Endless Loop & Booth Placement Rules
-
-1. **Loop continuity:** ขอบ module ต้องต่อกับทางเดิน/พื้นของ module ข้างเคียงได้จริง ทั้งภาพ, collision และ navigation graph; การ wrap ต้องรักษา velocity, facing, queue state และ target navigation ของผู้เล่น
-2. **Modular booth pads:** Booth วางได้เฉพาะบน `BoothPad` ที่กำหนดไว้ ซึ่งเป็นพื้นที่โล่งมาตรฐานพร้อมไฟ, collision footprint, interaction sensor และจุดต่อ queue line; organizer สามารถสลับ theme/logo/job ได้โดยไม่ต้องวาดแผนที่ใหม่
-3. **Discoverable, never hidden:** แม้ hall จะเดินได้ต่อเนื่อง ทุก booth ที่ active ต้องค้นหาและเปิดข้อมูลได้จาก Navigator, Search และ Mini-map โดยไม่ต้องเดินหาเอง
-4. **No deceptive infinity:** UI ต้องบอกว่าเป็น "Seamless Career Hall" และยังคง landmark/wayfinding ที่ชัดเจน; ห้ามทำให้ผู้ใช้หลงคิดว่ามี booth หรือ event instance ใหม่ไม่จำกัดโดยไม่มีข้อมูลจริง
-
-### 3.1.2 Game Physics, Collision & Render Layers
-
-โลกต้องมีพฤติกรรมแบบเกม 2D จริง ไม่ใช่ scene ภาพแบนที่วาง hotspot ทับ:
-
-| Runtime layer | หน้าที่ | กฎฟิสิกส์ / การบังซ้อน |
+| Gate | ต้องผ่าน | ไม่ผ่านทันทีเมื่อ |
 |---|---|---|
-| `FloorBase` / `FloorDecal` | พื้น hall, carpet, neon wayfinding | ไม่มี collision; ใช้ tile/chunk asset ที่ต่อขอบ loop ได้ |
-| `CollisionGeometry` | ผนัง, เคาน์เตอร์, planter, queue rail, booth footprint | ใช้ Phaser Arcade Physics body หรือ tile/object collision ที่สร้างจาก metadata; player/NPC เดินทะลุไม่ได้ |
-| `InteractSensor` | kiosk, display board, booth radius, staff desk, exit | เป็น overlap sensor แยกจาก solid body; เข้าใกล้แล้วแสดง context prompt แต่ไม่เปิด media หรือ modal อัตโนมัติ |
-| `Actor` | player, candidate NPC, recruiter, staff | มี velocity/acceleration, collision body และ state `idle/walk/interaction`; input ใช้ delta/time-based movement |
-| `PropMid` / `ForegroundOccluder` | โต๊ะ, ต้นไม้, ป้ายแขวน, ซุ้มบูธด้านหน้า | กำหนด Y-pivot และ dynamic depth (`depth = y + offset`) เพื่อให้ actor เดินหน้า/หลังวัตถุได้ถูกต้อง |
-| `LightingFX` | glow, sign light, ambient effect | เป็น pre-generated animated asset หรือ Phaser tween; ต้องเคารพ Reduced Motion |
-| `Semantic DOM Overlay` | HUD, labels, tooltip, dialog, captions | ไม่เป็นส่วนของ physics; ต้องมี focus/keyboard และเป็น accessibility equivalent ของ interaction ทั้งหมด |
+| **G1 — Real rendered elements** | booth, counter, display, kiosk, furniture, plant, player และ NPC เป็น original/licensed pixel sprite หรือ authored tile แยกชิ้น | ใช้ rectangle/ellipse เป็น visual final, bake วัตถุลงภาพพื้น หรือใช้ hotspot ลอยทับภาพแบน |
+| **G2 — One top-front camera** | asset ทุกชิ้นใช้ orthographic top-front 3/4, grid, scale, light และ shadow convention เดียวกัน | ผสม isometric, side elevation, front elevation หรือกลับ booth บางแถวคนละทิศ |
+| **G3 — Physical game behavior** | entity มี stable ID, pivot, Y-depth, owner-linked collider และ sensor/approach point ที่เดินถึงได้ | actor ทะลุวัตถุ, hitbox เต็ม transparent frame, target อยู่กลางโต๊ะ หรือ depth ผิด |
+| **G4 — Directional characters** | player/NPC มี front, back, left profile, right profile จริง และ animation frame ของแต่ละมุม | ใช้ front frame flip/rotate แทนด้านหลังหรือ side profile |
+| **G5 — Sims-style customization** | skin, hair, top, bottom, shoes และ accessory แยก layer/สีได้ พร้อม preview/apply/persist | เปลี่ยนเพียง sprite สำเร็จรูปทั้งตัว หรือเสื้อ/กางเกงเปลี่ยนแยกกันไม่ได้ |
+| **G6 — Modular booth variety** | booth ใช้ prefab ที่ประกอบจาก facade, counter, screen, sign, queue และ prop variants อย่างน้อย 2–3 แบบต่อหมวด | ทุกบูธเป็น clone ตรงกัน หรือความหลากหลายเกิดจากการ scale/flip จน perspective ผิด |
+| **G7 — Functional modes** | World, Navigator, booth detail, local queue, dialogue, Info Hub และ Character Studio ทำ primary action จริง | มี dead control, Canvas-only action หรือ DOM panel เปิดแล้วยังเดินต่อโดยไม่ตั้งใจ |
 
-- **Collision body กับ visual footprint ต้องแยกกัน:** sprite อาจใหญ่ แต่ hitbox ใช้เฉพาะฐานเท้าหรือฐาน prop เพื่อให้เดินอ้อมอย่างเป็นธรรมชาติ
-- **Y-sort ไม่พอสำหรับ physics:** ทุก solid prop ต้องมี collision metadata และทุก interactive object ต้องมี sensor metadata; ห้ามใช้เพียง CSS/ภาพทับกันเพื่อทำให้ดูเหมือนชน
-- **Loop-aware physics:** เมื่อ actor ข้าม boundary ให้ remap ตำแหน่งอย่าง atomically ก่อน collision tick ถัดไป เพื่อไม่ให้ทะลุ prop หรือกระโดดผิด depth
-- **Performance:** โหลด tile/prop/collision metadata เป็น zone chunk รอบกล้อง; unload เฉพาะ chunk ที่ปลอดภัย โดยไม่กระทบ booth ที่ผู้ใช้กำลัง target อยู่
+ลำดับการทำงานที่ถูกต้องคือ `camera/scale → asset silhouette → entity/pivot → collision/depth → interaction → lighting/polish` ห้ามเริ่มจาก glow หรือ HUD แล้วถือว่า scene สมจริง
 
 ---
 
-## 3.2 Realistic & Immersive Booth Visitation Experience
+## 2. Master References and IP Boundary
 
-การออกแบบบูธถูกสร้างให้เสมือนการเดินชมงาน Job Fair ระดับมืออาชีพจริง:
+### 2.1 Priority references
+
+1. [`00_MAIN_virtual_job_fair_map.jpg`](../ref_pics/00_MAIN_virtual_job_fair_map.jpg) — ใช้ศึกษา hall readability, aisle, booth density, furniture scale และ wayfinding
+2. [`00_MAIN_spritesheet_booths_characters_props.png`](../ref_pics/00_MAIN_spritesheet_booths_characters_props.png) — ใช้ศึกษา sprite vocabulary, top-front silhouette, prop anatomy, character proportion และ grounded shadow
+3. ไฟล์ `01..05` ใน [`ref_pics/`](../ref_pics/) — ใช้เป็น secondary references เฉพาะรายละเอียดที่ master references ไม่ตอบ
+
+### 2.2 สิ่งที่นำมาใช้ได้
+
+- หลักการของมุมกล้อง, scale relationship, density และ visual readability
+- anatomy ทั่วไปของ booth, counter, kiosk, workstation, chair, queue rail และ planter
+- mood ของ convention hall, professional job fair และ readable pixel art
+
+### 2.3 สิ่งที่ห้ามคัดลอก
+
+- map layout, sprite, character, company, logo, sign, palette หรือ object arrangement แบบ one-to-one
+- trademark, trade dress, copywriting, sound, proprietary interaction และ source/bundle ของผลิตภัณฑ์อื่น
+- reference image ใดๆ เป็น runtime texture โดยตรง
+
+Production asset ต้องเป็นต้นฉบับใหม่และมี provenance ใน [Asset Registry](../07-playbooks-and-operations/demo-fixtures-and-assets.md)
+
+---
+
+## 3. Camera Bible — Realistic Orthographic Top-Front
+
+### 3.1 Definition
+
+**Top-front 3/4** ในโครงการนี้หมายถึงกล้อง orthographic ที่มองลงจากด้านบนและยังเห็นด้านหน้าของวัตถุ:
 
 ```text
-┌──────────────────────────────────────────────────────────────────┐
-│        MODULAR DECOUPLED BOOTH STRUCTURE (REUSABLE PREFAB)       │
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐  │
-│  │ [COMPANY LOGO ICON]  COMPANY NAME TEXT  (THEME COLOR GLOW) │  │  <-- Customizable Overhead Signboard
-│  └────────────────────────────────────────────────────────────┘  │
-│                                                                  │
-│   ┌──────────────┐     ┌──────────────────┐     ┌──────────────┐ │
-│   │ [TECH DISPLAY]     │ [RECRUITER DESK] │     │ [QUEUE POST] │ │  <-- Modular Interior Props
-│   │ Dual Monitor │     │ Recruiter Station│     │ Realtime Qty │ │
-│   │ Code & Data  │     │ Ergonomic Chairs │     │ Wait Time    │ │
-│   └──────────────┘     └──────────────────┘     └──────────────┘ │
-│                                                                  │
-│   ══════════════ [Interactive Proximity Border] ══════════════   │
-│                 (Avatar enters -> Action Dock opens)             │
-└──────────────────────────────────────────────────────────────────┘
+                TOP / BACK OF SCREEN
+                       ↑
+             light ↘  │  camera looks down
+                      │
+       visible top plane + visible front plane
+                      │
+                       ↓
+              FRONT / PLAYER APPROACH
 ```
 
-> 🌟 **เกณฑ์มาตรฐานอ้างอิงหลักสูงสุด (Master Primary References):**
-> ผังรวมบูธ 6 โซน และสไปรต์ชีตบูธแยกชิ้น ป้ายโลโก้ อุปกรณ์สำนักงาน ดูได้ที่ [docs/ref_pics/00_MAIN_virtual_job_fair_map.jpg](../ref_pics/00_MAIN_virtual_job_fair_map.jpg) และ [docs/ref_pics/00_MAIN_spritesheet_booths_characters_props.png](../ref_pics/00_MAIN_spritesheet_booths_characters_props.png)
+- ไม่มี vanishing point และเส้นตั้งไม่บรรจบ
+- วัตถุแนวเดียวกันมี scale เท่ากันไม่ว่าตำแหน่งอยู่บนหรือล่างของจอ
+- facade/counter/kiosk ทุกชิ้นหันด้านหน้าไปทาง `down-screen`
+- booth ทุกแถวใช้ทิศเดียวกัน ห้ามหมุนแถวล่างกลับขึ้นจอ
+- actor ที่เดินขึ้นจอเห็นด้านหลัง (`up/back`) และเดินลงจอเห็นด้านหน้า (`down/front`)
 
-### รายละเอียดองค์ประกอบความสมจริงของระบบ Modular Booth:
-1. **Decoupled Overhead Signboard:** ป้ายด้านบนแยกชิ้นส่วนอิสระ ประกอบด้วยช่องใส่โลโก้บริษัท (Custom Logo Slot) + ข้อความชื่อบริษัท (Company Name Text) + เส้นขอบสีธีมนีออน
-2. **Endless Tileable Background:** พื้นหลังเป็น Grid กระเบื้องเปล่าและทางเดินพรมน้ำเงินที่สามารถต่อวน (Seamless Loop / Endless Wrap) ได้ไม่รู้จบ
-3. **Reception & Queue Terminal:** เสาป้ายคิวดิจิทัล แสดงจำนวนคนที่กำลังรอและเวลาประมาณการแบบ Real-time
-4. **Interactive Info Screen:** ทุก booth ต้องมีป้ายจอประกาศ / Info Kiosk ที่มองเห็นได้ในฉาก ผู้ใช้กด `E`, click หรือ tap ที่จอเพื่อเปิด Booth & Job Detail แบบ Semantic DOM โดยไม่ต้องใช้ hover
-5. **Interactive Media Showcase:** บอร์ดนิทรรศการแสดงผลงาน โครงการเด่น และ Tech Stack ที่รองรับการกดดูรายละเอียด
-6. **Recruiter Station:** โต๊ะสัมภาษณ์พร้อมเก้าอี้และ NPC Recruiter นั่ง/ยืนประจำจุด สามารถกดคุยเพื่อดูวัฒนธรรมองค์กร
-7. **Proximity Action Trigger:** เมื่อผู้สมัครเดินเข้าใกล้รัศมี 48 px จะเกิดเส้นเรืองแสงรอบบูธ และปุ่ม `[กด E หรือ แตะเพื่อดูงาน]` จะปรากฏขึ้นทันที
+### 3.2 Fixed technical rules
 
----
+| Property | Required value/rule |
+|---|---|
+| Base grid | `16 × 16 logical px`; major placement snap ที่ `32 px` |
+| Character frame | `32 × 48 logical px`; foot baseline ที่แถวล่างสุด |
+| Object pivot | center-bottom ของฐานที่สัมผัสพื้น ไม่ใช่ center ของ transparent frame |
+| Light | top-left key light สำหรับทุก asset |
+| Material shade | ด้านขวาและด้านล่างเข้มกว่าด้านบน/ซ้าย |
+| Contact shadow | สั้น, ติดฐาน, ทอดไป down-right; ห้ามลอยออกจากวัตถุ |
+| Outline | dark selective outline 1–2 logical px |
+| Render | integer scale, `image-rendering: pixelated`, nearest-neighbor |
+| Rotation | ห้ามหมุน/flip final prop เพื่อสร้าง variant ถ้าทำให้ light หรือ perspective กลับด้าน |
 
-## 3.3 Original Exhibitor Booths
+### 3.3 Dimensional construction by object
 
-| บริษัทจัดแสดง | รหัสอ้างอิง | อุตสาหกรรม | ตำแหน่งงานหลัก | องค์ประกอบภาพและสถาปัตยกรรมของบูธ |
-|---|---|---|---|---|
-| **Cyber Orchard Co.** | `company-cyber-orchard` | IoT & Cloud Systems | Backend Developer | สถาปัตยกรรมโทนม่วง-เขียวนีออน, เสา Server Racks, หน้าจอแสดง IoT Telemetry Stream |
-| **Riverbyte Studio** | `company-riverbyte` | Creative Tech & Media | Frontend / UI Engineer | โทนชมพู-ส้ม Retro, จอแสดงผล Interactive Canvas, โต๊ะทำงานสไตล์ Creative Loft |
-| **Apex Cloud Tech** | `company-apex-cloud` | Cloud Infra & Security | DevOps / Cloud Architect | โทนฟ้า Cyan, ตู้เซิร์ฟเวอร์เรืองแสง, ลูกโลก Hologram หมุนเครือข่าย Global Node |
-| **SolarPulse Energy** | `company-solarpulse` | GreenTech & Smart Grid | Data / Firmware Engineer | โทนเหลือง Mango ผสมเขียว, แผงโซลาร์เซลล์จิ๋ว, มิเตอร์แสดงผลพลังงานสะอาด |
+| Object | มิติที่ต้องมองเห็น |
+|---|---|
+| Booth facade | top cap, front panel, side posts, base thickness, sign fixture |
+| Counter/desk | top surface, front fascia, side thickness, leg/base, grounded shadow |
+| Monitor/kiosk | screen face, casing thickness, stand, base footprint |
+| Chair/sofa | seat top, back rest, side/leg structure, contact shadow |
+| Plant/planter | canopy volume, trunk/stem, soil/top rim, container front face |
+| Queue rail | post top, vertical post, belt/rail, weighted floor base |
+| Character | head top plane, face/back/side anatomy, shoulders, torso, arms, separate legs and feet |
 
----
-
-## 3.4 Generated NPC Crowd & Synthetic Dialogue
-
-ทุกตัวละครในฉากใช้ **Generated Pixel Sprite Atlas** พร้อมแอนิเมชัน 4 ทิศทาง (ห้ามใช้อิโมจิแทนตัวละคร):
-
-| บทบาท NPC | จำนวน | ภาพลักษณ์ภายนอก (Generated Sprite) | พฤติกรรม & บทสนทนาสังเคราะห์ |
-|---|:---:|---|---|
-| **Candidates (Job Seekers)** | 6 | สวมหน้ากากสัตว์ (จิ้งจอก แมว หมี นกฮูก) ชุดลำลอง | เดินสำรวจตามทางเดิน, พูดคุยแลกเปลี่ยนเรื่องการเตรียม Portfolio |
-| **Recruiters (Hiring Team)** | 4 | ชุดสูททำงานทางการ นั่ง/ยืนประจำบูธ | ต้อนรับผู้สมัคร, ให้ข้อมูลตำแหน่งงาน Must-have skills |
-| **Event Guides / Staff** | 2 | สวมเสื้อกั๊กสะท้อนแสงนีออน ประจำ Lobby | แนะนำผังงาน และทิศทางเดินไปยังโซนต่างๆ |
-| **Accessibility Specialist** | 1 | ประจำโซน Quiet Lounge | แนะนำการใช้งาน Navigator Mode และการขอความช่วยเหลือ |
-| **Tech Support Officer** | 1 | ประจำ Device Test Pods | แนะนำการทดสอบไมค์ กล้อง และโหมด Face Mask |
+Asset ที่ดูดีเมื่อแยกชิ้นแต่ไม่เข้ากับ actor/grid/light เดียวกันยังถือว่าไม่ผ่าน
 
 ---
 
-## 3.5 Generated Scene Props & Map Decorations
+## 4. World Layout and Scene Composition
 
-อุปกรณ์ประกอบฉากทุกชิ้นถูก Generate ขึ้นมาเป็น Pixel Art เพื่อสร้างบรรยากาศสมจริง:
-- **Furniture:** โต๊ะรับรองผู้สมัคร, เก้าอี้ทำงานสไตล์โมเดิร์น, เคาน์เตอร์ประชาสัมพันธ์
-- **Tech Props:** ตู้ข้อมูล Kiosk, ตู้เซิร์ฟเวอร์เรืองแสง, แท่นทดสอบอุปกรณ์ Device Pods
-- **Decorations:** กระถางต้นไม้ไซเบอร์เนติกส์, เสาไฟนีออนบอกทาง, ฉากกั้นกระจกใส (Glass Partition), พรมปูทางเดินลายตาราง 16×16
-- **Amenities:** รถเข็นกาแฟ (Coffee Cart), โซฟาพักผ่อนใน Quiet Zone
-- **Physics Metadata:** ทุก prop ที่ขวางทางต้องมี solid collision footprint; kiosk/จอประกาศต้องมี interaction sensor แยก; decorative prop ที่เดินผ่านได้ต้องระบุชัดว่าไม่มี collision
-- **Sorting Rule:** ทุกชิ้นมีพิกัดความลึก (Y-axis Pivot Point) ชัดเจน ทำให้ตัวละครเดินอ้อมหน้า-หลังได้อย่างถูกต้อง และมี foreground occluder layer สำหรับวัตถุสูง
+### 4.1 Current R0 module
+
+- Logical world: `1536 × 1400 px`
+- พื้นเป็น plain modular floor เท่านั้น: tile, aisle, booth pad, boundary และ non-interactive decal
+- 4 synthetic booths บน BoothPad สองแถว
+- vertical main aisle + horizontal cross aisle ที่กว้างพอให้ player/NPC สวนกัน
+- Central Info Hub, lounge, support landmark และ arrival area ต้องไม่บังทางเข้าบูธ
+
+R0 target ต้องต่อ module ด้วย streamed/repeating modules หรือ toroidal wrap โดยคง landmark, collision และ navigation continuity ตาม `FR-WORLD-022`; current finite vertical slice ยังไม่ผ่านข้อนี้และห้ามอ้างว่า endless จน runtime ทำจริง
+
+### 4.2 Composition rules
+
+1. วาง gameplay landmark ก่อน decoration
+2. เว้น clear path อย่างน้อย `96 logical px` ใน main route และ `64 px` รอบ interaction approach
+3. props ต้องรวมเป็น purposeful cluster เช่น lounge, workstation หรือ queue lane ไม่โปรยสุ่มทั่วพื้น
+4. ห้ามวาง object silhouette ซ้อนกันจนแยกฐาน/collider ไม่ได้
+5. ใช้ negative space เพื่อให้ผู้เล่นเห็นทาง, booth entrance และ destination
+6. ไม่มี decorative prop ใดขวาง semantic action หรือ mobile HUD
+7. object density ของ zone ข้างเคียงต้องต่างกันเล็กน้อยแต่ยังอยู่ใน grid/scale เดียวกัน
 
 ---
 
-## 3.6 Modular 8-Bit Character Compositor Architecture (Phaser 4 & The Sims Style Customizer)
+## 5. Modular Booth System and Repeatable Variety
 
-เพื่อให้ระบบสร้างตัวละคร (Character Creator) ทำงานร่วมกับ **Phaser 2D Game Engine** ได้อย่างสมบูรณ์แบบ ลื่นไหล และปรับแต่งได้หลากหลายแบบ The Sims ระบบใช้สถาปัตยกรรม **Modular Layered Sprite Compositing**:
+Booth เป็น prefab ที่ประกอบจากชิ้นส่วน ไม่ใช่ภาพก้อนเดียว ทุกบริษัทใช้ anatomy หลักร่วมกันเพื่อความเข้าใจง่าย แต่ต้องมี variant เพียงพอให้ไม่ดู copy-paste
 
-```mermaid
-flowchart TD
-    CONFIG["AvatarCustomizationConfig (JSON State)"] --> COMPOSITOR["Phaser Sprite Compositor Engine"]
+### 5.1 Mandatory anatomy
 
-    subgraph Layers["Modular 8-Bit Sprite Layers (16×24 / 24×32 px)"]
-        L1["Layer 0: Base Body & Skin Tone (4 Palettes)"]
-        L2["Layer 1: Eyes & Facial Expression (4 Directions)"]
-        L3["Layer 2: Outfit / Clothes (Hoodie, Suit, Jacket, Lab Coat + 8 Colors)"]
-        L4["Layer 3: Hairstyle (Short, Bob, Curly, Afro, Spiky, Bald + 8 Colors)"]
-        L5["Layer 4: Animal Mask / Hat / Glasses (Fox, Cat, Bear, Owl)"]
-    end
-
-    COMPOSITOR --> L1 & L2 & L3 & L4 & L5
-    L1 & L2 & L3 & L4 & L5 --> RENDER["Phaser RenderTexture / Dynamic Sprite Container"]
-    RENDER --> WORLD_SPRITE["Interactive Player / Remote Avatars (4-Dir Walk & Idle Loop)"]
+```text
+BoothPrefab
+├── BoothPad / floor boundary
+├── FacadeVariant
+├── DynamicSign / company name layer
+├── CounterVariant + recruiter position
+├── ShowcaseVariant / job-tech display
+├── InfoKioskVariant
+├── QueueVariant + approach points
+├── DecorationKit
+├── SolidColliders
+└── InteractionSensors
 ```
 
-### 1. Layer Compositing & Palette Swapping
-- **Layer Stacking Order:**
-  `Base Skin Body` → `Underwear/Base` → `Top/Outfit` → `Hair` → `Animal Mask / Accessories`
-- **Dynamic Palette Swapping:** ใช้ Color Lookup Table (LUT) หรือ Shader บน Phaser เพื่อเปลี่ยนสีผิว (Light, Medium, Warm Tan, Deep), สีผม (Black, Brown, Blonde, Cyan, Neon Pink ฯลฯ) และสีเสื้อผ้า โดยไม่ต้องวาด Sprite แยกทุกสี
-- **4-Direction Frame Synchronizer:** ทุกเลเยอร์ใช้ Frame Index เดียวกัน (Down: 0–3, Left: 4–7, Right: 8–11, Up: 12–15) ทำให้แอนิเมชันการเดินและทิศทางของทุกชิ้นส่วนขยับพร้อมเพรียงกัน 100%
+### 5.2 Minimum variant library
 
-### 2. Randomizer Algorithm (Dice Roll 🎲)
-เมื่อผู้ใช้กดปุ่ม **[🎲 สุ่มตัวละคร]** ระบบจะทำการสุ่มค่า Configuration ผ่าน Weighted Probability:
-- สุ่มค่า `skinTone` จาก 4 เฉดสีผิวธรรมชาติ
-- สุ่มค่า `hairStyle` จาก 8 ทรงผมยอดนิยม + สุ่ม `hairColor` จาก 8 พาเลทสี
-- สุ่มค่า `outfitStyle` (Cyber Hoodie, Business Suit, Retro Jacket, Casual Shirt, Tech Lab Coat) + สุ่ม `outfitColor`
-- สุ่มค่า `animalMask` (Fox, Cat, Bear, Owl, Cyber Visor)
-- บันทึกเป็น `AvatarCustomizationConfig` และอัปเดต Live Preview ทันทีใน 1 เฟรม
+| Category | Minimum | Suggested variants |
+|---|:---:|---|
+| Facade | 3 | `portal-frame`, `open-backwall`, `corner-display` |
+| Counter | 3 | `straight-reception`, `compact-desk`, `demo-counter` |
+| Showcase | 3 | `dual-monitor`, `vertical-job-board`, `product-table` |
+| Info kiosk | 2 | `standing-terminal`, `low-accessible-terminal` |
+| Queue setup | 3 | `straight-rail`, `short-zigzag`, `floor-marker-only` |
+| Decoration kit | 3 | `tech-workstation`, `green-lounge`, `professional-minimal` |
+| Seating | 3 | `task-chair`, `two-seat-sofa`, `accessible-open-space` |
+| Plants | 3 | `tree-planter`, `low-planter`, `single-pot` |
 
-### 3. Realtime Phaser Live Preview in React Studio
-- ในหน้าจอปรับแต่งตัวละคร (SC-05) มี **Phaser Mini-Stage Canvas** ฝังอยู่ด้านซ้าย เพื่อเรนเดอร์ตัวละครขนาดขยาย (Scaled 4x Pixel Art) ขยับท่าทาง Idle และมีปุ่มกดหมุนตัว 360° (สลับทิศทางหน้า/หลัง/ซ้าย/ขวา)
-- เมื่อกดบันทึก ข้อมูล `AvatarCustomizationConfig` จะถูกบันทึกใน Local State / Presence และนำไปสร้าง Player Avatar ทันทีเมื่อก้าวเข้าสู่ Neon Career Hall World
+### 5.3 Repetition rules
+
+- ใช้ variant ซ้ำได้เพื่อควบคุม texture budget แต่ booth ที่ติดกันห้ามใช้ combination เหมือนกันทุกหมวด
+- เปลี่ยนความหลากหลายด้วย variant, approved palette, prop cluster และ dynamic sign ไม่ใช่ arbitrary scale/rotation
+- ห้าม flip asset ถ้า highlight/shadow หรือข้อความกลับด้าน
+- counter, kiosk และ queue approach ต้องอยู่ตำแหน่งที่เดินถึงได้เสมอ
+- palette ของบริษัทเปลี่ยนเฉพาะ accent/material token; outline, light และ value range ต้องยังสอดคล้องทั้ง hall
+- ใช้ prop ซ้ำแบบมี rhythm เช่นต้นไม้คู่หรือ rail sequence ได้ แต่ต้องไม่สร้าง visual noise หรือ collider maze
+
+### 5.4 Realistic booth behavior
+
+ทุก booth ต้องมี:
+
+- recruiter position ที่อ่านได้และไม่ใช่ NPC ลอยกลางทาง
+- active job/showcase display
+- queue status และ wait-time ใน Semantic DOM
+- info kiosk ที่ใช้ `E`, click และ tap ได้
+- visible interaction feedback + sensor แยกจาก solid collider
+- Navigator equivalent สำหรับทุก action
+
+---
+
+## 6. Scene Entity, Depth and Physics Contract
+
+### 6.1 Required render layers
+
+| Layer | Content | Physics/depth rule |
+|---|---|---|
+| `FloorBase` | plain tile/floor | ไม่มี solid collision |
+| `FloorDecal` | aisle, pad, wayfinding | ไม่มี interactive object bake-in |
+| `CollisionGeometry` | wall/base footprints | invisible, owner-linked static bodies |
+| `PropMid` | desk, kiosk, planter, furniture | `depth = footY/baseY` |
+| `Actor` | player/NPC/recruiter | foot hitbox, directional state |
+| `ForegroundOccluder` | truss/sign/tall canopy | บัง actor เฉพาะเมื่อ actor เดินหลังวัตถุ |
+| `LightingFX` | glow/ambient | Reduced Motion equivalent |
+| `Semantic DOM` | HUD/panel/dialogue | keyboard/focus accessible; ไม่ทำหน้าที่เป็น world object |
+
+### 6.2 Entity metadata
+
+ทุก rendered entity ต้องมี:
+
+- `entityId`
+- `assetId` / texture frame
+- `position`, `origin`, `baseY`
+- `depthPolicy`
+- `collider` หรือ explicit `nonSolid: true`
+- `interactionSensor` และ `approachPoint` เมื่อ interactive
+- `visible/active/destroy` lifecycle
+
+### 6.3 Collision rules
+
+- actor ใช้ foot hitbox ไม่เกินช่วงรองเท้า/ฐานขา
+- collider ของ prop ครอบเฉพาะฐานสัมผัสพื้น ไม่ใช้ full sprite frame
+- sensor ใหญ่กว่า collider และไม่ผลัก player
+- navigation target ต้องเป็น approach point นอก collider
+- actor ต้องเดินหน้า/หลัง object ตาม Y-depth โดยไม่เปลี่ยน scale หลอก perspective
+
+---
+
+## 7. Character System — True Directional Sims-style Customization
+
+### 7.1 Anatomy and frame contract
+
+- Chibi adult proportion `2.5–3 heads tall`; หัวโตพออ่านผม/ใบหน้าแต่ยังดูเป็นผู้ใหญ่ในบริบทงานอาชีพ
+- 4 directional rows: `down/front`, `up/back`, `left profile`, `right profile`
+- อย่างน้อย 3 frames ต่อทิศ: `idle`, `step-left`, `step-right`
+- back view ต้องเห็น hair back, shoulder/back garment, trouser back และ heel
+- side view ต้องมี profile forehead/nose/chin, ear, shoulder, arm, torso depth และเท้าซ้อนตามทิศจริง
+- left/right สามารถ share authored geometry ผ่าน controlled mirroring ได้เฉพาะเมื่อ light, asymmetric hair/accessory และ clothing detail ถูกแก้กลับให้ถูกต้อง; ห้าม flip front frame
+
+### 7.2 Customization layers
+
+```text
+AvatarAppearance
+├── body / skinTone (อย่างน้อย 6 โทนธรรมชาติ)
+├── face / eye detail
+├── hairStyle + hairColor
+├── topStyle + topColor
+├── bottomStyle + bottomColor
+├── shoeStyle + shoeColor
+├── accessory / mask / glasses / headset
+└── optional badge or bag
+```
+
+ขั้นต่ำที่ต้องเลือกได้จริง:
+
+| Layer | Minimum variants | Color behavior |
+|---|:---:|---|
+| Skin | 6 tones | palette ที่รักษา highlight/shadow ไม่ใช่ flat fill |
+| Hair | 5 styles | อย่างน้อย 5 colors |
+| Top | 4 styles | เปลี่ยนสีแยกจากกางเกง |
+| Bottom | 3 styles: trousers, skirt/straight silhouette, shorts/utility | เปลี่ยนสีแยกจากเสื้อ |
+| Shoes | 3 styles | เปลี่ยนสีแยกได้หรือใช้ approved neutral palettes |
+| Accessory | 4+ รวม `none` | ต้องมี frame ครบทุกทิศที่รองรับ |
+
+Option ห้ามล็อกตามเพศ ตัวละครทุกคนเลือก skin/hair/top/bottom/shoes/accessory ได้อย่างอิสระ
+
+### 7.3 Layer order by direction
+
+Layer order เปลี่ยนตามทิศเพื่อให้มีมิติ เช่น:
+
+- `down/front`: back hair → body → bottom/shoes → top/arms → front hair → face accessory
+- `up/back`: face hidden → front body → top/back seam → back hair/accessory strap
+- `left/right`: far arm/leg → torso → near leg/arm → profile head/hair → accessory
+
+ทุก layer ต้องใช้ frame index เดียวกันเพื่อไม่ให้ผม เสื้อ กางเกง หรือรองเท้าเหลื่อมขณะเดิน
+
+### 7.4 Character Studio behavior
+
+- Phaser mini-stage ใช้ compositor/texture เดียวกับ World
+- มีปุ่มหน้า, หลัง, ซ้าย, ขวาพร้อม text label
+- การเปลี่ยน option อัปเดต preview ภายในหนึ่ง render frame
+- Randomize เปลี่ยนทุก layer โดยยังได้ combination ที่ valid
+- Save ต้อง apply กับ player ทันทีและ persist ตาม demo/production policy
+- Reduced Motion แสดง idle frame โดยยังตรวจครบ 4 ทิศได้
+
+### 7.5 NPC and recruiter rules
+
+- NPC/recruiter ใช้ camera, proportion, baseline และ directional contract เดียวกับ player
+- อย่างน้อย 5 role silhouettes และ 12 synthetic NPC ใน R0
+- NPC ที่เดินต้องเปลี่ยน direction/frames จริง; NPC ที่ยืนต้องหันเข้าหา booth/task อย่างมีเหตุผล
+- ห้ามใช้ภาพ front-facing เดียวให้ NPC ทุกตัวไม่ว่าหันหรือเดินไปทางใด
+- diversity ครอบคลุม skin, hair, clothing, mobility representation และ professional roles โดยไม่ใช้ stereotype
+
+---
+
+## 8. Asset Production and Runtime Packaging
+
+### 8.1 Export rules
+
+- PNG RGBA, transparent background สำหรับ object/actor
+- ไม่มี baked UI text, company logo หรือ floor หลัง object
+- padding คงที่และมี metadata ของ visual bounds/base footprint
+- atlas แยก `floor`, `booth`, `props`, `characters`, `fx`
+- runtime ห้าม import `docs/ref_pics/`
+- generated/third-party asset ทุกไฟล์มี prompt/source/tool/license/checksum/reviewer
+
+### 8.2 Asset review sheet
+
+ทุก variant ต้องส่งพร้อม:
+
+1. isolated asset บน checker background
+2. actor scale comparison
+3. top-front camera/light check
+4. pivot/base/collider overlay
+5. in-scene screenshot หน้าและหลัง actor
+6. provenance entry
+
+---
+
+## 9. Visual and Interaction QA
+
+### 9.1 Required test scenes
+
+- **Camera lineup:** actor + facade 3 แบบ + counter 3 แบบ + kiosk 2 แบบ + plant 3 แบบอยู่บน baseline/grid เดียว
+- **Character turnaround:** customization เดียวกันครบ front/back/left/right และ walk frames
+- **Collision lane:** player เดินรอบ counter, kiosk, planter, rail และ lounge ทั้งหน้า/หลัง
+- **Booth variety:** 4 booths แสดง combination ไม่ซ้ำทั้งหมดและยังอ่าน anatomy เดียวกัน
+- **Responsive overlay:** World ที่ 390 และ 1440 px โดย HUD ไม่บัง destination/interaction
+
+### 9.2 Pass checklist
+
+- [ ] asset ทุกชิ้นอยู่ใน top-front 3/4 และรับแสง top-left
+- [ ] ไม่มี primitive placeholder เป็น final visual
+- [ ] ไม่มี identical booth combination อยู่ติดกัน
+- [ ] character เปลี่ยน front/back/left/right จริง
+- [ ] skin, hair, top, bottom, shoes และ accessory เปลี่ยนได้ตาม contract
+- [ ] player/NPC มี foot hitbox และ correct Y-depth
+- [ ] collider/sensor/approach point ผูก owner ID
+- [ ] scene ไม่มี baked booth/person/hotspot architecture
+- [ ] Navigator ทำ action สำคัญได้เท่า World
+- [ ] Reduced Motion, keyboard และ touch path ผ่าน
+- [ ] asset provenance ครบ
+
+Screenshot สวยหนึ่งภาพไม่ถือว่าผ่าน ต้องมี runtime interaction evidence อย่างน้อย desktop และ mobile
+
+---
+
+## 10. Current Implementation Status and Gaps
+
+| Capability | Current R0 status | Required next gap |
+|---|---|---|
+| Plain floor + entity props | Implemented vertical slice | เพิ่ม variant atlas และ camera lineup QA |
+| 4 booth pads | Implemented | เพิ่ม facade/counter/showcase combinations 2–3 แบบต่อหมวด |
+| Player direction | 4 directions × 3 frames implemented | เพิ่ม asymmetric layer QA |
+| Skin/hair/combined outfit/accessory | Implemented แบบรวม outfit | แยก `top`, `bottom/trousers`, `shoes` และสีของแต่ละ layer ตาม G5 |
+| NPC atlas | 12 synthetic NPC implemented | เพิ่ม directional walk/back/side frames ตาม G4 |
+| Collision/Y-depth | Implemented vertical slice | เพิ่ม automated collider/depth evidence scene |
+| Browser visual QA | Pending browser session | เก็บ 390/1440 screenshots และ interaction evidence |
+| Streamed/endless module | Not implemented | ห้ามอ้างว่า endless จนมี wrap/stream + navigation continuity |
+
+ตารางนี้ต้องอัปเดตเมื่อ runtime เปลี่ยน เพื่อแยก target requirement ออกจากสิ่งที่ทำเสร็จจริง

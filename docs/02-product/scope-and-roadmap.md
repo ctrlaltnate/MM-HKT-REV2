@@ -2,15 +2,17 @@
 
 ---
 
-## 1.0 Current Phase — D0 Documentation Baseline
+## 1.0 Current Phase — R0 Implementation Started
 
-**สถานะ ณ 22 สิงหาคม 2026: Documentation only**
+**สถานะ ณ 22 สิงหาคม 2026: Website foundation, Candidate Preparation และ World vertical slice implemented**
 
-- repository เก็บเฉพาะเอกสาร product, design, architecture, governance, QA และ reference images
-- ยังไม่เริ่มสร้าง Website, Phaser game, backend, database schema หรือ deployment pipeline
-- งานถัดไปก่อน implementation คืออนุมัติ experience loop, web–game boundary, asset policy และ Phaser 4 compatibility spike plan
-- `R0` ด้านล่างคือ **future implementation scope** ไม่ใช่สิ่งที่มีอยู่แล้วใน repository
-- การเริ่ม R0 ต้องมีคำสั่งอนุมัติแยกต่างหาก และต้อง scaffold Website กับ Game เป็นคนละ workspace
+- scaffold `apps/web` (React DOM) และ `apps/game` (Phaser 4.2.1) เป็นคนละ workspace แล้ว
+- มี Product Landing, Event Landing, Mock Verify/Consent, Profile Import/Masked Review, Character Setup, legal/status/404 และ route journey ที่ resume/reset ผ่าน local demo state ได้
+- มี Career Hall 1 ฉาก, 4 synthetic booths, NPC crowd, player movement, collision, proximity interaction, DOM booth detail, queue fixture และ Navigator parity ขั้นต้น
+- Game visual gate ยังไม่ครบ: wardrobe ปัจจุบันยังรวม outfit, booth variant library และ directional NPC ยังไม่ถึงขั้นต่ำ, browser collision/depth evidence ยัง pending จึงห้ามเรียก World ว่า Done
+- Web–Game ติดต่อผ่าน versioned typed contract ใน `packages/contracts`; domain fixtures และ runtime asset แยก package
+- ผ่าน typecheck, unit test และ production build; Browser visual QA ยังต้องทำซ้ำเมื่อ browser control พร้อม
+- backend, database, production authentication, realtime multiplayer, durable queue, interview media, decision/reveal, recruiter/ops portal และ deployment pipeline ยังไม่เริ่ม และห้ามแสดงว่าเป็นของจริง
 
 ## 1.1 Release Strategy Overview
 
@@ -29,8 +31,11 @@
 เป้าหมายคือการสาธิต Core User Loop ให้กรรมการและผู้ใช้เห็นคุณค่าภายใน 4–5 นาที โดยติดป้ายสิ่งจำลองอย่างตรงไปตรงมา:
 
 ### R0 Must Ship (สิ่งที่ต้องมีใน Prototype):
-- **Responsive Web Shell:** ผ่าน Smoke Test ที่ความกว้าง 320, 390, 1024 และ 1440 CSS px
+- **Complete Website + Product Landing:** มี Global Web Shell, value proposition, how-it-works, privacy/status/legal, responsive navigation, 404 recovery และ CTA ที่ทำงานจริงทุกจุด
+- **Functional Event Landing:** แสดง Demo state, schedule, booths/jobs, accessibility/privacy, journey progress, Start/Resume/Reset และ Guest World โดยไม่ต้องแก้ URL เอง
+- **Responsive Web Shell:** ผ่าน Smoke Test ที่ความกว้าง 320, 390, 768, 1024 และ 1440 CSS px
 - **Interactive Neon Career Hall:** 1 ฮอลล์ในอาคารขนาดใหญ่, 4 บริษัทสมมติ, ช่อง Dynamic Logo, NPC Crowd (≥12 ตัว/5 บทบาท), Scene Props และ Smooth Camera Easing
+- **P0 Game Visual Gate:** ผ่าน G1–G7 ของ [Game Visual & World Specification](../03-design/world-and-scene-design.md): top-front camera เดียว, real rendered entities, collision/depth, directional characters, wardrobe แยกเสื้อ–กางเกง–รองเท้า, modular booth variants และ functional modes
 - **Navigator / List Mode Parity:** โหมดรายการแบบ Semantic DOM 100% สำหรับค้นหา ดูบูธ เข้าคิว และนำทางโดยไม่ต้องควบคุม Canvas
 - **Digital ID Verification & Consent:** ป้ายชัดเจน `DEMO DATA / OFFICIAL DIGITAL ID COMPLIANT`
 - **Resume Import & Masked Profile:** เครื่องมือ Redaction สังเคราะห์ พร้อม Side-by-side Review ให้ Candidate ตรวจสอบและ Approve

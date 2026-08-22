@@ -1,183 +1,200 @@
-# 1. 8-Bit Visual Design System, Generated Assets & Real Privacy Engines
+# Website & Product UI Design System
+
+> **Document role:** Single Source of Truth สำหรับ Website, Landing, form, panel, HUD และ Semantic DOM UI
+> **Version:** 3.0 · 22 August 2026
+> **Game visual owner:** [Game Visual & World Specification](./world-and-scene-design.md)
+
+เอกสารนี้ไม่กำหนด anatomy ของ booth/props/character ซ้ำ งานภาพภายใน Phaser ต้องใช้เอกสาร Game Visual & World Specification เท่านั้น
 
 ---
 
-## 1.1 Creative Direction: “Neon Career City”
+## 1. Creative Direction
 
-ภาพรวมของ MaskedMatch คือ **ฮอลล์งานแฟร์อนาคตแบบ Pixel Art ผสมผสาน Neon Aesthetics**:
-- **บรรยากาศ:** Professional Convention Hall ผสมผสานกับ Modern Coworking Space, Exhibitor Booths, Recruiter Tables, Indoor Lounge, Support Desk, และ Device Test Pods
-- **อารมณ์:** ฉลาด เป็นมิตร มีความหวัง ไม่ดูเด็กเกินไป (Retro-futuristic แต่ชัดเจน อ่านง่ายเหมือน Modern SaaS)
-- **Top-Down Perspective:** World เป็นภาพ 2D Top-Down แบบ Full-bleed ในขณะที่ Form, HUD, และ Navigation เป็น Semantic DOM Overlay ที่คมชัดและเข้าถึงได้ (Accessible)
+MaskedMatch ใช้ภาษา **professional retro-future career platform**:
 
-### Inspiration Boundary (ความแตกต่างจาก Hideout / Gather)
+- จริงจังพอสำหรับงานอาชีพ แต่เป็นมิตรและชวนสำรวจ
+- 8-bit แสดงผ่าน grid, pixel edge, icon และ rhythm ไม่ใช่การทำข้อความทุกอย่างเป็น pixel font
+- ใช้ cyan/violet/mango เป็น functional accent ไม่กระจาย neon ทุก surface
+- มี negative space และ visual hierarchy ชัดก่อนเพิ่ม glow, blur หรือ animation
+- Website และ World HUD ดูเป็นผลิตภัณฑ์เดียวกัน แต่ DOM ไม่เลียนแบบวัตถุในเกม
 
-MaskedMatch นำเฉพาะแนวคิด **Spatial Presence, Contextual Interaction, Event Wayfinding, และ Customizable Booths** มาปรับใช้
+### Inspiration boundary
 
-**MUST NOT** คัดลอก:
-- ✕ Sprite, Tileset, Map Layout, Furniture, หรือ Character Avatar
-- ✕ Exact Color Palette, Typography, Navigation Chrome หรือ Component Composition
-- ✕ Copywriting, Sound Effect, Logo, Trademark หรือ Trade Dress
+นำหลัก spatial presence, contextual interaction และ event wayfinding ของผลิตภัณฑ์อ้างอิงมาศึกษาได้ แต่ห้ามคัดลอก sprite, map, UI chrome, typography, palette, copywriting, sound, component composition หรือ trade dress
 
 ---
 
-## 1.2 Strict No-Emoji Policy & Generated Asset Standard
+## 2. Surface Ownership
 
-> **กฎเหล็กด้านงานภาพ:** **MUST NOT** ใช้อิโมจิ (Emoji) เป็นตัวแทนของวัตถุในเกม, อุปกรณ์ประกอบฉาก, ตัวละคร, หรือองค์ประกอบบนเว็บโดยเด็ดขาด
-
-ทุก Element ประกอบฉากและส่วนติดต่อผู้ใช้จะต้องสร้างผ่าน **Generated Elements / Custom Pixel Art / Vector SVGs** เพื่อความสมจริงและเอกภาพด้าน Visual Hierarchy:
-
-1. **อุปกรณ์ประกอบฉาก (Scene Props):** เก้าอี้, โต๊ะสัมภาษณ์, Kiosk ข้อมูล, Coffee Cart, ตู้เซิร์ฟเวอร์, ฉากกั้น (Partitions), และโคมไฟนีออน ต้องเป็น Pixel Sprite ที่ Generate ขึ้นมาเฉพาะ
-2. **ตัวละครและ NPC (Characters & NPCs):** ผู้สมัคร (Candidates), ผู้สัมภาษณ์ (Recruiters), เจ้าหน้าที่จัดงาน (Staff), และผู้เชี่ยวชาญด้านการเข้าถึง (A11y Guides) ต้องมี Sprite Sheet 4 ทิศทาง พร้อม Walk/Idle Animation
-3. **บูธบริษัทจัดแสดง (Exhibitor Booths):** โครงสร้างบูธ, Dynamic Logo Fixtures, เคาน์เตอร์ต้อนรับ และจอแสดงผลสื่อประชาสัมพันธ์
-4. **ของตกแต่งในแผนที่ (Map Decorations):** กระถางต้นไม้ไซเบอร์, ลวดลายพื้นกระเบื้อง, พรมทางเดิน, และเส้นแสงนีออนนำทาง
-5. **Web UI Elements:** ไอคอนสถานะ, ป้าย Badge, สัญลักษณ์นำทาง, ปุ่มควบคุมมัลติมีเดีย ต้องใช้ Custom Pixel SVG Icons แทนอิโมจิ
-
----
-
-## 1.3 Strict Prohibition: Zero Unfinished / Raw UI Standard (ข้อห้ามเด็ดขาด: ห้าม UI ดิบหรือไม่เสร็จ)
-
-> ⛔ **ข้อห้ามเด็ดขาด (Strict Prohibition):**
-> **ห้ามปล่อยให้หน้าเว็บแสดงผลเป็น Raw HTML ดิบๆ ที่ขาดการโหลด CSS/Tailwind, ขาด Flexbox/Grid จัดกึ่งกลาง, ขาดสี/Gradient/Neon Glow, หรือปุ่ม/การ์ดดูเหมือน MVP ไม่เสร็จโดยเด็ดขาด!**
-
-ทุกหน้าจอและคอมโพเนนต์ต้องปฏิบัติตามมาตรฐานดังนี้:
-1. **Complete CSS Compilation:** ต้องมี Tailwind CSS / PostCSS หรือ CSS System ที่คอมไพล์สมบูรณ์ 100% ห้ามมี Utility Class ที่หลุดหรือไม่ทำงาน
-2. **Rich Visual Polish:** ทุก Card, Modal, Button ต้องมี Background Surface ชัดเจน (`#17162E` / `#262047`), Border เรืองแสง (`#8B5CF6` / `#37E7FF` / `#FF4FD8`), และ Hover/Active Transitions
-3. **Structured Responsive Containers:** จัด Layout กลางจออย่างประณีต มี `max-w-6xl mx-auto`, Grid Columns ที่มีสัดส่วน, และ Padding สม่ำเสมอ ไม่กองข้อความชิดขอบซ้าย
-4. **No Default Browser Controls:** ห้ามใช้ปุ่มปุ่มเหลี่ยมสีเทามาตรฐานหรือฟอร์มดิบของเบราว์เซอร์ ต้องใช้ `PixelButton`, `DialogWindow`, `PixelCard` และไอคอน SVG ที่จัดสไตล์แล้ว 100%
-
----
-
-## 1.4 Realistic & Immersive Booth Visitation Experience
-
-การออกแบบประสบการณ์เยี่ยมชมบูธต้องมีความสมจริง (Realistic Career Fair Simulation):
-- **Booth Layout & Atmosphere:** บูธแต่ละแห่งมีโครงสร้างสถาปัตยกรรมที่ชัดเจน ประกอบด้วย:
-  - **Reception & Queue Terminal:** เคาน์เตอร์ต้อนรับพร้อมป้ายบอกเวลารอและจำนวนคิว
-  - **Interactive Showcase Display:** จอแสดงผลงาน โครงการเด่น และ Tech Stack ของบริษัท
-  - **Recruiter Station:** โต๊ะสัมภาษณ์พร้อม NPC Recruiter ประจำตำแหน่งที่สามารถเข้าใกล้เพื่อเริ่มการสนทนา
-- **Proximity Feedback:** เมื่อ Avatar เดินเข้าสู่รัศมีของบูธ ขอบบูธจะแสดงเส้นเรืองแสง (Interactive Glow), Dynamic Logo Plate จะขยายตัวเล็กน้อย และปุ่ม Action Panel จะปรากฏขึ้นอย่างเป็นธรรมชาติ
-
----
-
-## 1.4 Production-Ready Privacy Engines (Feasibility & Real Implementation)
-
-การ Demo และสถาปัตยกรรมของระบบถูกออกแบบให้ **ใช้งานได้จริง (Production Feasible)** โดยไม่มีการใช้ Mock หลอกลวงในส่วนสำคัญ:
-
-```mermaid
-flowchart LR
-    subgraph ClientMediaCapture["Real Client Media Capture"]
-        CAM["Real WebRTC Camera Feed\n(getUserMedia)"] --> FACE_ENG["Face Tracking Engine\n(MediaPipe / WASM FaceMesh)"]
-        MIC["Real WebRTC Mic Stream"] --> DSP["Web Audio DSP Pitch Worklet\n(Formant & Pitch Shift)"]
-    end
-
-    FACE_ENG -->|"Landmarks (Yaw, Pitch, Mouth)"| MASK_RENDER["Realtime Face Avatar Overlay\n(2D / 3D Canvas Transform)"]
-    MASK_RENDER -->|"Mask Fail-Closed Check"| COMPOSITOR["Canvas Stream Compositor"]
-    COMPOSITOR --> SFU["WebRTC Outgoing Video Track"]
-    DSP --> SFU_A["WebRTC Outgoing Audio Track"]
-```
-
-### 1. Real Camera Feed with Realtime Face Tracking Avatar Engine
-- **Hardware Integration:** เชื่อมต่อกับกล้องจริงผ่าน `navigator.mediaDevices.getUserMedia({ video: true })`
-- **Real Face Landmark Engine:** ประมวลผลบนเครื่อง Client แบบ Real-time ด้วย Engine ตรวจจับพิกัดใบหน้า (เช่น MediaPipe FaceMesh หรือ WebAssembly-based Vision Engine)
-- **Face Avatar Overlay:** นำพิกัด Landmark (ตำแหน่งศีรษะ, การกระพริบตา, การขยับปาก) มาขับเคลื่อน 2D/3D Animal Avatar ครอบทับใบหน้าจริงแบบเรียลไทม์
-- **Fail-Closed Protection:** หากระบบสูญเสีย Face Tracking เกิน 3 เฟรม ระบบจะตัดสัญญาณภาพวิดีโอทันที และสลับเป็น Avatar แบบนิ่ง เพื่อป้องกันภาพใบหน้าจริงรั่วไหล
-
-### 2. Real Voice Pitch & Formant Transformation Engine
-- **Web Audio API & AudioWorklet:** ใช้ Digital Signal Processing (DSP) Filter ประมวลผลสัญญาณเสียงจริงแบบ Low-latency (<20ms) บนเครื่องผู้ใช้
-- **Feasible Pitch Modulation:** ปรับค่า Pitch และ Formant เพื่อปกปิดน้ำเสียงจริงของผู้สมัคร โดยยังคงความชัดเจนในการฟังและเข้าใจภาษา (Intelligible Speech)
-- **Zero Server Latency:** ประมวลผลบน Client ก่อนส่งเข้า WebRTC Data Stream ทำให้ไม่เกิดคอขวดบน Server และใช้งานได้จริง
-
----
-
-## 1.5 Design Tokens & Color System
-
-### Base Color Tokens
-
-| Token Name | Hex Code | Purpose & Semantic Meaning |
+| Surface | Owner | Content |
 |---|---|---|
-| `bg.canvas` | `#070816` | พื้นหลังหลักของแอปพลิเคชัน |
-| `bg.world-night` | `#0D1025` | พื้นหลังของฮอลล์งานเสมือนจริง 2.5D / พื้นผิวแผนที่ |
-| `surface.1` | `#17162E` | Card, Panel, Floating HUD พื้นฐาน |
-| `surface.2` | `#262047` | Elevated Modal, Active Panel, Dropdown |
-| `brand.purple` | `#8B5CF6` | Primary Action, Selected State |
-| `brand.pink` | `#FF4FD8` | Match Highlight, Celebration, Accent |
-| `brand.cyan` | `#37E7FF` | Navigation, Information, Interactive Links |
-| `brand.mango` | `#FFD84D` | Attention, CTA, Ready Check Alert |
-| `status.success` | `#4ADE80` | สถานะสำเร็จ, รับคิว, Online |
-| `status.warning` | `#FBBF24` | สถานะเตือน, คิวใกล้ถึง, Reconnecting |
-| `status.danger` | `#FF5A6F` | สถานะอันตราย, Offline, ปฏิเสธ, ลบคิว |
-| `text.primary` | `#F8F7FF` | ข้อความหลักบน Dark Surface |
-| `text.muted` | `#BBB6D5` | ข้อความรอง, คำอธิบายประกอบ |
-| `text.on-accent` | `#070816` | ข้อความ/ไอคอนเข้ม บนปุ่ม Neon / Status |
-| `text.on-dark` | `#F8F7FF` | ข้อความสว่าง บนพื้นหลังเข้ม |
-| `focus.ring` | `#FFFFFF` | เส้น Focus Ring ภายนอกเพื่อการเข้าถึง |
+| Product Landing / Event Landing | React Semantic DOM | value proposition, event information, CTA, schedule, booth preview |
+| Candidate / Recruiter / Ops tasks | React Semantic DOM | form, profile, queue, interview controls, decision, admin |
+| Navigator / Booth Detail | React Semantic DOM | accessible equivalent ของ Canvas actions |
+| World HUD / Dialogue / Panel | React Semantic DOM | status, mission, context, focusable controls |
+| Career Hall | Phaser 4 | floor, entities, actors, physics, camera, animation, interaction sensor |
 
-### Approved Contrast Recipes (WCAG 2.2 AA Compliance)
-
-| Background Token | Foreground Token | Contrast Ratio | Approved Usage |
-|---|---|:---:|---|
-| `brand.purple` (`#8B5CF6`) | `text.on-accent` (`#070816`) | **4.70:1** | Primary Button / Active Badge |
-| `brand.pink` (`#FF4FD8`) | `text.on-accent` (`#070816`) | **6.98:1** | Match Highlight Banner |
-| `brand.cyan` (`#37E7FF`) | `text.on-accent` (`#070816`) | **13.30:1** | Info Chip / Navigation Links |
-| `brand.mango` (`#FFD84D`) | `text.on-accent` (`#070816`) | **14.39:1** | Ready Check CTA / Attention Alert |
-| `status.success` (`#4ADE80`) | `text.on-accent` (`#070816`) | **11.42:1** | Success Status Badge |
-| `status.warning` (`#FBBF24`) | `text.on-accent` (`#070816`) | **11.92:1** | Warning Chip |
-| `status.danger` (`#FF5A6F`) | `text.on-accent` (`#070816`) | **6.58:1** | Danger Button / Reject Action |
+ข้อกำหนด boundary เต็มอยู่ใน [Web–Game Separation](../04-architecture/web-game-separation.md)
 
 ---
 
-## 1.6 Typography
+## 3. Core Tokens
 
-| Role | Font Family / Spec | Size & Line-Height Rules |
+### 3.1 Color
+
+| Token | Value | Use |
 |---|---|---|
-| **Logo / Latin Display** | Pixel Display Font (Licensed) | ขนาด ≥20 px ใช้เฉพาะ Header สั้นๆ |
-| **Thai Display** | `Chakra Petch` หรือ Thai Display Font | หัวข้อใหญ่, Title Bar, Hero Text |
-| **Thai/English Body** | `Noto Sans Thai`, System Sans Fallback | ขนาดขั้นต่ำ 16 CSS px, Line-height 1.5–1.7 |
-| **Numbers & Timers** | Monospace Font with Tabular Numerals | ตัวเลขนับถอยหลัง, เวลาคิว, รหัสผู้สมัคร |
-| **Captions** | Readable Sans-serif | 16–18 CSS px ปรับขนาดได้ |
+| `bg.page` | `#0B1724` | Website page background |
+| `bg.app` | `#0D1830` | Application shell |
+| `surface.1` | `#142F41` | Card/panel |
+| `surface.2` | `#172B4D` | Elevated panel/dialog |
+| `surface.deep` | `#08141F` | Header/dock |
+| `accent.cyan` | `#78DBE6` | navigation, focus-adjacent info |
+| `accent.violet` | `#8B5CF6` | selection/avatar |
+| `accent.pink` | `#FF4FD8` | match accent only |
+| `accent.mango` | `#FFD84D` | attention/ready check |
+| `status.success` | `#4ADE80` | successful/online |
+| `status.warning` | `#FBBF24` | warning/reconnecting |
+| `status.danger` | `#FF5A6F` | destructive/error |
+| `text.primary` | `#F8F7FF` | main text on dark |
+| `text.muted` | `#C7D3E9` | secondary text |
+| `text.onAccent` | `#071426` | text on bright accent |
+| `focus.ring` | `#FFFFFF` | keyboard focus |
+
+Color ต้องไม่เป็นตัวสื่อสถานะเพียงอย่างเดียว ทุก status มี icon/shape + text
+
+### 3.2 Spacing and geometry
+
+- Base spacing: `4 px`; standard rhythm: `8, 12, 16, 24, 32, 48, 64`
+- Pixel border: `1–2 px`; offset shadow: `4–7 px`
+- Touch target: อย่างน้อย `44 × 44 CSS px`
+- Container max width: `1440 px`; body copy max width: `70ch`
+- ใช้ square/notched corner เป็น accent; หลีกเลี่ยง corner style หลายแบบในหน้าเดียว
+- card ต้องอยู่บน explicit grid และมี alignment ร่วมกัน ห้ามวางแบบลอยกระจัดกระจาย
+
+### 3.3 Typography
+
+| Role | Rule |
+|---|---|
+| Thai/English body | system sans / `Noto Sans Thai`, ขั้นต่ำ 16 px ใน flow หลัก, line-height 1.5–1.7 |
+| Display | monospace/pixel-inspired ใช้เฉพาะ heading สั้นและ Latin label |
+| Numeric/status | monospace + tabular numerals |
+| Caption | readable sans/mono, ไม่ต่ำกว่า 12 px เมื่อเป็นข้อมูลที่ต้องอ่าน |
+
+Pixel font ห้ามใช้กับย่อหน้าไทยยาว, privacy notice, form help หรือ error message
 
 ---
 
-## 1.7 Pixel Geometry & Art Production
+## 4. UI Hierarchy
 
-- **Base Tile Grid:** `16 × 16 logical px`
-- **Integer Render Scale:** `2x` หรือ `3x`
-- **Character Sprites:** `24 × 32 logical px`, 4 ทิศทาง (Walk loop 4–6 frames, Idle 2 frames)
-- **Animation FPS:** 8–10 fps สำหรับตัวละคร; UI Transitions แยกเป็น 150–220 ms
-- **Collision Footprint:** กล่องชนที่ฐานตัวละคร มีขนาดเล็กกว่าภาพ Sprite
-- **Texture Atlas:** จัดกลุ่ม Sprite Atlas เป็น `core`, `district`, `booth`, `props`
+หนึ่ง state มี primary action เด่นหนึ่งรายการ ส่วน action อื่นเรียงตามลำดับ:
 
----
+1. **Primary:** เดิน flow ต่อหรือยืนยันผลหลัก
+2. **Secondary:** ทางเลือกที่ไม่ทำลายข้อมูล
+3. **Tertiary:** navigation/context action
+4. **Danger:** reset/cancel/delete แยกตำแหน่งและต้องไม่ติด primary
 
-## 1.8 Motion, Sound & Haptics
+ทุกหน้าต้องมี:
 
-- **Reduced Motion Support:** เคารพการตั้งค่า `prefers-reduced-motion`; ปิด Camera Shake, Parallax, Particle Effects, และ Floating Bob
-- **Sound Opt-in:** ปิดเสียงเป็นค่าเริ่มต้น (Muted by default) ผู้ใช้ต้องเปิดเอง
-- **Haptics:** รองรับ Haptic Feedback ในจังหวะ Ready Check บนอุปกรณ์มือถือ
+- page/route identity
+- current state หรือ progress เมื่อเป็น multi-step flow
+- primary action ที่เห็นโดยไม่ต้องเดา
+- back/recovery path
+- loading, empty, validation, permission, offline และ server-error state ตามบริบท
 
----
-
-## 1.9 Two-Zone React, GSAP & 8-Bit Product Standard (Revision 2.5)
-
-ประสบการณ์ต้องแยกเป็นสอง surface ที่มีหน้าที่ต่างกันอย่างชัดเจน:
-
-| Zone | Technology | หน้าที่ | Visual Rule |
-|---|---|---|---|
-| **Website Shell** | **React + Semantic DOM + GSAP (future)** | Landing, onboarding, profile, Navigator, booth detail, queue, interview, recruiter/admin และ dialog ทั้งหมด | ใช้โครง 8-bit product UI ที่อ่านง่าย: pixel borders/icons, grid 4/8 px, high contrast และ generous whitespace; glass effect เป็น optional accent ไม่ใช่ visual identity หลัก |
-| **Career Hall World** | **Phaser 4 (future)** | โลกเดินสำรวจ, player/NPC, collision, booth/Info Kiosk, camera และ depth layer | Original 2D pixel-art game scene อ้างอิง mood/shape language จาก `docs/ref_pics/`; ห้าม copy asset ของ Hideout/Gather และห้ามใช้ web-card จำนวนมากบดบัง world |
-
-- **React first for product UI:** ทุก task, form, navigation, status, queue, modal และ accessibility fallback ต้องเป็น React/DOM; Phaser เป็น renderer ของโลกเกมเท่านั้น
-- **GSAP with purpose:** ใช้ GSAP สำหรับ page entry, modal/sheet, card hover และ state transition ที่นุ่มนวล (150–220 ms) เท่านั้น; ห้ามใช้ animation เพื่อทำให้ข้อมูลสำคัญอ่านยากหรือเพิ่มความหนาแน่นของ UI
-- **Minimalism:** หนึ่งหน้าต้องมี primary action เด่นเพียงหนึ่ง action ต่อ state, generous spacing ตาม grid 4/8 px, หลีกเลี่ยง dashboard ที่อัด widget และต้องไม่มี decorative element ที่ไม่มีหน้าที่
-- **Effects boundary:** ถ้าใช้ glass/blur ให้ใช้เป็น accent บน DOM Task Zone เท่านั้น; world pixel art ต้องอ่านเส้นทาง, booth, collision landmark และ Info Kiosk ได้ชัดเจนแม้ไม่มี overlay
-- **Reference boundary:** `docs/ref_pics/` มีไว้กำหนด composition, palette, density และ sprite scale เท่านั้น; production spritesheet/atlas ต้องวาดหรือ generate ใหม่และเก็บใน asset library ของ Game
-- **Reduced motion:** เมื่อ `prefers-reduced-motion` เปิดอยู่ ให้ GSAP transition จบแบบทันทีและมี static state ที่อ่านได้เท่ากัน
+Glow, gradient และ glass เป็น accent เท่านั้น ไม่ใช้แทน border, grouping หรือ text hierarchy
 
 ---
 
-## 1.10 Final Design Test (5 คำถามประเมินก่อนอนุมัติ Frame)
+## 5. Component States
 
-1. ผู้สมัครรู้หรือไม่ว่าตอนนี้ Recruiter มองเห็นข้อมูลอะไรจากตนเองบ้าง?
-2. ทุกองค์ประกอบในฉากและ UI ใช้ Generated Assets โดยปราศจากอิโมจิหรือไม่?
-3. ระบบ Face Tracking และ Voice Alteration ทำงานได้จริงแบบ Low-latency หรือไม่?
-4. เมื่อเกิด Refresh, Timeout หรือ Permission Fail ผู้ใช้รู้ว่าต้องทำอะไรต่อหรือไม่?
-5. หน้าจอนี้ช่วยเล่า Core Loop บนเวที หรือกำลังเพิ่ม Feature ที่ไม่จำเป็น?
+ทุก interactive component ต้องกำหนดอย่างน้อย:
+
+| State | Required behavior |
+|---|---|
+| Default | label ชัดและ hit target ครบ |
+| Hover | enhancement เท่านั้น ไม่ซ่อนข้อมูลสำคัญไว้หลัง hover |
+| Focus visible | white 3 px ring หรือ equivalent ที่ contrast ผ่าน |
+| Pressed/Selected | มี shape/text/state change ไม่ใช้สีอย่างเดียว |
+| Disabled | อธิบายเหตุผลเมื่อผู้ใช้อาจไม่เข้าใจ |
+| Loading | ป้องกัน duplicate submit และประกาศสถานะ |
+| Error | มีข้อความ factual + recovery action |
+
+ห้ามมี dead button, decorative fake input หรือ control ที่ label ไม่ตรงกับ action
+
+---
+
+## 6. Responsive Layout
+
+| Width | Behavior |
+|---|---|
+| `320–359` | single-column, no horizontal scroll, semantic flow มาก่อน Canvas |
+| `360–479` | mobile navigation, full-width action, bottom sheet ที่ปิด/ขยายได้ |
+| `480–767` | mobile-wide; grid สูงสุด 2 columns เมื่ออ่านได้ |
+| `768–1023` | Canvas + one drawer หรือ content split |
+| `1024–1439` | desktop shell; panel widths capped |
+| `≥1440` | full composition พร้อม generous margins |
+
+Mobile ต้องมี navigation จริง ไม่ใช่ซ่อน desktop nav แล้วเหลือเพียง brand label
+
+---
+
+## 7. World HUD Rules
+
+- HUD แสดงเฉพาะ mission/status/action ที่จำเป็นต่อ state ปัจจุบัน
+- Navigator และ panel เปิดเมื่อผู้ใช้เรียก ไม่บัง World ถาวร
+- panel เปิดแล้วต้อง pause/disable game input ที่เกี่ยวข้อง
+- desktop panel มี capped width; mobile ใช้ bottom sheet หรือ dedicated semantic view
+- queue/network/media status มี text label เสมอ
+- Canvas action ทุกอย่างมี Navigator equivalent
+- DOM ห้ามใช้เป็น facade, actor, prop หรือ hotspot หลอกใน World
+
+งานมุมกล้อง, booth, props และ character ใช้ [Game Visual & World Specification](./world-and-scene-design.md)
+
+---
+
+## 8. Icons, Images and No-Emoji Rule
+
+- UI icon ใช้ project SVG/pixel icon พร้อม consistent stroke/fill
+- emoji ห้ามใช้แทน icon, object, character, booth หรือ status
+- decorative image มี empty alt; informative image มี meaningful alt
+- ห้ามฝังข้อความสำคัญลง raster asset
+- reference image ห้าม import เป็น runtime UI/game asset
+
+---
+
+## 9. Motion and Feedback
+
+- UI transition: `120–220 ms`
+- motion ต้องอธิบาย state/relationship ไม่ใช่เคลื่อนไหวตลอดเวลาเพื่อความสวย
+- เคารพ `prefers-reduced-motion`; static state ต้องมีข้อมูลเท่ากัน
+- sound/haptic เป็น opt-in และไม่เป็นช่องทาง feedback เดียว
+- destructive/important result ใช้ text confirmation หรือ persistent status ไม่พึ่ง toast ที่หายเอง
+
+---
+
+## 10. Privacy and Media UI Ownership
+
+รายละเอียด camera, face masking, voice DSP และ fail-closed ไม่อยู่ใน Design System:
+
+- functional behavior: [Functional Requirements](../02-product/functional-requirements.md)
+- technical pipeline: [System Architecture](../04-architecture/system-architecture.md)
+- privacy/safety: [Security & PDPA](../05-security-and-governance/security-and-pdpa.md)
+- screen layout: [Screen Blueprints](./screen-blueprints.md)
+
+Design System กำหนดเพียงว่า media state/consent/fallback ต้องมองเห็น, keyboard accessible และไม่เปิดสื่อโดยไม่ยินยอม
+
+---
+
+## 11. UI Approval Checklist
+
+- [ ] primary action และ recovery path ชัด
+- [ ] spacing/type/surface อยู่ใน token system
+- [ ] ไม่มี raw browser control หรือ dead action
+- [ ] keyboard focus, touch target และ responsive reflow ผ่าน
+- [ ] status ใช้ text + visual cue
+- [ ] mobile มี navigation และไม่ล้น 320 px
+- [ ] World HUD ไม่บัง interaction และมี Navigator parity
+- [ ] ไม่มี emoji หรือ baked important text
+- [ ] mock/demo capability ติดป้ายตรงความจริง
+- [ ] Reduced Motion ยังใช้งาน flow ได้ครบ

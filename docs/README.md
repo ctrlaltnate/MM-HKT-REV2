@@ -1,112 +1,141 @@
-# MaskedMatch — Master Documentation Index
+# MaskedMatch Documentation
 
-> **Skills First. Bias Last.**
-> **Interactive 8-bit Virtual Job Fair Documentation Hub**
-> Version 2.2 · Docs-only Architecture Revision · August 2026
+> **Version:** 3.0 · 22 August 2026
+> **Phase:** R0 frontend implementation in progress
+> **Product:** Responsive Website + Landing + Virtual Job Fair
 
-> [!IMPORTANT]
-> **สถานะปัจจุบัน: Documentation only** — repository นี้ยังไม่มี website, game runtime, backend หรือ deployment configuration ที่พร้อมรัน การเริ่ม scaffold/implementation ต้องได้รับคำสั่งแยกต่างหากหลังเอกสารและขอบเขตได้รับการอนุมัติ
-
-เอกสารทั้งหมดของโครงการ MaskedMatch ถูกจัดแบ่งออกเป็น **8 หมวดหมู่หลัก (35+ เอกสารย่อย)** อย่างเป็นระบบ ครอบคลุมทั้งด้านผลิตภัณฑ์ (Product), ประสบการณ์และการออกแบบ (UX/UI), สถาปัตยกรรมระบบ (Architecture), ความปลอดภัยและธรรมาภิบาล (Security & Governance), วิศวกรรมและการประกันคุณภาพ (Engineering & QA), คู่มือการปฏิบัติการ (Playbooks & Operations) ตลอดจนคู่มือการดีพลอยสู่ระดับ Production จริง (Production & Publish)
+เอกสารชุดนี้ใช้หลัก **one topic, one canonical owner** เพื่อให้ข้อกำหนดครบแต่ไม่ซ้ำ หากข้อความใน supporting document ขัดกับ owner ให้แก้ owner ก่อนแล้วอ้าง link/requirement ID จากไฟล์อื่น
 
 ---
 
-## 📚 Documentation Categories & Sitemap
+## Start Here
 
-```text
-docs/
-├── README.md                                 # Master Index & Guide (ไฟล์นี้)
-│
-├── 01-overview/                              # ภาพรวม วิสัยทัศน์ และบทบาทผู้ใช้งาน
-│   ├── executive-summary.md                  # สรุปภาพรวม วิสัยทัศน์ และเป้าหมายของผลิตภัณฑ์
-│   ├── terminology.md                        # ศัพท์เทคนิค ลำดับความสำคัญ และ Document Control
-│   └── personas-and-permissions.md           # บทบาทผู้ใช้ (Personas) และตารางสิทธิ์ (RBAC Matrix)
-│
-├── 02-product/                               # ข้อกำหนดเชิงผลิตภัณฑ์และเส้นทางผู้ใช้
-│   ├── scope-and-roadmap.md                  # ขอบเขตการพัฒนา (R0 ถึง R4) และฟังก์ชันที่เลื่อนออกไป
-│   ├── user-journeys.md                      # เส้นทางการใช้งาน (Candidate, Recruiter, Organizer, Recovery)
-│   ├── functional-requirements.md            # ข้อกำหนดการทำงานทั้งหมด (FR-AUTH ถึง FR-NOTIFY)
-│   └── acceptance-criteria.md                # เกณฑ์การยอมรับ (AC-01 ถึง AC-31) และ Traceability Matrix
-│
-├── 03-design/                                # ระบบการออกแบบ UX/UI และฉากเสมือน
-│   ├── design-system.md                      # 8-Bit Design Tokens, Strict No-Emoji, Real Media Engines
-│   ├── information-architecture.md           # โครงสร้าง Sitemap, เส้นทาง (Routes) และ Responsive Grid
-│   ├── world-and-scene-design.md             # ฉาก Neon Career Hall, Realistic Booths, 8-Bit Character Compositor
-│   ├── screen-blueprints.md                  # พิมพ์เขียวและ Wireframes ทุกหน้าจอ (SC-01 ถึง SC-17)
-│   ├── component-library.md                  # แคตตาล็อก UI Components, Primitives, Studio & Media Canvas
-│   ├── content-and-microcopy.md              # โทนเสียง (Voice & Tone) และชุดข้อความภาษาไทย/อังกฤษ
-│   └── accessibility-spec.md                 # ข้อกำหนดการเข้าถึงตามมาตรฐาน WCAG 2.2 AA
-│
-├── 04-architecture/                          # สถาปัตยกรรมทางเทคนิคและสัญญาข้อมูล
-│   ├── system-architecture.md                # สถาปัตยกรรมระบบหลัก (Component Diagram, Media Pipeline, Stack)
-│   ├── web-game-separation.md                # ขอบเขต Website/Game, Phaser 4 decision และ integration contract
-│   ├── state-machines.md                     # แผนภาพ State Machines (Event, Queue, Interview, Decision)
-│   ├── domain-model-and-data.md              # Domain Entities, AvatarConfig, Identity Vault และ Retention
-│   └── api-and-realtime-contracts.md         # สัญญา REST API, WebSocket Protocols, Error Codes
-│
-├── 05-security-and-governance/               # ความปลอดภัย ความเป็นส่วนตัว และ AI
-│   ├── security-and-pdpa.md                  # การปฏิบัติตาม PDPA, On-Device Face Mesh, Fail-Closed, Threat Model
-│   ├── ai-governance.md                      # จริยธรรม AI, Model Card, Guardrails, Integrity Signals
-│   └── identity-and-thaid.md                 # สถาปัตยกรรม Digital ID และการเชื่อมต่อ ThaID
-│
-├── 06-engineering-and-qa/                    # ประสิทธิภาพ การทดสอบ และการประเมินความเสี่ยง
-│   ├── performance-and-reliability.md        # งบประมาณประสิทธิภาพ (SLOs), CI Profile, ความน่าเชื่อถือ
-│   ├── observability-and-analytics.md        # การบันทึก Logs, Metrics, Tracing และ Funnel Analytics
-│   ├── test-strategy-and-gates.md            # กลยุทธ์การทดสอบ, QA Viewport Matrix, Release Gates
-│   ├── risks-and-decisions.md                # ตารางความเสี่ยง, ข้อสมมติ, Dependencies, Decision Registry
-│   └── definition-of-done.md                 # เกณฑ์การส่งมอบงาน (DoD) ฝั่ง Engineering และ Design
-│
-├── 07-playbooks-and-operations/              # คู่มือสำหรับ Agent และการนำเสนองาน
-│   ├── agent-playbook.md                     # คู่มือ AI Coding Agent (Invariants, Slices 0-6, Workflows)
-│   ├── mcp-assisted-workflow.md               # กติกาใช้ MCP เพื่อ research, asset iteration และ visual QA
-│   ├── demo-runbook-and-storyboard.md        # แผนการนำเสนอ 5 นาทีบนเวที, สคริปต์, Scenario Presets
-│   ├── demo-fixtures-and-assets.md           # ชุดชุดข้อมูลมาตรฐานมาตรฐาน (Fixtures) และ Asset Registry
-│   └── architecture-decision-records.md      # บันทึกการตัดสินใจทางสถาปัตยกรรม (ADR-001 ถึง ADR-013)
-│
-└── 08-production-and-publish/                # คู่มือการติดตั้งและปล่อยใช้งานจริง (Production & Scale)
-    ├── production-deployment-guide.md        # แผนผังและขั้นตอนการ Deploy (Cloud, Docker, Compose, SSL)
-    ├── cloud-and-tech-stack.md               # สถาปัตยกรรม Tech Stack เต็มรูปแบบ, Isolation, Connection Pooling
-    ├── api-and-ai-integrations.md            # การตั้งค่า AI (LLM, Prompts), On-device Vision, LiveKit SFU
-    ├── scaling-and-infrastructure.md         # การสเกลรองรับ 10,000+ ผู้ใช้พร้อมกัน, WebRTC Sizing, Redis Grid
-    └── env-and-secrets-configuration.md      # ไฟล์ `.env.production.example`, Secret Manager และ Go-Live Checklist
+| Need | Read first |
+|---|---|
+| ภาพรวมและสถานะ | [Scope & Roadmap](./02-product/scope-and-roadmap.md) |
+| ศัพท์, provenance, owner ของเอกสาร | [Terminology & Document Ownership](./01-overview/terminology.md) |
+| ระบบต้องทำอะไร | [Functional Requirements](./02-product/functional-requirements.md) |
+| ตรวจรับอย่างไร | [Acceptance Criteria](./02-product/acceptance-criteria.md) |
+| ออกแบบเกม/ฉาก/ตัวละคร | [Game Visual & World Specification](./03-design/world-and-scene-design.md) |
+| ออกแบบ Website/UI | [Website & Product UI Design System](./03-design/design-system.md) |
+| แยก Website กับ Phaser | [Web–Game Separation](./04-architecture/web-game-separation.md) |
+| ลงมือพัฒนา | [Agent Playbook](./07-playbooks-and-operations/agent-playbook.md) |
+| ตรวจคุณภาพก่อนส่ง | [Definition of Done](./06-engineering-and-qa/definition-of-done.md) |
+
+---
+
+## P0 Game Direction
+
+ข้อกำหนดละเอียดและตัวเลขทั้งหมดอยู่ใน [Game Visual & World Specification](./03-design/world-and-scene-design.md) เพียงแห่งเดียว สรุป blocker คือ:
+
+- เกมใช้ **orthographic top-front 3/4** มุมเดียวทั้ง floor, booth, props, NPC และ player
+- พื้นหลังเป็น plain modular floor; วัตถุจริงเป็น Phaser entities แยกชิ้น มี pivot, depth, lifecycle และ owner-linked collision
+- ภาพ final ต้องเป็น original/licensed rendered pixel elements ที่มี silhouette, material และ grounded shadow; primitive ใช้ได้เฉพาะ geometry/debug/FX
+- ตัวละครมี front, back, left, right จริงอย่างน้อย 3 frames ต่อทิศ
+- Character Studio แยก skin, hair, เสื้อ, กางเกง/ท่อนล่าง, รองเท้า และ accessory พร้อมสี, 4-direction preview, apply และ persistence
+- Booth เป็น prefab ประกอบชิ้นส่วน มี facade/counter/showcase/queue/deco อย่างน้อย 2–3 variants ตามหมวด และ booth ที่ติดกันไม่เป็น clone ทั้งชุด
+- ทุกโหมดหลักทำงานจริงและมี Navigator/List Mode equivalent
+
+ไฟล์หลักใน [`ref_pics/`](./ref_pics/) ใช้ศึกษาความอ่านง่าย, scale, density, booth anatomy และภาษา top-front เท่านั้น ห้าม import เป็น runtime texture หรือคัดลอก layout/branding/sprite
+
+---
+
+## Current Truthful Status
+
+| Area | Current R0 state | Not complete yet |
+|---|---|---|
+| Website | Product Landing, Event Landing, candidate preparation, legal/status/404 และ local resume/reset journey มีแล้ว | backend/auth/production state |
+| Game boundary | `apps/web` และ `apps/game` แยก workspace; Phaser `4.2.1` | full production integration |
+| Career Hall | plain floor, entity props, 4 booths, movement/collision, basic interactions และ Navigator bridge | variant library ตามขั้นต่ำและ full browser evidence |
+| Avatar | 4 directions × 3 frames, skin/hair/combined outfit/accessory | แยก top, bottom/trousers, shoes และ directional NPC atlas |
+| Product loop | discovery/queue fixture บางส่วน | durable queue, interview, decision/reveal, recruiter/ops และ realtime multiplayer |
+| Visual QA | reference/provenance และ local runtime assets มีแล้ว | 390/1440 interaction captures, camera lineup, collider/depth evidence |
+
+ห้ามเรียก concept, fixture, mock, planned service หรือ static screenshot ว่า production implementation
+
+---
+
+## Documentation Map
+
+### 01 — Overview
+
+- [Executive Summary](./01-overview/executive-summary.md) — vision, problem, evidence limits
+- [Terminology & Document Ownership](./01-overview/terminology.md) — terms, provenance, conflict priority, canonical owners
+- [Personas & Permissions](./01-overview/personas-and-permissions.md) — personas and RBAC intent
+
+### 02 — Product
+
+- [Scope & Roadmap](./02-product/scope-and-roadmap.md) — R0–R4 scope and current status
+- [User Journeys](./02-product/user-journeys.md) — candidate/recruiter/organizer/recovery flows
+- [Functional Requirements](./02-product/functional-requirements.md) — normative FR catalog including `FR-WORLD-036`
+- [Acceptance Criteria](./02-product/acceptance-criteria.md) — AC-01 through AC-37 and traceability
+
+### 03 — Design
+
+- [Website & Product UI Design System](./03-design/design-system.md) — DOM UI tokens, hierarchy, states, responsive rules
+- [Information Architecture](./03-design/information-architecture.md) — routes, sitemap, navigation
+- [Game Visual & World Specification](./03-design/world-and-scene-design.md) — canonical game camera/world/booth/avatar/physics spec
+- [Visual Reference Catalog](./03-design/reference-visual-language.md) — reference priority and IP boundary
+- [Screen Blueprints](./03-design/screen-blueprints.md) — screen contracts and responsive states
+- [Product Component Library](./03-design/component-library.md) — DOM component contracts
+- [Content & Microcopy](./03-design/content-and-microcopy.md) — Thai/English voice and status copy
+- [Accessibility Specification](./03-design/accessibility-spec.md) — WCAG 2.2 AA behavior
+
+### 04 — Architecture
+
+- [System Architecture](./04-architecture/system-architecture.md) — system boundaries and current/future stack
+- [Web–Game Separation](./04-architecture/web-game-separation.md) — workspace ownership and typed bridge
+- [State Machines](./04-architecture/state-machines.md) — canonical domain transitions
+- [Domain Model & Data](./04-architecture/domain-model-and-data.md) — entities, privacy boundaries, retention
+- [API & Realtime Contracts](./04-architecture/api-and-realtime-contracts.md) — API/event contracts
+
+### 05 — Security and Governance
+
+- [Security & PDPA](./05-security-and-governance/security-and-pdpa.md)
+- [AI Governance](./05-security-and-governance/ai-governance.md)
+- [Identity & ThaID](./05-security-and-governance/identity-and-thaid.md)
+
+### 06 — Engineering and QA
+
+- [Performance & Reliability](./06-engineering-and-qa/performance-and-reliability.md)
+- [Observability & Analytics](./06-engineering-and-qa/observability-and-analytics.md)
+- [Test Strategy & Gates](./06-engineering-and-qa/test-strategy-and-gates.md)
+- [Risks & Decisions](./06-engineering-and-qa/risks-and-decisions.md)
+- [Definition of Done](./06-engineering-and-qa/definition-of-done.md)
+
+### 07 — Playbooks and Operations
+
+- [Agent Playbook](./07-playbooks-and-operations/agent-playbook.md)
+- [MCP-Assisted Workflow](./07-playbooks-and-operations/mcp-assisted-workflow.md)
+- [Demo Fixtures & Asset Registry](./07-playbooks-and-operations/demo-fixtures-and-assets.md)
+- [Demo Runbook & Storyboard](./07-playbooks-and-operations/demo-runbook-and-storyboard.md)
+- [Architecture Decision Records](./07-playbooks-and-operations/architecture-decision-records.md)
+
+### 08 — Production and Publish
+
+- [Production Deployment Guide](./08-production-and-publish/production-deployment-guide.md)
+- [Cloud & Tech Stack](./08-production-and-publish/cloud-and-tech-stack.md)
+- [API & AI Integrations](./08-production-and-publish/api-and-ai-integrations.md)
+- [Scaling & Infrastructure](./08-production-and-publish/scaling-and-infrastructure.md)
+- [Environment & Secrets](./08-production-and-publish/env-and-secrets-configuration.md)
+
+---
+
+## Run the Current Frontend Slice
+
+```bash
+npm install
+npm run dev
 ```
 
----
+เปิด `http://127.0.0.1:4173/` หาก port ถูกใช้อยู่ ให้ปิด process เดิมหรือรัน workspace ด้วย port อื่นที่ระบุชัดเจน
 
-## 🧭 Quick Navigation by Role
+Quality commands:
 
-- 👨‍💻 **สำหรับ AI Coding Agents & Developers:**
-  1. เริ่มต้นที่ [07-playbooks-and-operations/agent-playbook.md](./07-playbooks-and-operations/agent-playbook.md) เพื่อดูข้อห้ามในช่วง Docs-only และ Build Sequence ในอนาคต
-  2. ศึกษา [04-architecture/web-game-separation.md](./04-architecture/web-game-separation.md), [04-architecture/system-architecture.md](./04-architecture/system-architecture.md) และ [04-architecture/state-machines.md](./04-architecture/state-machines.md)
-  3. ตรวจสอบข้อกำหนดใน [02-product/functional-requirements.md](./02-product/functional-requirements.md) และ [02-product/acceptance-criteria.md](./02-product/acceptance-criteria.md)
+```bash
+npm run typecheck
+npm run test
+npm run build
+```
 
-- 🚀 **สำหรับ DevOps / Platform Engineers (Deploy สู่ Production):**
-  1. ศึกษาคู่มือการ Deploy ใน [08-production-and-publish/production-deployment-guide.md](./08-production-and-publish/production-deployment-guide.md)
-  2. ดูสถาปัตยกรรมคลาวด์และฐานข้อมูลใน [08-production-and-publish/cloud-and-tech-stack.md](./08-production-and-publish/cloud-and-tech-stack.md)
-  3. ตั้งค่า AI API Keys, WebRTC SFU ใน [08-production-and-publish/api-and-ai-integrations.md](./08-production-and-publish/api-and-ai-integrations.md)
-  4. จัดการ Environment Variables ตาม [08-production-and-publish/env-and-secrets-configuration.md](./08-production-and-publish/env-and-secrets-configuration.md)
-  5. วางแผนรองรับผู้ใช้ 10,000+ คนตาม [08-production-and-publish/scaling-and-infrastructure.md](./08-production-and-publish/scaling-and-infrastructure.md)
-
-- 🎨 **สำหรับ UX/UI Designers & Frontend Engineers:**
-  1. ศึกษา [03-design/design-system.md](./03-design/design-system.md) และ [03-design/world-and-scene-design.md](./03-design/world-and-scene-design.md)
-  2. ดูพิมพ์เขียวและ Wireframes ใน [03-design/screen-blueprints.md](./03-design/screen-blueprints.md) และ [03-design/component-library.md](./03-design/component-library.md)
-  3. ตรวจสอบเกณฑ์การเข้าถึงใน [03-design/accessibility-spec.md](./03-design/accessibility-spec.md)
-
-- 🛡️ **สำหรับ Security, Privacy & DPO Roles:**
-  1. ตรวจสอบสถาปัตยกรรมความปลอดภัยใน [05-security-and-governance/security-and-pdpa.md](./05-security-and-governance/security-and-pdpa.md)
-  2. ตรวจสอบการแยกข้อมูลส่วนบุคคลใน [04-architecture/domain-model-and-data.md](./04-architecture/domain-model-and-data.md)
-  3. ศึกษาธรรมาภิบาล AI ใน [05-security-and-governance/ai-governance.md](./05-security-and-governance/ai-governance.md)
-
-- 🎤 **สำหรับ Demo Presenters & Event Operators:**
-  1. อ่าน [07-playbooks-and-operations/demo-runbook-and-storyboard.md](./07-playbooks-and-operations/demo-runbook-and-storyboard.md) สำหรับสคริปต์ 5 นาทีและวิธีใช้งาน `/demo/control`
-  2. ตรวจสอบชุดข้อมูลมาตรฐานใน [07-playbooks-and-operations/demo-fixtures-and-assets.md](./07-playbooks-and-operations/demo-fixtures-and-assets.md)
-
----
-
-## Current Working Mode
-
-- อ่านและปรับปรุงข้อกำหนดใน `docs/` เท่านั้น
-- ใช้ภาพใน [`ref_pics/`](./ref_pics/) เป็น **visual reference** สำหรับกำหนดทิศทาง 8-bit; ห้ามนำไฟล์ reference ไปใช้เป็น runtime asset โดยอัตโนมัติ
-- งาน world/visual ในอนาคตต้องใช้ MCP-assisted workflow เพื่อเก็บหลักฐาน reference, ปรับ asset และตรวจภาพจริงตาม [MCP-Assisted Workflow](./07-playbooks-and-operations/mcp-assisted-workflow.md); MCP เป็น development/QA tooling ไม่ใช่ runtime dependency
-- ยังไม่มีคำสั่งติดตั้งหรือรัน local app เพราะ implementation เดิมถูกถอดออกจาก repository แล้ว
-- เมื่อเริ่มพัฒนาในอนาคต ให้สร้าง Website และ Game เป็นคนละ workspace ตาม [Web–Game Separation](./04-architecture/web-game-separation.md) และสร้าง production asset library แยกจาก `docs/ref_pics/`
+Asset source of truth คือ `packages/assets/manifest.json`; visual reference อยู่ใน `docs/ref_pics/` และไม่ใช่ runtime asset

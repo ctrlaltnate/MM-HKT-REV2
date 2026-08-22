@@ -81,74 +81,38 @@
 ### SC-04 — Masked Profile Review
 - **Goal:** ผู้สมัครตรวจสอบผลการปิดบังข้อมูลส่วนบุคคล (Side-by-Side Review) และกดยืนยัน
 
-### SC-05 — 8-Bit Character Creator Studio & Tutorial ("The Sims" 8-Bit Customizer)
-- **Goal:** ปรับแต่งตัวละคร 8-bit ของตนเองก่อนเข้างาน (เลือกสีผิว, ทรงผม, สีผม, เสื้อผ้า, สไตล์ชุด, หน้ากากสัตว์, เครื่องประดับ) หรือกดปุ่มสุ่มสไตล์ (Randomize) พร้อมชม Live 8-Bit Preview ใน Phaser Canvas
-- **Wireframe:**
-```text
-┌────────────────────────────────────────────────────────────┐
-│ ขั้นตอนที่ 3 จาก 3 : สตูดิโอสร้างตัวละคร 8-Bit & วิธีการควบคุม│
-├──────────────────────────────┬─────────────────────────────┤
-│ 8-BIT LIVE PREVIEW (Phaser): │ ปรับแต่งตัวละคร (Character Studio): │
-│ ┌──────────────────────────┐ │ [🎲 สุ่มตัวละครทั้งหมด]    │
-│ │                          │ ├─────────────────────────────┤
-│ │    [ 8-BIT ANIMATED ]    │ │ หมวดหมู่การปรับแต่ง:        │
-│ │    [ AVATAR SPRITE  ]    │ │ [● ผิว] [✂ ผม] [👔 เสื้อ] [🎭 หน้ากาก]│
-│ │                          │ ├─────────────────────────────┤
-│ │  (Idle / Walk Animation) │ │ ทรงผม:                      │
-│ └──────────────────────────┘ │ [Short] [Bob] [Curly] [Afro]│
-│ [◀ หมุนซ้าย] [หมุนขวา ▶]    │ [Spiky] [Ponytail] [Bald]   │
-│                              │ สีผม: [⬛] [🟫] [🟨] [🟦] [🟪]│
-│ สไตล์ชุดปัจจุบัน:            ├─────────────────────────────┤
-│ • เสื้อ: Cyber Hoodie (สีม่วง)│ สไตล์ชุด (Outfits):         │
-│ • ผิว: Warm Tan              │ (o) Cyber Hoodie (สตรีท)    │
-│ • ทรงผม: Spiky (สีฟ้า)       │ ( ) Business Suit (ทางการ)  │
-│ • หน้ากาก: Cyber Fox Mask    │ ( ) Retro Jacket (วินเทจ)   │
-│                              │ ( ) Lab Coat (นักวิจัย)     │
-├──────────────────────────────┴─────────────────────────────┤
-│ วิธีการเดินในงาน:                                          │
-│ • คอมพิวเตอร์: ปุ่ม WASD, ลูกศร หรือคลิกบนแผนที่           │
-│ • มือถือ/แท็บเล็ต: แตะจุดหมายปลายทางที่ต้องการเดินไป       │
-│ • ทางเลือกเข้าถึงง่าย: สามารถเปิด [โหมดรายการ (Navigator)] │
-├────────────────────────────────────────────────────────────┤
-│               [ บันทึกตัวละครและเข้าสู่งาน ]               │
-└────────────────────────────────────────────────────────────┘
-```
+### SC-05 — Character Studio
 
-### SC-06 — Neon Career Hall World
-- **Goal:** เดินสำรวจ Seamless / Endless Career Hall แบบ top-down, พบ NPC, เดินวนกลับผ่าน corridor ได้อย่างต่อเนื่อง และกดป้ายชื่อ/โลโก้หรือ Info Kiosk ของบูธเพื่อดูงานที่แนะนำ
-- **World behavior:** Hall เป็น open modular floor plan ที่ wrap หรือ stream กลับเข้าหา landmark เดิมได้; ไม่ใช่ภาพแบนหรือฉากทางเดินตัน
-- **Interaction contract:** Booth ทุกแห่งมี Dynamic Logo/Name Sign, Info Kiosk และ proximity prompt; รองรับ `E`, click, tap และ Navigator equivalent
-- **Game integrity:** player/NPC/prop ใช้ collision body และ sensor แยกกัน; render แยก layer `Floor → PropMid → Actor → Foreground Occluder → Lighting` พร้อม Y-depth sorting
-- **Web boundary:** Top HUD, context panel, queue control และ mobile bottom sheet เป็น React DOM แบบ Minimalist Liquid Glass; Phaser แสดงเฉพาะโลกเกม
+- **Goal:** สร้าง avatar แบบ The Sims ก่อนเข้า World โดยแยก `skin`, `hair`, `top`, `bottom/trousers`, `shoes` และ `accessory`
+- **Primary action:** `บันทึกตัวละครและเข้าสู่งาน`
+- **Required controls:** Randomize, front/back/left/right preview, picker ของทุก layer และ back/recovery
+- **Required states:** default, changed/unsaved, saved, invalid combination และ Reduced Motion
+- **Desktop:** preview และ controls วางสองคอลัมน์; controls scroll โดย preview ยังมองเห็น
+- **Mobile:** preview อยู่บน, direction selector ต่อด้วย category controls; save เป็น sticky action แต่ไม่บัง option สุดท้าย
+- **Game contract:** preview ใช้ Dynamic Texture/compositor เดียวกับ player และ apply/persist จริง
+- **Canonical visual details:** ดู [Character System](./world-and-scene-design.md#7-character-system--true-directional-sims-style-customization)
+
+### SC-06 — Career Hall World
+
+- **Goal:** เดินสำรวจ Career Hall, พบ NPC, เปิด booth/kiosk และเห็นสถานะ interaction
+- **Primary actions:** เดิน, เปิด Navigator, เปิด booth detail, สนทนา, เปิด Character Studio
+- **Required states:** loading, ready, selected booth, dialogue, queued, suspended, recoverable error
+- **Input:** WASD/arrow, click/tap-to-move, `E`, pointer/touch และ semantic Navigator
+- **Boundary:** Phaser แสดงโลกและ physics; HUD/panel/dialogue เป็น React DOM
+- **Truthful scope:** ใช้คำว่า seamless/endless เฉพาะเมื่อ wrap/stream ทำงานจริง
+- **Canonical camera/entity/physics details:** ดู [Game Visual & World Specification](./world-and-scene-design.md)
 
 ### SC-07 — Navigator / List Mode
-- **Goal:** สำรวจและเข้าถึงทุกฟังก์ชันในงานโดยไม่ต้องควบคุม Canvas
 
-### SC-08 — Booth & Job Detail (Realistic Showcase)
-- **Goal:** สำรวจข้อมูลบูธเสมือนจริง: เคาน์เตอร์ต้อนรับ, จอแสดง Tech Stack, สถานะคิวสด, คะแนนความตรงกัน และกดเข้าคิว
-- **Wireframe:**
-```text
-┌────────────────────────────────────────────────────────────┐
-│ [DYNAMIC LOGO] CYBER ORCHARD CO. (Zone A1)             [×] │
-├────────────────────────────────────────────────────────────┤
-│ [แท็บ: ข้อมูลบูธ]  [ตำแหน่งงาน (2)]  [สถานะคิวสด]  [ผลงานเด่น]│
-│                                                            │
-│ ตำแหน่ง: Backend Developer (Hybrid / กทม.)                 │
-│ ช่วงเงินเดือน: 45,000 – 70,000 บาท                        │
-│                                                            │
-│ ความตรงกันของทักษะ: 92/100 (Evidence-based Match Score)    │
-│ • [CHECK] Node.js ตรงกับ Must-have ความต้องการหลัก          │
-│ • [CHECK] มีหลักฐานระบบ Queue Systems และ Redis            │
-│ • [CHECK] ประสบการณ์ IoT Telemetry สอดคล้องกับผลิตภัณฑ์    │
-│                                                            │
-│ ┌────────────────────────────────────────────────────────┐ │
-│ │ ผู้สัมภาษณ์ประจำบูธ: Recruiter #R12 (พร้อมรับคิว)       │ │
-│ │ คิวรอสัมภาษณ์: 3 คน (~8–12 นาที) • เวลาสัมภาษณ์: 12 นาที │ │
-│ └────────────────────────────────────────────────────────┘ │
-│                                                            │
-│                 [ เข้าคิวสัมภาษณ์ตำแหน่งนี้ ]              │
-└────────────────────────────────────────────────────────────┘
-```
+- **Goal:** ค้นหา เปิด booth/job นำทาง และจัดการคิวโดยไม่ต้องควบคุม Canvas
+- **Parity:** action สำคัญทุกอย่างของ SC-06 ต้องมี semantic equivalent ที่นี่
+
+### SC-08 — Booth & Job Detail
+
+- **Goal:** แสดง company/job, match evidence, recruiter state, queue size/ETA และ actions โดยไม่เผย PII
+- **Primary action:** `เข้าคิวสัมภาษณ์ตำแหน่งนี้`; secondary action คือ `นำทางไปบูธ`
+- **Required states:** available, busy, queued, queue unavailable, selected/navigating และ error
+- **Visual boundary:** DOM card ไม่จำลอง booth sprite; anatomy/variant ของ booth ใน Canvas ใช้ [Modular Booth System](./world-and-scene-design.md#5-modular-booth-system-and-repeatable-variety)
 
 ### SC-09 — Queue HUD & Ready Check Alert
 - **Goal:** แจ้งเตือนเมื่อถึงคิวสัมภาษณ์ด้วย Alert Dialog ที่เข้าถึงได้ (60 วินาที)

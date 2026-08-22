@@ -19,6 +19,7 @@
   9. Keyboard-Only Navigation ตลอด Core Flow
   10. Demo Reset คืนค่าสถานะเริ่มต้นอย่างสมบูรณ์ภายใน 10 วินาที
 - **Accessibility Tests (Axe-core & Screen Reader):** Automated Accessibility Scan + Manual Keyboard Navigation + VoiceOver/NVDA Testing
+- **Phaser World Tests:** ตรวจ scene graph/entity lifecycle, owner-linked colliders, interaction sensors, foot hitbox, Y-depth/occlusion, 4-direction animation, avatar layer persistence และ booth variant combinations ตาม [Game Visual & World Specification](../03-design/world-and-scene-design.md)
 
 ---
 
@@ -47,6 +48,10 @@
 - [ ] ใช้งานบนมือถือ (390 px) ได้สมบูรณ์ และหน้าจอแคบ (320 px) ไม่ล้นขอบ
 - [ ] ฟังก์ชัน Queue Refresh Recovery และ Ready Check ทำงานซ้ำได้อย่างมั่นคง
 - [ ] Match Score มีเหตุผลประกอบ 3–5 ข้อที่เข้าใจง่าย
+- [ ] Camera lineup ผ่าน top-front convention เดียวและไม่มี primitive/flat composition เป็น final world object
+- [ ] Character turnaround มี 4 ทิศ × 3 เฟรม และ skin/hair/top/bottom/trousers/shoes/accessory เปลี่ยน–บันทึก–โหลดกลับได้
+- [ ] Booth variant library ผ่านจำนวนขั้นต่ำ, booth ติดกันไม่ใช้ combination เดียวกัน และ collider/sensor/depth ตรงกับ entity
+- [ ] มี runtime evidence ของ World ที่ 390 และ 1440 px พร้อม collision/depth interaction ไม่ใช่เฉพาะภาพ concept
 - [ ] ไม่มีข้อมูล PII บุคคลจริง, ชื่อบริษัทจริง, หรือ Asset ที่ละเมิดลิขสิทธิ์
 - [ ] ทุกหน้าจอที่มีการ Mock ติดป้าย `DEMO DATA` และ `NOT REAL THAID` ชัดเจน
 - [ ] คำสั่ง Typecheck, Build, และ Tests ทั้งหมดผ่าน 100%

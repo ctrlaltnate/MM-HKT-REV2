@@ -1,53 +1,29 @@
-# MaskedMatch — AI/Coding Agent Playbook (Entrypoint)
+# MaskedMatch Agent Entrypoint
 
-> **Version 2.2 — Docs-only Architecture Revision**
-> เอกสารฉบับนี้ถูกจัดหมวดหมู่และปรับปรุงเข้าสู่ระบบเอกสารมาตรฐานของโครงการอย่างสมบูรณ์
-> สำหรับคู่มือและข้อกำหนดฉบับเต็ม กรุณาดูที่เอกสารหลักในหมวดหมู่ต่างๆ ดังนี้:
+> **Version:** 3.0 · R0 implementation in progress
 
-> [!IMPORTANT]
-> ขณะนี้โครงการอยู่ในช่วง **Documentation only** ห้าม scaffold, implement หรือ restore website/game/backend จนกว่าผู้ใช้จะสั่งเริ่มงาน implementation โดยชัดเจน
+เริ่มจาก [Documentation Index](./README.md) และ [Terminology & Document Ownership](./01-overview/terminology.md) ทุกครั้ง เอกสารใช้หลัก one topic, one canonical owner; ห้ามสร้างสเปกซ้ำในไฟล์ใหม่
 
----
+## Required Read Order
 
-## 📌 เอกสารหลักสำหรับ AI Coding Agent
+1. [Functional Requirements](./02-product/functional-requirements.md)
+2. [Acceptance Criteria](./02-product/acceptance-criteria.md)
+3. [Agent Playbook](./07-playbooks-and-operations/agent-playbook.md)
+4. เลือก owner ตามงาน:
+   - Game/world/avatar/booth/collision: [Game Visual & World Specification](./03-design/world-and-scene-design.md)
+   - Website/UI: [Website & Product UI Design System](./03-design/design-system.md)
+   - Web/Game ownership: [Web–Game Separation](./04-architecture/web-game-separation.md)
+   - State/domain/API: [Architecture](./04-architecture/system-architecture.md)
+   - QA/release: [Definition of Done](./06-engineering-and-qa/definition-of-done.md)
 
-- **📖 คู่มือ Agent ฉบับสมบูรณ์ (Docs-only rule, 16 Invariants, Build Sequence Slices 0–6, Testing & Gates):**
-  👉 [07-playbooks-and-operations/agent-playbook.md](./07-playbooks-and-operations/agent-playbook.md)
+## Project Invariants
 
-- **🏛️ สถาปัตยกรรมระบบและ State Machines:**
-  👉 [04-architecture/system-architecture.md](./04-architecture/system-architecture.md)
-  👉 [04-architecture/web-game-separation.md](./04-architecture/web-game-separation.md)
-  👉 [04-architecture/state-machines.md](./04-architecture/state-machines.md)
-  👉 [04-architecture/domain-model-and-data.md](./04-architecture/domain-model-and-data.md)
-  👉 [04-architecture/api-and-realtime-contracts.md](./04-architecture/api-and-realtime-contracts.md)
+- Website/Landing/Event/Virtual Fair เป็น journey เดียว แต่ React DOM กับ Phaser world แยก workspace/ownership
+- Navigator/List Mode ทำ action สำคัญได้เท่า Canvas
+- Blind identity, private decision, consented reveal และ fail-closed media ห้ามลดทอน
+- Demo ใช้ synthetic data และติดป้าย mock อย่างตรงไปตรงมา
+- Game ต้องผ่าน G1–G7: rendered entities, top-front camera, physics/depth, directional characters, layered wardrobe, booth variants และ functional modes
+- `docs/ref_pics/` เป็น reference only; runtime asset ผ่าน `packages/assets/manifest.json`
+- งาน world/visual ใช้ [MCP-Assisted Workflow](./07-playbooks-and-operations/mcp-assisted-workflow.md) และเก็บ evidence; ไม่บังคับ paid MCP/Phaser Editor
 
-- **📋 ข้อกำหนดการทำงานและเกณฑ์การยอมรับ (FR & AC):**
-  👉 [02-product/functional-requirements.md](./02-product/functional-requirements.md)
-  👉 [02-product/acceptance-criteria.md](./02-product/acceptance-criteria.md)
-
-- **🎨 ระบบการออกแบบและพิกัดฉาก World Canvas:**
-  👉 [03-design/design-system.md](./03-design/design-system.md)
-  👉 [03-design/world-and-scene-design.md](./03-design/world-and-scene-design.md)
-  👉 [03-design/screen-blueprints.md](./03-design/screen-blueprints.md)
-  👉 [03-design/accessibility-spec.md](./03-design/accessibility-spec.md)
-
-- **🛡️ ความปลอดภัย, PDPA และธรรมาภิบาล AI:**
-  👉 [05-security-and-governance/security-and-pdpa.md](./05-security-and-governance/security-and-pdpa.md)
-  👉 [05-security-and-governance/ai-governance.md](./05-security-and-governance/ai-governance.md)
-
-- **🎤 คู่มือการสาธิตบนเวที 5 นาทีและชุดชุดข้อมูลมาตรฐาน (Fixtures):**
-  👉 [07-playbooks-and-operations/demo-runbook-and-storyboard.md](./07-playbooks-and-operations/demo-runbook-and-storyboard.md)
-  👉 [07-playbooks-and-operations/demo-fixtures-and-assets.md](./07-playbooks-and-operations/demo-fixtures-and-assets.md)
-
-- **🔌 MCP-Assisted Research, Asset Iteration & Visual QA:**
-  👉 [07-playbooks-and-operations/mcp-assisted-workflow.md](./07-playbooks-and-operations/mcp-assisted-workflow.md)
-
-- **🚀 การ Deploy สู่ Production, Cloud Stack, การสเกล และ AI APIs:**
-  👉 [08-production-and-publish/production-deployment-guide.md](./08-production-and-publish/production-deployment-guide.md)
-  👉 [08-production-and-publish/cloud-and-tech-stack.md](./08-production-and-publish/cloud-and-tech-stack.md)
-  👉 [08-production-and-publish/api-and-ai-integrations.md](./08-production-and-publish/api-and-ai-integrations.md)
-  👉 [08-production-and-publish/scaling-and-infrastructure.md](./08-production-and-publish/scaling-and-infrastructure.md)
-  👉 [08-production-and-publish/env-and-secrets-configuration.md](./08-production-and-publish/env-and-secrets-configuration.md)
-
-- **📑 สารบัญเอกสารทั้งหมด (Master Index):**
-  👉 [docs/README.md](./README.md)
+เมื่อเอกสารขัดกัน ให้ใช้ลำดับ priority ใน [Terminology & Document Ownership](./01-overview/terminology.md) และแก้ canonical owner ก่อน supporting document

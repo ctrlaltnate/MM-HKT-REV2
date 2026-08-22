@@ -1,6 +1,6 @@
 # 2. Future Production Tech Stack & Architecture
 
-> **สถานะ:** Future-state proposal ในช่วง D0 Documentation only; ยังไม่มี service หรือ code ชุดนี้ใน repository
+> **สถานะ:** Future-state proposal ระหว่าง R0; มีเฉพาะ local Web/Game vertical slice ส่วน service/backend ชุดนี้ยังไม่มีใน repository
 > **เป้าหมาย:** สถาปัตยกรรมที่เข้าใจง่าย ใช้น้อยชิ้นแต่ทรงพลัง ลดภาระดูแล Server และขยายตัวได้เมื่อมีผู้ใช้จำนวนมาก
 
 ---

@@ -16,6 +16,8 @@
 8. **Performance Budget:** ขนาด Bundle และการเรนเดอร์ไม่ส่งผลกระทบให้ Core Web Vitals (LCP, INP, CLS) ถดถอยเกินเกณฑ์
 9. **Documentation & Changelog:** อัปเดตเอกสาร API, Data Schema, และ State Machine ในโฟลเดอร์ `docs/` ให้ตรงกับโค้ดปัจจุบัน
 10. **Synthetic Data Hygiene:** ข้อมูล Demo และ Seed Data ปราศจากข้อมูลบุคคลจริงหรือ Asset ที่ละเมิดลิขสิทธิ์
+11. **P0 Complete Website Gate:** Product Landing, Event Landing, candidate preparation และ Career Hall เชื่อมเป็น flow ที่กดใช้งานได้จริงทุก control พร้อม direct route, back/forward, reload/resume/reset, validation, 404 recovery, responsive reflow และ Phaser mount/unmount lifecycle หากขาดส่วนใด Website ยังไม่ถือว่า Done แม้หน้าเกมเปิดได้
+12. **P0 Native World Gate:** Career Hall ผ่าน G1–G7 ใน [Game Visual & World Specification](../03-design/world-and-scene-design.md): real Phaser entities, top-front camera เดียว, owner-linked collider/sensor, foot hitbox/Y-depth, directional character 4 ทิศ × 3 เฟรม, wardrobe แยก skin/hair/top/bottom/trousers/shoes/accessory และ modular booth variants ตามขั้นต่ำ หากขาดข้อใด feature World ยังไม่ถือว่า Done แม้ build ผ่าน
 
 ---
 
@@ -33,3 +35,4 @@
 8. **Asset Registry Provenance:** บันทึกข้อมูล Asset ID, แหล่งที่มา, สิทธิ์การใช้งาน, และขนาดไฟล์ของงานภาพครบทุกชิ้น
 9. **Clickable Prototype Validation:** เชื่อมต่อ Flow ใน Prototype ครบทั้ง Happy Path, No Match, และ Media Denied Path
 10. **User Testing Passed:** ผ่านการทดสอบกับผู้ใช้งานกลุ่มตัวอย่าง 3 คน และแก้ไขประเด็นความสับสนหลักเรียบร้อยแล้ว
+11. **Game Visual Handoff:** มี camera lineup, character turnaround, booth variant sheet, pivot/collider overlay และ in-scene 390/1440 px evidence ตาม [Game Visual & World Specification](../03-design/world-and-scene-design.md) โดยใช้สอง `00_MAIN_*` เป็น reference เท่านั้นและไม่คัดลอก branding/layout

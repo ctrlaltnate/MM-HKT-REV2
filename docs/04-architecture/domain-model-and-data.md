@@ -33,7 +33,7 @@
 | **`DataSubjectRequest`** | `user_id`, `type`, `scope`, `due_at`, `state` | Restricted Compliance | Consent / DSAR Store |
 | **`AuditEvent`** | `id`, `actor_id`, `action`, `target_resource`, `occurred_at`, `hash` | Restricted Compliance | Append-Only Audit Store |
 | **`Presence`** | `pseudonym`, `zone_id`, `coordinates_x_y`, `status` | Ephemeral | Redis Cache |
-| **`AvatarCustomizationConfig`**| `candidate_id`, `skin_tone`, `hair_style`, `hair_color`, `outfit_style`, `outfit_color`, `animal_mask` | Public Aesthetic | Profile DB / Presence |
+| **`AvatarCustomizationConfig`**| `candidate_id`, `skin_tone`, `hair_style`, `hair_color`, `top_style`, `top_color`, `bottom_style`, `bottom_color`, `shoe_style`, `shoe_color`, `accessory` | Public Aesthetic | Profile DB / Presence |
 | **`Notification`** | `id`, `recipient_id`, `type`, `redacted_payload`, `status` | Internal | Notification DB |
 
 ---

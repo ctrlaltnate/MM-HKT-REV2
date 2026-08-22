@@ -1,117 +1,117 @@
-# 1. AI & Coding Agent Playbook
+# AI & Coding Agent Playbook
 
-> **Version 2.2 — Docs-only & Phaser 4 Architecture Revision**
-> เอกสารคู่มือสำหรับ AI Coding Agent ในการพัฒนาและต่อยอดระบบ MaskedMatch อย่างมีแบบแผน ปลอดภัย และตรงตามข้อกำหนด
-
----
-
-## 1.1 Core Mission
-
-### Current instruction (D0)
-
-ขณะนี้ให้ดูแล **เอกสารเท่านั้น** ห้ามสร้าง package, source code, runtime asset, database schema, Docker หรือ deployment configuration จนกว่าผู้ใช้จะสั่งเริ่ม implementation โดยชัดเจน เมื่อได้รับอนุมัติแล้วจึงใช้ mission และ build sequence ด้านล่างเป็น future plan
-
-สร้าง **MaskedMatch R0 Hackathon Prototype** เพื่อพิสูจน์ว่า Virtual Job Fair แบบ 2D Top-Down สามารถพาผู้สมัครผ่านลูป 5 ขั้นตอนได้จริงบน Web Browser ทั้งบนสมาร์ทโฟน แท็บเล็ต และคอมพิวเตอร์:
-1. เข้า Event และยืนยันตัวตนผ่านระบบ Digital ID (Digital ID Verification)
-2. สร้างและตรวจ Masked Profile ที่เน้นทักษะและผลงานจริง
-3. สำรวจ Neon Career Hall หรือใช้ Navigator โหมดรายการ
-4. เปิดบูธเสมือนจริง ดูงาน เหตุผลความตรงกัน และกดเข้าคิว
-5. รับ Ready Check และเข้าห้องสัมภาษณ์ (Speed Interview) ด้วย **กล้องจริง ดัดเสียงจริง และ Face Tracking Overlay จริง**
-6. ส่งผลการตัดสินใจส่วนตัวทั้งสองฝ่าย (Private Decision)
-7. Reveal ข้อมูลติดต่อเฉพาะที่ผู้สมัครยินยอมเมื่อเกิด Mutual Match
+> **Version:** 3.0 · R0 implementation in progress · 22 August 2026
+> **Purpose:** วิธีทำงานและข้อห้ามสำหรับ agent; ไม่ใช่เจ้าของรายละเอียด Product/UI/Game
 
 ---
 
-## 1.2 Non-Negotiable Experience Invariants (16 กฎเหล็กที่ห้ามละเมิด)
+## 1. Read Order and Ownership
 
-1. **Identity stays masked before mutual consent:** ฝั่ง Recruiter ก่อนเกิด Mutual Match ต้องไม่มีชื่อ รูป อีเมล เบอร์โทร หรือ Original Resume ของผู้สมัคร
-2. **World is optional:** ทุกฟังก์ชันและ Action ใน Canvas ต้องทำผ่าน Semantic Navigator / List Mode ได้ 100%
-3. **No surprise media:** ไมค์และกล้องเริ่มต้นด้วยการปิดเสมอ ไม่มีการเปิดเผยภาพ/บันทึกเสียงอัตโนมัติ
-4. **Mask fails closed:** หาก Face Tracking หรือ Mask Engine เกิดความล้มเหลว ต้องหยุดส่งวิดีโอทันทีก่อนเห็นภาพจริง แล้วสลับเป็น Avatar
-5. **Real camera & voice engines:** การ Demo และ Interview ต้องใช้ `getUserMedia` กล้องจริง, Realtime Face Landmark Mesh, และ Web Audio DSP Voice Pitch Shift ที่ทำงานได้จริง (Production Feasible)
-6. **Strict No-Emoji standard:** ทุก Element ในฉาก (พร็อพ, บูธ, ตัวละคร NPC) และ Web UI Icons ต้องใช้ **Generated Pixel / Vector Assets** ห้ามใช้อิโมจิ
-7. **Decision is private:** ทั้งสองฝ่ายห้ามเห็นคำตอบของอีกฝ่ายจนกว่าจะส่งคำตอบครบทั้งคู่
-8. **Mobile is complete:** ห้ามซ่อน Action สำคัญไว้หลัง Hover หรือจำกัดให้ใช้เฉพาะโหมดแนวนอน (Landscape-only)
-9. **Status is explicit:** สถานะคิว เครือข่าย และสื่อ ต้องมี Icon + Text กำกับเสมอ ไม่ใช้สีเพียงอย่างเดียว
-10. **AI explains and defers:** แสดงเหตุผลจากหลักฐานผลงานเสมอ และผู้ใช้สามารถแก้ไขข้อมูลได้
-11. **Synthetic data only:** ใช้เฉพาะโดเมน `.test` และข้อมูลบุคคล/บริษัทจัดแสดงเท่านั้น
-12. **Truthful demo:** ทุกส่วนที่มีการจำลอง (Mock) ต้องมีป้ายกำกับชัดเจนโดยไม่ต้องเปิด DevTools
-13. **Separated web shell:** ทุกหน้าที่ไม่ใช่ Career Hall ต้องอยู่ใน Website workspace และเป็น React Semantic DOM; ห้ามให้ Game workspace เป็น owner ของ form, route หรือ accessibility flow
-14. **Separated Phaser 4 physics world:** Career Hall ต้องอยู่ใน Game workspace และเป็น Phaser 4 world แบบ loop/streaming ที่มี collision, sensor, Y-depth และ foreground occlusion จริง; ห้ามใช้ภาพแบนร่วมกับ CSS hotspot เป็นตัวแทนเกม
-15. **Zero Unfinished/Raw UI Standard (ห้าม UI ดิบ/ไม่เสร็จโดยเด็ดขาด):** ห้ามแสดงผลเป็น Raw HTML ดิบที่ขาด CSS/Tailwind, ขาด Flexbox/Grid, ขาด Card/Container, ขาดสี Gradient/Glow หรือปุ่มรูปทรงดั้งเดิมของเบราว์เซอร์ ทุกหน้าจอต้องเรนเดอร์ UI ระดับ Production-grade ที่สวยงาม คมชัด มี Responsive Padding, Typography, Glassmorphism และ Neon Aesthetics ที่สมบูรณ์พร้อมใช้งานจริง 100%
-16. **MCP-assisted evidence, not guesswork:** งาน world, visual, asset และ responsive polish ต้องใช้ MCP ที่มีอยู่/ไม่มีค่าใช้จ่ายเมื่อเกี่ยวข้อง เพื่อ inspect reference ที่เปิดเผยสาธารณะ/ได้รับอนุญาต, เก็บ measurement และทำ visual QA ตาม [MCP-Assisted Workflow](./mcp-assisted-workflow.md) ไม่บังคับซื้อ Phaser Editor หรือ paid MCP; หากไม่มี MCP ที่เหมาะสมต้องบันทึก fallback และข้อจำกัด ห้ามอ้างว่า “สมจริง” จาก prompt หรือภาพเดียวโดยไม่มีหลักฐานตรวจสอบ
+ก่อนแก้งานให้อ่านเฉพาะเจ้าของหัวข้อที่เกี่ยวข้อง:
+
+1. [Documentation Index](../README.md) และ [Terminology & Document Control](../01-overview/terminology.md)
+2. [Functional Requirements](../02-product/functional-requirements.md) และ [Acceptance Criteria](../02-product/acceptance-criteria.md)
+3. งานเกม: [Game Visual & World Specification](../03-design/world-and-scene-design.md)
+4. งานเว็บ/UI: [Website & Product UI Design System](../03-design/design-system.md) และ [Screen Blueprints](../03-design/screen-blueprints.md)
+5. งาน boundary/runtime: [Web–Game Separation](../04-architecture/web-game-separation.md)
+6. งาน QA: [Test Strategy](../06-engineering-and-qa/test-strategy-and-gates.md) และ [Definition of Done](../06-engineering-and-qa/definition-of-done.md)
+
+ห้ามสร้างสำเนาของกฎ game visual, UI token, requirement หรือ state machine ในไฟล์ใหม่ ให้แก้ owner document แล้ว link จากเอกสารประกอบ
 
 ---
 
-## 1.3 Recommended Build Sequence (Slices 0 to 6)
+## 2. Non-Negotiable Invariants
 
-> **Future only:** ห้ามเริ่ม sequence นี้ระหว่าง D0 โดยไม่มีคำสั่งอนุมัติ implementation
+### Privacy and fairness
 
-```text
-Slice 0: Foundation (Router, Shell, Design Tokens, Primitives, Demo Store, Test Harness)
-  │
-  ├─► Slice 1: Event & Profile (Landing, Mock Verify, Consent, Resume Import, Masked Review)
-  │
-  ├─► Slice 2: World & Discovery (Seamless Phaser Hall, Physics/Depth Layers, Info Kiosks, Navigator parity, AI Explanation)
-  │
-  ├─► Slice 3: Queue Management (1 Active Ticket, Ready Check Alert, Recovery)
-  │
-  ├─► Slice 4: Speed Interview (Real Cam, Face Tracking Mask, Web Audio DSP Voice Alteration)
-  │
-  ├─► Slice 5: Decision & Reveal (Private Decision, Mutual Match, Consented Field Reveal)
-  │
-  └─► Slice 6: Recruiter Desk & Demo Polish (Recruiter Dashboard, Presets, A11y, Runbook)
-```
+1. Recruiter ไม่เห็นชื่อ, รูป, contact, original resume หรือ masked PII ก่อน mutual consent
+2. World เป็น optional; action สำคัญทั้งหมดมี Semantic Navigator/List Mode equivalent
+3. กล้องและไมค์ปิดเป็นค่าเริ่มต้น; mask failure ต้อง fail closed ก่อน raw frame ไปถึง recruiter
+4. Decision เป็นส่วนตัวจนทั้งสองฝ่ายส่งครบ และ reveal เป็น field-level consent หลัง mutual match
+5. Integrity Signal ไม่ใช่หลักฐานโกงและห้าม auto-reject
+6. ใช้ synthetic data/domain `.test` เท่านั้น และ mock capability ต้องติดป้ายให้เห็นใน UI
 
----
+### Product and architecture
 
-## 1.4 Agent Working Method
+7. Website, Product Landing, Event Landing, preparation flow และ Virtual Fair เป็น journey เดียวที่ใช้งานได้จริง
+8. Website เป็น React Semantic DOM owner; Phaser workspace เป็น owner เฉพาะ Career Hall
+9. ทุก visible control มี action/state/error/recovery จริง; ห้าม dead control
+10. back/forward, direct URL, reload, resume/reset, 404 และ mount/unmount ต้อง recover ตาม contract
+11. Responsive core flow ผ่าน 320/390/768/1440 px และ keyboard/reduced-motion path
 
-### 1. Before Coding (ก่อนลงมือเขียนโค้ด)
-- อ่านข้อกำหนดที่เกี่ยวข้องในโฟลเดอร์ `docs/` (Requirements, Architecture, Design)
-- ระบุ Vertical Slice, Routes, Personas, และ Acceptance Criteria ให้ชัดเจน
-- ตรวจสอบโครงสร้างไฟล์เดิมก่อนเพิ่ม Dependency ใหม่
-- Discover MCP/tools ที่ใช้ได้และสร้าง evidence brief ตาม [MCP-Assisted Workflow](./mcp-assisted-workflow.md) ก่อนเริ่มงาน world/visual
+### Game quality
 
-### 2. During Coding (ระหว่างการเขียนโค้ด)
-- พัฒนาทีละ 1 Vertical Slice ตั้งแต่ Route → State Machine → UI → Error Fallback → Tests
-- แยก Domain Rules ออกจาก Presentation Layer
-- ใช้ Fixture IDs มาตรฐาน (เช่น `Candidate #8F3A`, `company-cyber-orchard`)
-- ตรวจสอบการแสดงผลบน Mobile (390 px) ไปพร้อมกับ Desktop เสมอ
-- รักษาขนาด Diff ให้เล็ก และไม่แก้ไขไฟล์นอก Scope ที่กำหนด
-
-### 3. Before Handing Off (ก่อนส่งมอบงาน)
-Agent ต้องสรุปผลและรายงาน:
-- **Outcome:** ฟังก์ชันที่สร้างเสร็จสมบูรณ์
-- **Files Changed:** รายการไฟล์ที่มีการแก้ไข/เพิ่ม
-- **Routes / Scenarios Covered:** เส้นทางการทำงานที่ครอบคลุม
-- **Tests Run & Results:** ผลการรัน Unit Tests, Typecheck, Build, E2E
-- **Accessibility & Responsive Checks:** ผลการตรวจทานที่ 320 px, 390 px, และ Keyboard flow
-- **MCP Evidence & Provenance:** MCP/tool ที่ใช้, source/date, ภาพหรือ measurement ก่อน–หลัง, license/allowed-use และ fallback ที่เกิดขึ้น
+12. Career Hall ต้องผ่าน G1–G7 ของ [Game Visual & World Specification](../03-design/world-and-scene-design.md)
+13. Final world object เป็น rendered/authored entity แยกชิ้น ไม่ใช่ flat hall, CSS hotspot หรือ primitive placeholder
+14. ทุก scene element ใช้ orthographic top-front 3/4 camera, grid, scale, top-left light และ down-right shadow convention เดียว
+15. Player/NPC ใช้ directional anatomy จริง, foot hitbox, Y-depth และ owner-linked collision/sensor
+16. Character Studio แยก skin, hair, top, bottom/trousers, shoes และ accessory พร้อม 4-direction preview/apply/persist
+17. Booth เป็น modular prefab และผ่าน variant minimum; ห้ามใช้ flip/rotate/arbitrary scale หลอกความหลากหลาย
+18. งาน visual ใช้ two `00_MAIN_*` files เป็น master reference ด้าน readability เท่านั้น ห้าม copy asset/layout/branding
 
 ---
 
-## 1.5 Required npm Scripts (Future Implementation)
+## 3. Vertical Slice Sequence
 
-ยังไม่มี npm workspace หรือคำสั่งเหล่านี้ในช่วง D0 รายการนี้เป็น acceptance requirement สำหรับตอน scaffold เท่านั้น
+| Slice | Outcome | Scope boundary |
+|---|---|---|
+| 0 | Router, shell, tokens, demo store, test harness | foundation |
+| 1 | Event landing, mock verify/consent, import, masked review | Website |
+| 2 | Phaser world, Character Studio, discovery, Navigator parity | Website + Game contract |
+| 3 | Queue, ready check, reconnect recovery | domain + realtime |
+| 4 | Interview preflight, fail-closed mask, voice/media fallback | privacy-critical |
+| 5 | Private decision, mutual match, consented reveal | privacy-critical |
+| 6 | Recruiter desk, ops, accessibility and demo hardening | completion |
+
+ทำ slice ปัจจุบันให้ผ่าน acceptance และ gate ก่อนอ้างว่า complete; implementation บางส่วนไม่เท่ากับ production-ready
+
+---
+
+## 4. Working Method
+
+### Before coding
+
+- ระบุ requirement/acceptance IDs, route, persona, state owner และ workspace owner
+- ตรวจ code, tests, dirty worktree และ asset manifest ก่อนเพิ่มไฟล์/dependency
+- งาน visual ต้องทำ evidence brief ตาม [MCP-Assisted Workflow](./mcp-assisted-workflow.md)
+- กำหนดสิ่งที่เป็น implemented, mocked, planned และ blocked ให้ชัด
+
+### During coding
+
+- ทำ route → state/contract → UI/game entity → error/fallback → tests ใน vertical slice เดียว
+- แยก domain rules จาก presentation และสื่อสาร Web–Game ผ่าน typed commands/events
+- ใช้ canonical fixtures จาก [Demo Fixtures & Asset Registry](./demo-fixtures-and-assets.md)
+- ตรวจ mobile และ keyboard ไปพร้อม desktop
+- Asset runtime ต้องผ่าน manifest; ห้าม import `docs/ref_pics/`
+
+### Before handoff
+
+รายงาน outcome, files changed, routes/scenarios, tests, responsive/accessibility checks, current limitations และ MCP/provenance evidence ตามงานที่ทำ ห้ามเรียก mock, concept, static screenshot หรือ planned backend ว่า implemented
+
+---
+
+## 5. Current Commands
 
 ```bash
-npm run dev          # เปิด Local Development Server
-npm run build        # ทดสอบการ Build Production
-npm run typecheck    # ตรวจสอบ TypeScript Types
-npm run lint         # ตรวจสอบ Linting Rules
-npm test             # รัน Vitest Unit & Component Tests
-npm run test:e2e     # รัน Playwright End-to-End Tests
-npm run test:a11y    # รัน Axe-core Accessibility Tests
+npm install
+npm run dev
+npm run typecheck
+npm run test
+npm run build
 ```
+
+Root package มี workspace scripts แล้ว ข้อความเก่าที่อ้างว่า repository ยังไม่มี implementation หรือ npm workspace ถือว่า stale และต้องแก้ให้ตรงกับสถานะจริง
 
 ---
 
-## 1.6 Stop Conditions (เงื่อนไขที่ Agent ต้องหยุดและสอบถามผู้ใช้)
+## 6. Stop and Ask
 
-- เมื่อจำเป็นต้องใช้ Production Credential จริง, ข้อมูลส่วนบุคคลจริง, หรือ External Account
-- เมื่อจำเป็นต้องเปลี่ยนนโยบาย Blind Mode, Reveal Policy, หรือ Decision Privacy
-- เมื่อจำเป็นต้องตัดโหมด Navigator / List Mode ออกเพื่อแลกกับให้ World เสร็จทัน
-- เมื่อจำเป็นต้องใช้ Asset ที่ไม่ชัดเจนเรื่องลิขสิทธิ์
-- เมื่อการทำงานของ Feature จะทำให้ภาพกล้องจริงหลุดออกไปโดยไม่มีการ Mask
-- เมื่อ workflow ต้องเริ่ม trial, subscription, ซื้อ credit หรือเชื่อม paid MCP/Phaser Editor ที่ผู้ใช้ยังไม่ได้อนุมัติ
+หยุดและขอผู้ใช้อนุมัติก่อนเมื่อจำเป็นต้อง:
+
+- ใช้ production credential, PII จริง หรือ external account
+- เปลี่ยน Blind Mode, Reveal Policy, Decision Privacy หรือ fail-closed policy
+- ตัด Navigator/List Mode หรือ accessibility path
+- ใช้ asset/license ที่ไม่ชัดเจน
+- ส่ง raw camera/audio เมื่อ transform ล้มเหลว
+- เริ่ม trial/subscription, ซื้อ credit หรือเชื่อม paid MCP/Phaser Editor
+- publish/deploy หรือทำ external write ที่อยู่นอก scope
