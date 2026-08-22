@@ -1,4 +1,6 @@
-# 5. Component Library & UI Primitives
+# 5. Component Library, UI Primitives & Media Engines
+
+> **Visual Guideline:** ทุก Component และ Icon ในระบบสร้างขึ้นด้วย **Custom Vector SVGs และ Pixel Art** โดยเฉพาะ **ห้ามใช้อิโมจิ** เป็นตัวแทนของไอคอน ปุ่ม หรือสถานะ
 
 ---
 
@@ -9,7 +11,7 @@
 | Component Name | Variants & Styles | Required States & Behaviors |
 |---|---|---|
 | **`PixelButton`** | `primary`, `secondary`, `danger`, `quiet` | รองรับ Focus-visible 4px ring, ขนาดขั้นต่ำ 44×44px, Loading spinner |
-| **`IconButton`** | `standard`, `compact`, `floating` | มี Accessible Name เสมอ, แสดง Tooltip เมื่อ Hover/Focus |
+| **`IconButton`** | `standard`, `compact`, `floating` | ใช้ Custom SVG Icons (No Emoji), มี Accessible Name เสมอ |
 | **`TextField`** | `text`, `search`, `textarea`, `OTP` | Valid, Invalid พร้อม `aria-describedby` เชื่อม Error Text |
 | **`Checkbox / Radio`** | `standard`, `consent-card` | Checked, Unchecked, Indeterminate, Error State |
 | **`Select / Dropdown`** | `standard`, `menu-popup` | รองรับ Keyboard Navigation (Arrow up/down, Enter, Esc) |
@@ -22,16 +24,22 @@
 
 ---
 
-## 5.2 Domain Product Components
+## 5.2 Domain Product Components & Media Canvas
 
 | Component Name | Description & Essential Content |
 |---|---|
+| **`CharacterStudioPicker`** | แผงเลือกหมวดหมู่แต่งตัว (ผิว, ทรงผม, เสื้อผ้า, หน้ากาก) พร้อมรายการ Style Grid |
+| **`PaletteSwatch`** | จานสี 8-Bit สำหรับเลือกเฉดสีผิว สีผม และสีเสื้อผ้า |
+| **`DiceRandomizerButton`** | ปุ่มกดสุ่มสไตล์ตัวละครแบบ The Sims (`[🎲 สุ่มตัวละคร]`) พร้อม Sound/Haptic |
+| **`SpritePreviewStage`** | Canvas Phaser ขนาดย่อม แสดง Live 8-Bit Animation และปุ่มหมุนตัวละคร 360° |
+| **`FaceMaskCanvas`** | Canvas เรนเดอร์กล้องจริง + Realtime Face Tracking Avatar Overlay (Fail-Closed Active) |
+| **`VoiceModulatorDock`** | ตัวควบคุม Web Audio API DSP Pitch / Formant Shift พร้อม Visual Level Meter |
 | **`DemoBanner`** | ป้ายเตือนโหมดจำลอง (`DEMO DATA / NOT A REAL THAID INTEGRATION`) |
 | **`BlindModeBadge`** | ป้ายระบุสถานะการปิดบังข้อมูลตัวตน พร้อม Tooltip อธิบายสิ่งที่ซ่อน |
-| **`CandidateAlias`** | ป้ายรหัสประจำตัวผู้สมัคร (เช่น `Candidate #8F3A`) พร้อม Avatar สัตว์ |
+| **`CandidateAlias`** | ป้ายรหัสประจำตัวผู้สมัคร (เช่น `Candidate #8F3A`) พร้อม Generated Animal Avatar |
 | **`VisibilityTable`** | ตารางแสดงรายการข้อมูลที่ถูกปิดบัง vs ข้อมูลที่เปิดเผยให้ Recruiter เห็น |
 | **`MatchScoreCard`** | การ์ดแสดงคะแนนความตรงกัน (0–100), ระดับความมั่นใจ, และเหตุผล 3–5 ข้อ |
-| **`BoothCard`** | การ์ดข้อมูลบูธบริษัท: โลโก้, รายการตำแหน่งงาน, สถานะคิว, และเวลารอประมาณการ |
+| **`BoothCard`** | การ์ดข้อมูลบูธสมจริง: โลโก้, รายการตำแหน่งงาน, สถานะคิวสด, โต๊ะ Recruiter |
 | **`JobCard`** | การ์ดรายละเอียดงาน: คุณสมบัติหลัก (Must-have), โหมดการทำงาน, และปุ่มเข้าคิว |
 | **`QueueChip`** | ชิปแสดงสถานะคิวบน Floating HUD: บูธ, ลำดับคิว, เวลานับถอยหลัง, ปุ่มขยาย |
 | **`ReadyCheckDialog`** | กล่องแจ้งเตือนเมื่อถึงคิวสัมภาษณ์: เวลาถอยหลัง 60s, ปุ่มพร้อม, ปุ่มขอเลื่อน |
@@ -52,6 +60,8 @@
 Button/Primary/Default
 Button/Primary/Hover
 Button/Primary/Loading
+Media/FaceMaskCanvas/TrackingActive
+Media/VoiceModulator/PitchShifted
 Status/Network/Reconnecting
 Queue/Chip/ReadyCheck
 Dialog/ReadyCheck/Mobile

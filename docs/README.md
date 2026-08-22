@@ -2,9 +2,9 @@
 
 > **Skills First. Bias Last.**  
 > **Interactive 8-bit Virtual Job Fair Documentation Hub**  
-> Version 2.1 · Interactive Career Hall Revision · August 2026
+> Version 2.1 · Interactive Career Hall & Production Revision · August 2026
 
-เอกสารทั้งหมดของโครงการ MaskedMatch ถูกจัดแบ่งออกเป็น 7 หมวดหมู่หลักอย่างเป็นระบบ ครอบคลุมทั้งด้านผลิตภัณฑ์ (Product), ประสบการณ์และการออกแบบ (UX/UI), สถาปัตยกรรมระบบ (Architecture), ความปลอดภัยและธรรมาภิบาล (Security & Governance), วิศวกรรมและการประกันคุณภาพ (Engineering & QA), ตลอดจนคู่มือการปฏิบัติการ (Playbooks & Operations)
+เอกสารทั้งหมดของโครงการ MaskedMatch ถูกจัดแบ่งออกเป็น **8 หมวดหมู่หลัก (35+ เอกสารย่อย)** อย่างเป็นระบบ ครอบคลุมทั้งด้านผลิตภัณฑ์ (Product), ประสบการณ์และการออกแบบ (UX/UI), สถาปัตยกรรมระบบ (Architecture), ความปลอดภัยและธรรมาภิบาล (Security & Governance), วิศวกรรมและการประกันคุณภาพ (Engineering & QA), คู่มือการปฏิบัติการ (Playbooks & Operations) ตลอดจนคู่มือการดีพลอยสู่ระดับ Production จริง (Production & Publish)
 
 ---
 
@@ -26,22 +26,22 @@ docs/
 │   └── acceptance-criteria.md                # เกณฑ์การยอมรับ (AC-01 ถึง AC-31) และ Traceability Matrix
 │
 ├── 03-design/                                # ระบบการออกแบบ UX/UI และฉากเสมือน
-│   ├── design-system.md                      # 8-Bit Design Tokens, Typography, Geometry, Contrast Recipes
+│   ├── design-system.md                      # 8-Bit Design Tokens, Strict No-Emoji, Real Media Engines
 │   ├── information-architecture.md           # โครงสร้าง Sitemap, เส้นทาง (Routes) และ Responsive Grid
-│   ├── world-and-scene-design.md             # ฉาก Neon Career Hall (Phaser, Zones, Props, NPCs, Camera)
+│   ├── world-and-scene-design.md             # ฉาก Neon Career Hall, Realistic Booths, 8-Bit Character Compositor
 │   ├── screen-blueprints.md                  # พิมพ์เขียวและ Wireframes ทุกหน้าจอ (SC-01 ถึง SC-17)
-│   ├── component-library.md                  # แคตตาล็อก UI Components, Primitives และสถานะต่างๆ
+│   ├── component-library.md                  # แคตตาล็อก UI Components, Primitives, Studio & Media Canvas
 │   ├── content-and-microcopy.md              # โทนเสียง (Voice & Tone) และชุดข้อความภาษาไทย/อังกฤษ
 │   └── accessibility-spec.md                 # ข้อกำหนดการเข้าถึงตามมาตรฐาน WCAG 2.2 AA
 │
 ├── 04-architecture/                          # สถาปัตยกรรมทางเทคนิคและสัญญาข้อมูล
-│   ├── system-architecture.md                # สถาปัตยกรรมระบบหลัก (Component Diagram, Stack, Boundaries)
+│   ├── system-architecture.md                # สถาปัตยกรรมระบบหลัก (Component Diagram, Media Pipeline, Stack)
 │   ├── state-machines.md                     # แผนภาพ State Machines (Event, Queue, Interview, Decision)
-│   ├── domain-model-and-data.md              # Domain Entities, การแยก Identity Vault และ Retention
+│   ├── domain-model-and-data.md              # Domain Entities, AvatarConfig, Identity Vault และ Retention
 │   └── api-and-realtime-contracts.md         # สัญญา REST API, WebSocket Protocols, Error Codes
 │
 ├── 05-security-and-governance/               # ความปลอดภัย ความเป็นส่วนตัว และ AI
-│   ├── security-and-pdpa.md                  # การปฏิบัติตาม PDPA, Threat Model, Break-Glass Workflow
+│   ├── security-and-pdpa.md                  # การปฏิบัติตาม PDPA, On-Device Face Mesh, Fail-Closed, Threat Model
 │   ├── ai-governance.md                      # จริยธรรม AI, Model Card, Guardrails, Integrity Signals
 │   └── identity-and-thaid.md                 # สถาปัตยกรรม Digital ID และการเชื่อมต่อ ThaID
 │
@@ -52,11 +52,18 @@ docs/
 │   ├── risks-and-decisions.md                # ตารางความเสี่ยง, ข้อสมมติ, Dependencies, Decision Registry
 │   └── definition-of-done.md                 # เกณฑ์การส่งมอบงาน (DoD) ฝั่ง Engineering และ Design
 │
-└── 07-playbooks-and-operations/              # คู่มือสำหรับ Agent และการนำเสนองาน
-    ├── agent-playbook.md                     # คู่มือ AI Coding Agent (Invariants, Slices 0-6, Workflows)
-    ├── demo-runbook-and-storyboard.md        # แผนการนำเสนอ 5 นาทีบนเวที, สคริปต์, Scenario Presets
-    ├── demo-fixtures-and-assets.md           # ชุดข้อมูลจำลองมาตรฐาน (Fixtures) และ Asset Registry
-    └── architecture-decision-records.md      # บันทึกการตัดสินใจทางสถาปัตยกรรม (ADR-001 ถึง ADR-010)
+├── 07-playbooks-and-operations/              # คู่มือสำหรับ Agent และการนำเสนองาน
+│   ├── agent-playbook.md                     # คู่มือ AI Coding Agent (Invariants, Slices 0-6, Workflows)
+│   ├── demo-runbook-and-storyboard.md        # แผนการนำเสนอ 5 นาทีบนเวที, สคริปต์, Scenario Presets
+│   ├── demo-fixtures-and-assets.md           # ชุดข้อมูลจำลองมาตรฐาน (Fixtures) และ Asset Registry
+│   └── architecture-decision-records.md      # บันทึกการตัดสินใจทางสถาปัตยกรรม (ADR-001 ถึง ADR-010)
+│
+└── 08-production-and-publish/                # คู่มือการติดตั้งและปล่อยใช้งานจริง (Production & Scale)
+    ├── production-deployment-guide.md        # แผนผังและขั้นตอนการ Deploy (Cloud, Docker, Compose, SSL)
+    ├── cloud-and-tech-stack.md               # สถาปัตยกรรม Tech Stack เต็มรูปแบบ, Isolation, Connection Pooling
+    ├── api-and-ai-integrations.md            # การตั้งค่า AI (LLM, Prompts), On-device Vision, LiveKit SFU
+    ├── scaling-and-infrastructure.md         # การสเกลรองรับ 10,000+ ผู้ใช้พร้อมกัน, WebRTC Sizing, Redis Grid
+    └── env-and-secrets-configuration.md      # ไฟล์ `.env.production.example`, Secret Manager และ Go-Live Checklist
 ```
 
 ---
@@ -64,9 +71,16 @@ docs/
 ## 🧭 Quick Navigation by Role
 
 - 👨‍💻 **สำหรับ AI Coding Agents & Developers:**
-  1. เริ่มต้นที่ [07-playbooks-and-operations/agent-playbook.md](./07-playbooks-and-operations/agent-playbook.md) เพื่อทำความเข้าใจกฎเหล็ก 10 ประการ และ Build Sequence (Slices 0–6)
+  1. เริ่มต้นที่ [07-playbooks-and-operations/agent-playbook.md](./07-playbooks-and-operations/agent-playbook.md) เพื่อทำความเข้าใจกฎเหล็ก 12 ประการ และ Build Sequence (Slices 0–6)
   2. ศึกษา [04-architecture/system-architecture.md](./04-architecture/system-architecture.md) และ [04-architecture/state-machines.md](./04-architecture/state-machines.md)
   3. ตรวจสอบข้อกำหนดใน [02-product/functional-requirements.md](./02-product/functional-requirements.md) และ [02-product/acceptance-criteria.md](./02-product/acceptance-criteria.md)
+
+- 🚀 **สำหรับ DevOps / Platform Engineers (Deploy สู่ Production):**
+  1. ศึกษาคู่มือการ Deploy ใน [08-production-and-publish/production-deployment-guide.md](./08-production-and-publish/production-deployment-guide.md)
+  2. ดูสถาปัตยกรรมคลาวด์และฐานข้อมูลใน [08-production-and-publish/cloud-and-tech-stack.md](./08-production-and-publish/cloud-and-tech-stack.md)
+  3. ตั้งค่า AI API Keys, WebRTC SFU ใน [08-production-and-publish/api-and-ai-integrations.md](./08-production-and-publish/api-and-ai-integrations.md)
+  4. จัดการ Environment Variables ตาม [08-production-and-publish/env-and-secrets-configuration.md](./08-production-and-publish/env-and-secrets-configuration.md)
+  5. วางแผนรองรับผู้ใช้ 10,000+ คนตาม [08-production-and-publish/scaling-and-infrastructure.md](./08-production-and-publish/scaling-and-infrastructure.md)
 
 - 🎨 **สำหรับ UX/UI Designers & Frontend Engineers:**
   1. ศึกษา [03-design/design-system.md](./03-design/design-system.md) และ [03-design/world-and-scene-design.md](./03-design/world-and-scene-design.md)

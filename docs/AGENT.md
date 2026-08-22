@@ -35,5 +35,12 @@
   👉 [07-playbooks-and-operations/demo-runbook-and-storyboard.md](./07-playbooks-and-operations/demo-runbook-and-storyboard.md)  
   👉 [07-playbooks-and-operations/demo-fixtures-and-assets.md](./07-playbooks-and-operations/demo-fixtures-and-assets.md)
 
+- **🚀 การ Deploy สู่ Production, Cloud Stack, การสเกล และ AI APIs:**  
+  👉 [08-production-and-publish/production-deployment-guide.md](./08-production-and-publish/production-deployment-guide.md)  
+  👉 [08-production-and-publish/cloud-and-tech-stack.md](./08-production-and-publish/cloud-and-tech-stack.md)  
+  👉 [08-production-and-publish/api-and-ai-integrations.md](./08-production-and-publish/api-and-ai-integrations.md)  
+  👉 [08-production-and-publish/scaling-and-infrastructure.md](./08-production-and-publish/scaling-and-infrastructure.md)  
+  👉 [08-production-and-publish/env-and-secrets-configuration.md](./08-production-and-publish/env-and-secrets-configuration.md)
+
 - **📑 สารบัญเอกสารทั้งหมด (Master Index):**  
   👉 [docs/README.md](./README.md)

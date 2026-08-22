@@ -1,4 +1,4 @@
-# 1. 8-Bit Visual Design System & Tokens
+# 1. 8-Bit Visual Design System, Generated Assets & Real Privacy Engines
 
 ---
 
@@ -20,7 +20,62 @@ MaskedMatch นำเฉพาะแนวคิด **Spatial Presence, Contextu
 
 ---
 
-## 1.2 Design Tokens & Color System
+## 1.2 Strict No-Emoji Policy & Generated Asset Standard
+
+> **กฎเหล็กด้านงานภาพ:** **MUST NOT** ใช้อิโมจิ (Emoji) เป็นตัวแทนของวัตถุในเกม, อุปกรณ์ประกอบฉาก, ตัวละคร, หรือองค์ประกอบบนเว็บโดยเด็ดขาด
+
+ทุก Element ประกอบฉากและส่วนติดต่อผู้ใช้จะต้องสร้างผ่าน **Generated Elements / Custom Pixel Art / Vector SVGs** เพื่อความสมจริงและเอกภาพด้าน Visual Hierarchy:
+
+1. **อุปกรณ์ประกอบฉาก (Scene Props):** เก้าอี้, โต๊ะสัมภาษณ์, Kiosk ข้อมูล, Coffee Cart, ตู้เซิร์ฟเวอร์, ฉากกั้น (Partitions), และโคมไฟนีออน ต้องเป็น Pixel Sprite ที่ Generate ขึ้นมาเฉพาะ
+2. **ตัวละครและ NPC (Characters & NPCs):** ผู้สมัคร (Candidates), ผู้สัมภาษณ์ (Recruiters), เจ้าหน้าที่จัดงาน (Staff), และผู้เชี่ยวชาญด้านการเข้าถึง (A11y Guides) ต้องมี Sprite Sheet 4 ทิศทาง พร้อม Walk/Idle Animation
+3. **บูธบริษัทจำลอง (Exhibitor Booths):** โครงสร้างบูธ, Dynamic Logo Fixtures, เคาน์เตอร์ต้อนรับ และจอแสดงผลสื่อประชาสัมพันธ์
+4. **ของตกแต่งในแผนที่ (Map Decorations):** กระถางต้นไม้ไซเบอร์, ลวดลายพื้นกระเบื้อง, พรมทางเดิน, และเส้นแสงนีออนนำทาง
+5. **Web UI Elements:** ไอคอนสถานะ, ป้าย Badge, สัญลักษณ์นำทาง, ปุ่มควบคุมมัลติมีเดีย ต้องใช้ Custom Pixel SVG Icons แทนอิโมจิ
+
+---
+
+## 1.3 Realistic & Immersive Booth Visitation Experience
+
+การออกแบบประสบการณ์เยี่ยมชมบูธต้องมีความสมจริง (Realistic Career Fair Simulation):
+- **Booth Layout & Atmosphere:** บูธแต่ละแห่งมีโครงสร้างสถาปัตยกรรมที่ชัดเจน ประกอบด้วย:
+  - **Reception & Queue Terminal:** เคาน์เตอร์ต้อนรับพร้อมป้ายบอกเวลารอและจำนวนคิว
+  - **Interactive Showcase Display:** จอแสดงผลงาน โครงการเด่น และ Tech Stack ของบริษัท
+  - **Recruiter Station:** โต๊ะสัมภาษณ์พร้อม NPC Recruiter ประจำตำแหน่งที่สามารถเข้าใกล้เพื่อเริ่มการสนทนา
+- **Proximity Feedback:** เมื่อ Avatar เดินเข้าสู่รัศมีของบูธ ขอบบูธจะแสดงเส้นเรืองแสง (Interactive Glow), Dynamic Logo Plate จะขยายตัวเล็กน้อย และปุ่ม Action Panel จะปรากฏขึ้นอย่างเป็นธรรมชาติ
+
+---
+
+## 1.4 Production-Ready Privacy Engines (Feasibility & Real Implementation)
+
+การ Demo และสถาปัตยกรรมของระบบถูกออกแบบให้ **ใช้งานได้จริง (Production Feasible)** โดยไม่มีการใช้ Mock หลอกลวงในส่วนสำคัญ:
+
+```mermaid
+flowchart LR
+    subgraph ClientMediaCapture["Real Client Media Capture"]
+        CAM["Real WebRTC Camera Feed\n(getUserMedia)"] --> FACE_ENG["Face Tracking Engine\n(MediaPipe / WASM FaceMesh)"]
+        MIC["Real WebRTC Mic Stream"] --> DSP["Web Audio DSP Pitch Worklet\n(Formant & Pitch Shift)"]
+    end
+
+    FACE_ENG -->|"Landmarks (Yaw, Pitch, Mouth)"| MASK_RENDER["Realtime Face Avatar Overlay\n(2D / 3D Canvas Transform)"]
+    MASK_RENDER -->|"Mask Fail-Closed Check"| COMPOSITOR["Canvas Stream Compositor"]
+    COMPOSITOR --> SFU["WebRTC Outgoing Video Track"]
+    DSP --> SFU_A["WebRTC Outgoing Audio Track"]
+```
+
+### 1. Real Camera Feed with Realtime Face Tracking Avatar Engine
+- **Hardware Integration:** เชื่อมต่อกับกล้องจริงผ่าน `navigator.mediaDevices.getUserMedia({ video: true })`
+- **Real Face Landmark Engine:** ประมวลผลบนเครื่อง Client แบบ Real-time ด้วย Engine ตรวจจับพิกัดใบหน้า (เช่น MediaPipe FaceMesh หรือ WebAssembly-based Vision Engine)
+- **Face Avatar Overlay:** นำพิกัด Landmark (ตำแหน่งศีรษะ, การกระพริบตา, การขยับปาก) มาขับเคลื่อน 2D/3D Animal Avatar ครอบทับใบหน้าจริงแบบเรียลไทม์
+- **Fail-Closed Protection:** หากระบบสูญเสีย Face Tracking เกิน 3 เฟรม ระบบจะตัดสัญญาณภาพวิดีโอทันที และสลับเป็น Avatar แบบนิ่ง เพื่อป้องกันภาพใบหน้าจริงรั่วไหล
+
+### 2. Real Voice Pitch & Formant Transformation Engine
+- **Web Audio API & AudioWorklet:** ใช้ Digital Signal Processing (DSP) Filter ประมวลผลสัญญาณเสียงจริงแบบ Low-latency (<20ms) บนเครื่องผู้ใช้
+- **Feasible Pitch Modulation:** ปรับค่า Pitch และ Formant เพื่อปกปิดน้ำเสียงจริงของผู้สมัคร โดยยังคงความชัดเจนในการฟังและเข้าใจภาษา (Intelligible Speech)
+- **Zero Server Latency:** ประมวลผลบน Client ก่อนส่งเข้า WebRTC Data Stream ทำให้ไม่เกิดคอขวดบน Server และใช้งานได้จริง
+
+---
+
+## 1.5 Design Tokens & Color System
 
 ### Base Color Tokens
 
@@ -55,11 +110,9 @@ MaskedMatch นำเฉพาะแนวคิด **Spatial Presence, Contextu
 | `status.warning` (`#FBBF24`) | `text.on-accent` (`#070816`) | **11.92:1** | Warning Chip |
 | `status.danger` (`#FF5A6F`) | `text.on-accent` (`#070816`) | **6.58:1** | Danger Button / Reject Action |
 
-> **กฎการใช้สี:** **MUST NOT** ใช้ `text.primary` (สีขาว) บนปุ่ม Purple, Pink, Cyan, Mango, Success หรือ Danger สำหรับตัวหนังสือขนาดปกติ เพราะคอนทราสต์ไม่ผ่านเกณฑ์ 4.5:1
-
 ---
 
-## 1.3 Typography
+## 1.6 Typography
 
 | Role | Font Family / Spec | Size & Line-Height Rules |
 |---|---|---|
@@ -69,44 +122,31 @@ MaskedMatch นำเฉพาะแนวคิด **Spatial Presence, Contextu
 | **Numbers & Timers** | Monospace Font with Tabular Numerals | ตัวเลขนับถอยหลัง, เวลาคิว, รหัสผู้สมัคร |
 | **Captions** | Readable Sans-serif | 16–18 CSS px ปรับขนาดได้ |
 
-> **ข้อห้าม:** **MUST NOT** ใช้ Pixel Font กับ Paragraph ยาว, ข้อกำหนดกฎหมาย, Help Text, Error Message หรือ Form Input
-
 ---
 
-## 1.4 Pixel Geometry & Art Production
+## 1.7 Pixel Geometry & Art Production
 
 - **Base Tile Grid:** `16 × 16 logical px`
-- **Integer Render Scale:** `2x` หรือ `3x` (หลีกเลี่ยง Fractional Scaling เพื่อไม่ให้ Sprite เบลอ)
+- **Integer Render Scale:** `2x` หรือ `3x`
 - **Character Sprites:** `24 × 32 logical px`, 4 ทิศทาง (Walk loop 4–6 frames, Idle 2 frames)
 - **Animation FPS:** 8–10 fps สำหรับตัวละคร; UI Transitions แยกเป็น 150–220 ms
-- **Collision Footprint:** กล่องชนที่ฐานตัวละคร มีขนาดเล็กกว่าภาพ Sprite เพื่อให้เดินในทางแคบได้สะดวก
+- **Collision Footprint:** กล่องชนที่ฐานตัวละคร มีขนาดเล็กกว่าภาพ Sprite
 - **Texture Atlas:** จัดกลุ่ม Sprite Atlas เป็น `core`, `district`, `booth`, `props`
-- **Image Rendering:** ใช้ `image-rendering: pixelated` หรือ `crisp-edges` สำหรับ Canvas/Pixel Assets
 
 ---
 
-## 1.5 Spacing, Shape & Elevation
-
-- **Base Rhythm Grid:** 4 px (Primary step: 8 px, 16 px, 24 px, 32 px)
-- **Touch Target:** ขนาดขั้นต่ำ `44 × 44 CSS px` (Critical Mobile Action: `48 × 48 CSS px`)
-- **Border & Shadow:** ขอบ 2 px Solid สไตล์ Retro Shadow 2 px
-- **Corner Radius:** 0–4 px เพื่อคงเอกลักษณ์ Pixel Art (Modal ขนาดใหญ่ใช้ไม่เกิน 8 px)
-- **Focus Rings:** 2 px Inner Dark + 2 px Outer White/Cyan
-
----
-
-## 1.6 Motion, Sound & Haptics
+## 1.8 Motion, Sound & Haptics
 
 - **Reduced Motion Support:** เคารพการตั้งค่า `prefers-reduced-motion`; ปิด Camera Shake, Parallax, Particle Effects, และ Floating Bob
 - **Sound Opt-in:** ปิดเสียงเป็นค่าเริ่มต้น (Muted by default) ผู้ใช้ต้องเปิดเอง
-- **Haptics:** รองรับ Haptic Feedback ในจังหวะ Ready Check บนอุปกรณ์มือถือ (โดยมี Visual Alert ควบคู่เสมอ)
+- **Haptics:** รองรับ Haptic Feedback ในจังหวะ Ready Check บนอุปกรณ์มือถือ
 
 ---
 
-## 1.7 Final Design Test (5 คำถามประเมินก่อนอนุมัติ Frame)
+## 1.9 Final Design Test (5 คำถามประเมินก่อนอนุมัติ Frame)
 
 1. ผู้สมัครรู้หรือไม่ว่าตอนนี้ Recruiter มองเห็นข้อมูลอะไรจากตนเองบ้าง?
-2. ถ้าไม่ใช้ Canvas, กล้อง หรือเน็ตความเร็วต่ำ ผู้ใช้ยังทำ Task หลักสำเร็จหรือไม่?
-3. Primary Action ของหน้าจอนี้ชัดเจนเพียงหนึ่งอย่างหรือไม่?
+2. ทุกองค์ประกอบในฉากและ UI ใช้ Generated Assets โดยปราศจากอิโมจิหรือไม่?
+3. ระบบ Face Tracking และ Voice Alteration ทำงานได้จริงแบบ Low-latency หรือไม่?
 4. เมื่อเกิด Refresh, Timeout หรือ Permission Fail ผู้ใช้รู้ว่าต้องทำอะไรต่อหรือไม่?
 5. หน้าจอนี้ช่วยเล่า Core Loop บนเวที หรือกำลังเพิ่ม Feature ที่ไม่จำเป็น?

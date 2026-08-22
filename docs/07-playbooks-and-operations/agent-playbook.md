@@ -1,6 +1,6 @@
 # 1. AI & Coding Agent Playbook
 
-> **Version 2.1 — Interactive Career Hall Revision**  
+> **Version 2.1 — Interactive Career Hall & Real Media Revision**  
 > เอกสารคู่มือสำหรับ AI Coding Agent ในการพัฒนาและต่อยอดระบบ MaskedMatch อย่างมีแบบแผน ปลอดภัย และตรงตามข้อกำหนด
 
 ---
@@ -11,25 +11,27 @@
 1. เข้า Event และยืนยันตัวตนแบบจำลอง (Mock Verification)
 2. สร้างและตรวจ Masked Profile ที่เน้นทักษะและผลงานจริง
 3. สำรวจ Neon Career Hall หรือใช้ Navigator โหมดรายการ
-4. เปิดบูธ ดูงาน เหตุผลความตรงกัน และกดเข้าคิว
-5. รับ Ready Check และเข้าห้องสัมภาษณ์ (Speed Interview)
+4. เปิดบูธเสมือนจริง ดูงาน เหตุผลความตรงกัน และกดเข้าคิว
+5. รับ Ready Check และเข้าห้องสัมภาษณ์ (Speed Interview) ด้วย **กล้องจริง ดัดเสียงจริง และ Face Tracking Overlay จริง**
 6. ส่งผลการตัดสินใจส่วนตัวทั้งสองฝ่าย (Private Decision)
 7. Reveal ข้อมูลติดต่อเฉพาะที่ผู้สมัครยินยอมเมื่อเกิด Mutual Match
 
 ---
 
-## 1.2 Non-Negotiable Experience Invariants (10 กฎเหล็กที่ห้ามละเมิด)
+## 1.2 Non-Negotiable Experience Invariants (12 กฎเหล็กที่ห้ามละเมิด)
 
 1. **Identity stays masked before mutual consent:** ฝั่ง Recruiter ก่อนเกิด Mutual Match ต้องไม่มีชื่อ รูป อีเมล เบอร์โทร หรือ Original Resume ของผู้สมัคร
 2. **World is optional:** ทุกฟังก์ชันและ Action ใน Canvas ต้องทำผ่าน Semantic Navigator / List Mode ได้ 100%
 3. **No surprise media:** ไมค์และกล้องเริ่มต้นด้วยการปิดเสมอ ไม่มีการเปิดเผยภาพ/บันทึกเสียงอัตโนมัติ
-4. **Mask fails closed:** หาก Face Mask Pipeline เกิดความล้มเหลว ต้องหยุดส่งวิดีโอทันทีก่อนเห็นภาพจริง แล้วสลับเป็น Avatar
-5. **Decision is private:** ทั้งสองฝ่ายห้ามเห็นคำตอบของอีกฝ่ายจนกว่าจะส่งคำตอบครบทั้งคู่
-6. **Mobile is complete:** ห้ามซ่อน Action สำคัญไว้หลัง Hover หรือจำกัดให้ใช้เฉพาะโหมดแนวนอน (Landscape-only)
-7. **Status is explicit:** สถานะคิว เครือข่าย และสื่อ ต้องมี Icon + Text กำกับเสมอ ไม่ใช้สีเพียงอย่างเดียว
-8. **AI explains and defers:** แสดงเหตุผลจากหลักฐานผลงานเสมอ และผู้ใช้สามารถแก้ไขข้อมูลได้
-9. **Synthetic data only:** ใช้เฉพาะโดเมน `.test` และข้อมูลบุคคล/บริษัทจำลองเท่านั้น
-10. **Truthful demo:** ทุกส่วนที่มีการจำลอง (Mock) ต้องมีป้ายกำกับชัดเจนโดยไม่ต้องเปิด DevTools
+4. **Mask fails closed:** หาก Face Tracking หรือ Mask Engine เกิดความล้มเหลว ต้องหยุดส่งวิดีโอทันทีก่อนเห็นภาพจริง แล้วสลับเป็น Avatar
+5. **Real camera & voice engines:** การ Demo และ Interview ต้องใช้ `getUserMedia` กล้องจริง, Realtime Face Landmark Mesh, และ Web Audio DSP Voice Pitch Shift ที่ทำงานได้จริง (Production Feasible)
+6. **Strict No-Emoji standard:** ทุก Element ในฉาก (พร็อพ, บูธ, ตัวละคร NPC) และ Web UI Icons ต้องใช้ **Generated Pixel / Vector Assets** ห้ามใช้อิโมจิ
+7. **Decision is private:** ทั้งสองฝ่ายห้ามเห็นคำตอบของอีกฝ่ายจนกว่าจะส่งคำตอบครบทั้งคู่
+8. **Mobile is complete:** ห้ามซ่อน Action สำคัญไว้หลัง Hover หรือจำกัดให้ใช้เฉพาะโหมดแนวนอน (Landscape-only)
+9. **Status is explicit:** สถานะคิว เครือข่าย และสื่อ ต้องมี Icon + Text กำกับเสมอ ไม่ใช้สีเพียงอย่างเดียว
+10. **AI explains and defers:** แสดงเหตุผลจากหลักฐานผลงานเสมอ และผู้ใช้สามารถแก้ไขข้อมูลได้
+11. **Synthetic data only:** ใช้เฉพาะโดเมน `.test` และข้อมูลบุคคล/บริษัทจำลองเท่านั้น
+12. **Truthful demo:** ทุกส่วนที่มีการจำลอง (Mock) ต้องมีป้ายกำกับชัดเจนโดยไม่ต้องเปิด DevTools
 
 ---
 
@@ -40,11 +42,11 @@ Slice 0: Foundation (Router, Shell, Design Tokens, Primitives, Demo Store, Test 
   │
   ├─► Slice 1: Event & Profile (Landing, Mock Verify, Consent, Resume Import, Masked Review)
   │
-  ├─► Slice 2: World & Discovery (Phaser Map, Camera Follow, Navigator, Booths, AI Explanation)
+  ├─► Slice 2: World & Discovery (Phaser Map, Camera Follow, Realistic Booths, AI Explanation)
   │
   ├─► Slice 3: Queue Management (1 Active Ticket, Ready Check Alert, Recovery)
   │
-  ├─► Slice 4: Speed Interview (Preflight Check, Media Controls, Safe Avatar Fallback, Timer)
+  ├─► Slice 4: Speed Interview (Real Cam, Face Tracking Mask, Web Audio DSP Voice Alteration)
   │
   ├─► Slice 5: Decision & Reveal (Private Decision, Mutual Match, Consented Field Reveal)
   │

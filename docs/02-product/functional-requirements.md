@@ -39,15 +39,6 @@
 | **FR-PROFILE-009** | P1 | Portfolio link ใช้ privacy proxy/preview หรือ warning เพราะ username/domain อาจเปิดเผย identity |
 | **FR-PROFILE-010** | P1 | Candidate ดาวน์โหลด Masked Profile ที่ recruiter เห็นได้ |
 
-### Masked Profile View (สิ่งที่ Recruiter มองเห็น):
-- Candidate code (เช่น `Candidate #8F3A`) และ Animal Avatar
-- ทักษะ (Skills), ระดับความชำนาญ (Proficiency Self-rating), และหลักฐาน (Evidence)
-- ระยะเวลาประสบการณ์แบบช่วง (Experience Duration range) โดยไม่แสดงวันที่ที่แน่นอน
-- ผลลัพธ์โครงการที่ผ่านการ Anonymize แล้ว
-- ข้อมูลความชอบในการทำงาน (Work Preference), Availability และ Accommodation ที่ผู้สมัครเลือกเปิดเผย
-- Match Explanation และความมั่นใจ (Confidence)
-- **ไม่มีข้อมูลติดต่อ, ชื่อจริง, สถาบัน หรือ Original Resume ก่อน Mutual Match**
-
 ---
 
 ## 3.3 Organization, Booth & Job Setup
@@ -67,8 +58,6 @@
 
 ## 3.4 Skill Matching & Recommendation
 
-### Scoring Model Formulation
-
 ```text
 Eligibility Gate:
   pass = all required legal/work constraints satisfied
@@ -80,10 +69,6 @@ Score (0–100):
   15% Role level / recency alignment
   15% Candidate preference alignment
 ```
-
-- **กฎความโปร่งใส:** ห้ามนำชื่อ, รูป, เพศ, อายุ, เชื้อชาติ, สถาบันการศึกษา, หรือ Disability มาใช้ใน Model
-- **Missing Data Rule:** ข้อมูลที่ขาดหายไปจะลดเฉพาะค่า `confidence` แยกจาก `score` ห้ามสรุปว่าผู้สมัครไม่มีทักษะนั้นโดยอัตโนมัติ
-- **Explainability:** แสดงเหตุผล 3–5 ข้อเสมอ (เช่น "ตรงกับ Must-have ด้าน Node.js", "มีผลงาน IoT Telemetry")
 
 | ID | Pri | Requirement Description |
 |---|:---:|---|
@@ -97,7 +82,7 @@ Score (0–100):
 
 ---
 
-## 3.5 Interactive Neon Career Hall World
+## 3.5 Interactive Neon Career Hall World & Generated Assets
 
 | ID | Pri | Requirement Description |
 |---|:---:|---|
@@ -119,21 +104,9 @@ Score (0–100):
 | **FR-WORLD-016** | R0 | Camera-follow, click/tap movement และ NPC/prop animation ต้องใช้ time-based easing และรักษา input response; Reduced Motion ต้องมี stationary equivalent |
 | **FR-WORLD-017** | R0 | Player/NPC/prop ต้องเป็น runtime layer แยกจาก environment และ depth-sort อย่างถูกต้องตามแกน Y |
 | **FR-WORLD-018** | R0 | Generated/third-party world asset ทุกไฟล์ต้องมี provenance/allowed-use record และห้ามคัดลอก asset/trade dress จากภาพอ้างอิง |
-
-### Movement & Interaction Parity Table
-
-| Action | Desktop | Mobile / Tablet | Accessible Semantic Equivalent |
-|---|---|---|---|
-| **Move** | WASD / ลูกศร / คลิกจุดหมาย | แตะจุดหมาย / joystick | Navigator + ปุ่ม `ไปที่บูธ` |
-| **Interact** | `E`, `Enter`, click | ปุ่ม context 48 px / tap | Semantic button |
-| **Search / Map** | `M` หรือปุ่มบน HUD | Bottom navigation | Searchable DOM List |
-| **Mute / Unmute** | Remappable key + dock | Dock button | Labeled toggle |
-| **Camera Toggle** | Dock button | Dock button | Labeled toggle + capability fallback |
-| **Captions** | Dock / menu | Dock / menu | Semantic caption panel |
-| **Queue Action** | Alert dialog + QueueChip | Alert dialog + QueueChip | Explicit button; no gesture-only |
-| **Zoom / Recenter** | Buttons + wheel | Buttons + pinch | `+`, `-`, `Recenter` buttons |
-| **Safety / Leave** | Persistent safety menu | Safety menu | Direct labeled action |
-| **Close / Back** | `Esc` | Back / close button | Focus returns to trigger |
+| **FR-WORLD-019** | R0 | **Strict No-Emoji Policy:** ทุก Element ประกอบฉาก, พร็อพ, บูธ, ตัวละคร NPC, และ Web UI Icons ต้องเป็น **Generated Pixel Art / SVG Assets** ทั้งหมด ห้ามใช้อิโมจิ |
+| **FR-WORLD-020** | R0 | **Realistic Booth Showcase:** ดีไซน์การเยี่ยมชมบูธต้องมีองค์ประกอบเสมือนจริง: เคาน์เตอร์ต้อนรับ, จอแสดง Tech Stack, สถานะคิวสด, และจุดประจำของ Recruiter |
+| **FR-WORLD-021** | R0 | **8-Bit Character Studio (The Sims Customizer):** รองรับการเลือก/ปรับแต่งตัวละคร 8-bit (สีผิว, ทรงผม, เสื้อผ้า, หน้ากากสัตว์) พร้อมปุ่มสุ่ม (`Randomize 🎲`) และแสดงผล Live 8-Bit Animated Preview ใน Phaser Mini-Stage Canvas |
 
 ---
 
@@ -156,14 +129,14 @@ Score (0–100):
 
 ---
 
-## 3.7 Interview Preflight & Room
+## 3.7 Interview Preflight & Real Media Privacy Engines
 
 | ID | Pri | Requirement Description |
 |---|:---:|---|
 | **FR-INT-001** | P0 | Duration ตั้งที่ job/session เป็น 10, 12 หรือ 15 นาที; server clock เป็น source of truth |
 | **FR-INT-002** | P0 | Session duration รวม final wrap-up minute; แจ้งเตือน 5 นาทีก่อนหมด และเปลี่ยนสถานะเป็น `WRAP_UP` เมื่อเหลือ 60 วินาที |
 | **FR-INT-003** | P0 | Candidate video แสดงผ่าน mask/blur/avatar ตาม capability โดยไม่เผย raw preview ให้ recruiter ก่อน transform สำเร็จ |
-| **FR-INT-004** | P0 | หาก mask fail ต้องหยุดส่ง video และให้เลือก retry, avatar-only หรือ audio-only; ห้ามเผลอส่ง raw face |
+| **FR-INT-004** | P0 | หาก mask fail ต้องหยุดส่ง video และให้เลือก retry, avatar-only หรือ audio-only; ห้ามเผลอส่ง raw face (**Fail-Closed Policy**) |
 | **FR-INT-005** | P0 | Voice transform เป็น optional และต้องรักษาความเข้าใจ; fallback เป็น original audio โดยมี consent หรือ text/caption |
 | **FR-INT-006** | P0 | Recruiter เห็น company/job/role แต่ candidate identity ยัง masked |
 | **FR-INT-007** | P0 | Recording/transcription off by default และต้องแสดงสถานะตลอด session |
@@ -173,13 +146,8 @@ Score (0–100):
 | **FR-INT-011** | P1 | Collaborative task ต้องมี permission, save state, language/runtime sandbox และ mobile full-screen mode |
 | **FR-INT-012** | P0 | บน mobile ต้องใช้ dedicated interview view และไม่ render world เบื้องหลัง |
 | **FR-INT-013** | P0 | Text-assisted/interpreter accommodation ต้องเป็น operational path ที่ทดสอบได้ ไม่ใช่เพียง toggle |
-
-### Masking Capability Ladder
-1. `MASKED_VIDEO` — On-device face landmark + animal sprite/segmentation
-2. `BLURRED_VIDEO` — Background / face blur ที่ผ่าน privacy test
-3. `AVATAR_ONLY` — Animated avatar driven by audio activity
-4. `AUDIO_ONLY` — Masked profile + natural audio
-5. `TEXT_ASSISTED` — Chat / live caption / interpreter accommodation
+| **FR-INT-014** | R0 | **Real Camera & Face Landmark Engine:** รองรับการเปิดกล้องจริง (`getUserMedia`) และประมวลผล Face Landmark Detection (MediaPipe/WASM) เพื่อ Render หน้ากากสัตว์ครอบทับใบหน้าเรียลไทม์ |
+| **FR-INT-015** | R0 | **Real Voice Alteration DSP:** ใช้ Web Audio API AudioWorklet สำหรับดัดแปลงเสียง (Pitch & Formant Shift) แบบ Real-time บน Client ด้วยความหน่วงต่ำ (<20ms) |
 
 ---
 

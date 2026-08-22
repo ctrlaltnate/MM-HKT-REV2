@@ -5,9 +5,10 @@
 ## 1.1 Architecture Principles
 
 - **DOM-First for Task UI:** ฟอร์ม, การนำทาง, HUD, กล่องข้อความ และเครื่องมือควบคุมทั้งหมดทำงานบน Semantic HTML/DOM เพื่อความเข้าถึงได้ (Accessibility) โดยใช้ Phaser/Canvas สำหรับ World Rendering เท่านั้น
+- **Strict Generated Assets (No Emojis):** ทุกองค์ประกอบภาพในเกม, ฉาก, บูธ, ตัวละคร และ Web UI ต้องเป็น Original Generated Assets / Vector SVGs ทั้งหมด ห้ามใช้อิโมจิ
+- **Realtime Client-side Privacy Engines:** การประมวลผลกล้องจริง, Face Tracking, การเรนเดอร์ Face Mask Overlay, และการดัดเสียง (Voice DSP) ทำงานบนเครื่องผู้ใช้ (Client-Side) 100% เพื่อลด Latency และป้องกันข้อมูลชีวมิติรั่วไหล
 - **Server-Authoritative Core State:** คิวสัมภาษณ์, เวลา Session, การตัดสินใจ (Decision), ผลการเปิดเผยข้อมูล (Reveal), และสถานะ Event ต้องถูกควบคุมและตัดสินโดย Server
 - **Separate Identity Vault Plane:** ข้อมูลยืนยันตัวตน (PII) ถูกแยกขาดจาก Data Plane ของงานแฟร์และการจับคู่ทักษะ
-- **On-Device Media Transform:** การประมวลผล Animal Face Mask และ Background Blur ทำงานบนเครื่องผู้ใช้ (Client-side) เพื่อความปลอดภัยและความเป็นส่วนตัว
 - **Durable Persistence vs Realtime Broker:** PostgreSQL รับผิดชอบ Transactional Source of Truth ในขณะที่ Redis รับผิดชอบ Presence, Caching, และ WebSocket Realtime Fanout
 
 ---
@@ -19,7 +20,18 @@ flowchart TB
     subgraph Client["Responsive Web App / PWA"]
       UI["Semantic UI + Navigator (React / DOM)"]
       GAME["2D World Renderer (Phaser / Canvas)"]
-      MEDIA["WebRTC + On-device Media Mask"]
+      
+      subgraph RealMediaEngine["Realtime Client Media Privacy Engine"]
+        CAM["Real Camera Stream (getUserMedia)"] --> FACE_ENG["Face Tracking Landmark Engine\n(MediaPipe / WASM FaceMesh)"]
+        FACE_ENG --> MASK_COMP["Face Avatar Compositor\n(2D / 3D Animal Mask Overlay)"]
+        MASK_COMP --> FAIL_GUARD{"Fail-Closed Guard\n(Tracking Loss > 3 frames)"}
+        FAIL_GUARD -->|"Valid Tracking"| VIDEO_OUT["Anonymized Canvas Stream"]
+        FAIL_GUARD -->|"Lost Tracking"| AVATAR_FALLBACK["Static Avatar Stream"]
+        
+        MIC["Real Mic Stream"] --> AUDIO_DSP["Web Audio API AudioWorklet\n(Pitch Shift & Formant DSP)"]
+        AUDIO_DSP --> AUDIO_OUT["Altered Audio Stream"]
+      end
+      
       CACHE["Public Versioned Asset Cache"]
     end
 
@@ -50,6 +62,8 @@ flowchart TB
     end
 
     Client --> EDGE --> BFF
+    VIDEO_OUT --> MEDIAINFRA
+    AUDIO_OUT --> MEDIAINFRA
     BFF --> AUTH --> AUTHDB
     AUTH --> VAULT
     BFF --> CONSENT --> DB
@@ -76,55 +90,44 @@ flowchart TB
 
 ---
 
-## 1.3 Service & Module Boundaries
+## 1.3 Realtime Media Privacy Pipeline (Feasibility & Implementation)
+
+### 1. Real Face Landmark Tracking & Avatar Overlay Pipeline
+- **Engine Selection:** ใช้ Lightweight Vision Engine (เช่น MediaPipe FaceMesh / TensorFlow.js WASM Backend) ทำงานที่ 30–60 FPS
+- **Landmark Mapping:** ตรวจจับพิกัด 468 จุดบนใบหน้า เพื่อคำนวณ:
+  - ศีรษะ (Head Pose Yaw / Pitch / Roll)
+  - การขยับปากและการพูด (Mouth Open / Close Ratio)
+  - การกระพริบตา (Eye Blink Landmark Status)
+- **Realtime Canvas Compositing:** เรนเดอร์ 2D/3D Animal Mask ครอบทับตำแหน่งพิกัดใบหน้าของผู้ใช้ลงบน Offscreen Canvas และส่งออกเป็น `MediaStream`
+- **Fail-Closed Hardware Protection:** หาก Landmark Detection ขัดข้อง หรือผู้ใช้หันหน้าออกจากกล้องเกิน 3 เฟรม ระบบจะตัดภาพวิดีโอออกทันที และสลับเป็นภาพ Avatar นิ่ง เพื่อรับประกันว่า **ใบหน้าจริงของผู้สมัครจะไม่รั่วไหลออกไปเด็ดขาด**
+
+### 2. Real Voice Alteration (AudioWorklet DSP Pipeline)
+- **Web Audio API Integration:** สัญญาณเสียงจากไมโครโฟนถูกส่งเข้า `AudioContext`
+- **AudioWorklet DSP Node:** ทำการแปลงความถี่ (Pitch Shifting & Formant Modulation) ในระดับ Low-latency Buffer (128 samples, <10ms added latency)
+- **Speech Intelligibility:** ปรับเปลี่ยนโทนเสียงให้จำแนกเอกลักษณ์ไม่ได้ แต่ยังคงความชัดเจนของคำพูด (Clear & Intelligible)
+
+---
+
+## 1.4 Service & Module Boundaries
 
 | Component / Module | AI/ML? | Primary Responsibility | Safety Guardrail & Fallback |
 |---|:---:|---|---|
 | **IdentityShield** | Hybrid | ตรวจจับและปิดบัง PII จาก Resume | Candidate ตรวจสอบและ Approve ก่อนเสมอ; Deterministic regex fallback |
 | **SkillMatch** | Yes/Hybrid | คำนวณคะแนนความตรงกันและอธิบายเหตุผล | Excluded demographic attributes, versioning, deterministic rule fallback |
-| **MediaPrivacy Processor** | ML On-device | ประมวลผล Face Landmark + Animal Mask | **Fail-closed:** หยุดส่งวิดีโอทันทีเมื่อ Mask หลุด แล้วสลับเป็น Avatar-only |
+| **MediaPrivacy Processor** | ML On-device | ประมวลผล Real Face Mesh + Animal Mask + Voice DSP | **Fail-closed:** หยุดส่งวิดีโอทันทีเมื่อ Tracking หลุด แล้วสลับเป็น Avatar-only |
 | **Integrity Collector** | No | บันทึกสัญญาณเบราว์เซอร์พื้นฐาน | ปราศจาก Auto-reject; ไม่แสดง Raw Timeline ให้ Recruiter; ลบใน 7 วัน |
 | **Queue Orchestrator** | No | จัดการคิว FIFO, Ready Check, Atomic Dispatch | Durable PostgreSQL Transaction, Idempotency keys |
 | **Decision & Reveal** | No | จัดการ Double-blind Decision และ Consent Reveal | ทำงานแบบ Atomic, เข้ารหัสตัวเลือก, บันทึก Append-only Audit Log |
 
 ---
 
-## 1.4 Recommended Prototype Architecture (R0 Baseline)
+## 1.5 Recommended Prototype Architecture (R0 Baseline)
 
 ### Tech Stack
 - **Framework:** Vite + React + TypeScript
 - **Routing:** React Router (รองรับการแชร์และ Refresh URL)
 - **Styling & Tokens:** CSS Custom Properties (Design Tokens) + Scoped CSS Modules
 - **Game Engine:** Phaser 3 (สำหรับ 2D Career Hall World Canvas)
+- **Realtime Media:** WebRTC + MediaPipe FaceMesh / WASM + Web Audio API AudioWorklet
 - **UI Overlay:** Semantic HTML/DOM สำหรับ Navigation, Forms, HUD, Dialogs, และ Captions
 - **Testing:** Vitest + React Testing Library (Unit/Component), Playwright (E2E & Viewport Smoke), Axe-core (Accessibility Smoke)
-
-### Recommended Source Code Layout
-
-```text
-src/
-  app/                 # router, providers, app shell, error boundary
-  design-system/       # tokens, primitives, icons, focus/motion rules
-  features/
-    auth-demo/         # mock identity & consent
-    profile/           # resume import, redaction review, approval
-    world/             # phaser world canvas wrapper & camera follow
-    navigator/         # accessible semantic list / search alternative
-    booths/            # company booth details, jobs, match explanation
-    queue/             # active ticket, ready check dialog, recovery
-    interview/         # preflight, speed interview room, fallback dock
-    decision/          # private decision submission, mutual match, reveal
-    recruiter/         # recruiter desk, availability, rubric evaluator
-  domain/              # pure rules, state machine enums, transitions
-  data/
-    contracts/         # repository interfaces
-    demo/              # synthetic fixtures & in-memory/storage adapters
-  game/                # phaser scenes, sprites, collision, tilemap
-  i18n/                # translation keys & locale formatters
-  test/                # test helpers, fixtures, axe a11y harness
-```
-
-### Prototype Boundaries & Persistence
-- **State Separation:** UI ห้ามเขียน Rule เรื่องคิวหรือ Reveal เองเด็ดขาด ต้องเรียกผ่าน Domain Hooks / Repository Interfaces
-- **Browser Persistence:** ในโหมด R0 ที่ไม่มี Backend จริง ให้ใช้ LocalStorage ภายใต้ Namespace `maskedmatch.demo.v1` และใช้ `BroadcastChannel` สำหรับ Sync สถานะข้าม 2 Tabs
-- **Zero Real Data:** ห้ามเก็บ Resume จริง, ข้อมูลติดต่อจริง, หรือ Private Key ลงใน Browser Storage

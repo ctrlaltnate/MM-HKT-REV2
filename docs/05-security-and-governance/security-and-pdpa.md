@@ -67,12 +67,14 @@
 
 ---
 
-## 1.5 Media Privacy & Trust Design
+## 1.5 Media Privacy, Face Tracking & Trust Design
 
-- **Fail-Closed Principle:** หาก Face Landmark หรือ Mask Processing ทำงานล้มเหลว ระบบจะระงับการส่งสัญญาณภาพวิดีโอทันที เพื่อป้องกันไม่ให้ใบหน้าจริงหลุดออกไป
+- **On-Device Face Landmark Engine:** การประมวลผล Face Mesh / Landmark Detection จากกล้องจริงทำงานบนอุปกรณ์ของผู้ใช้ (Client-Side) 100% โดย **ห้ามส่งภาพใบหน้าจริงหรือพิกัด Landmark ดิบขึ้นเซิร์ฟเวอร์**
+- **Fail-Closed Principle:** หาก Face Tracking หรือ Mask Compositor ทำงานล้มเหลว (เช่น หันหน้าหลุดเฟรม หรือกล้องกระตุกเกิน 3 เฟรม) ระบบจะระงับการส่งสัญญาณภาพวิดีโอทันที เพื่อป้องกันไม่ให้ใบหน้าจริงหลุดออกไป
 - **Zero Recording by Default:** ปิดการบันทึกวิดีโอและเสียงในทุกกรณี เว้นแต่จะมีความยินยอมชัดเจน
 - **Persistent Trust Signals:** แสดงสถานะ Blind Mode, สถานะกล้อง/ไมค์, สถานะหน้ากาก, และป้ายเตือนโหมดจำลองตลอดเวลา
 - **Prohibited UI Dark Patterns:**
   - ✕ ห้ามทำ Pre-checked Checkbox สำหรับการเปิดเผยข้อมูลติดต่อ
+  - ✕ ห้ามใช้อิโมจิในองค์ประกอบ UI หรือหลอกลวงว่าเป็นฟังก์ชันความปลอดภัย
   - ✕ ห้ามใช้ปุ่มหลอกตาที่ทำให้ปุ่ม `สนใจไปต่อ` เด่นจนเหมือนบังคับ
   - ✕ ห้ามส่งข้อมูล PII ใน Error Toast, URL Parameters, หรือ Debug Panel

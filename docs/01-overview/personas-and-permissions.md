@@ -91,3 +91,54 @@
 2. **Least privilege** — ผู้ใช้และ Service เข้าถึงเฉพาะข้อมูลที่จำเป็นต่อ Role นั้นๆ
 3. **Tenant isolation** — ข้อมูลของแต่ละบริษัท/องค์กรถูกแยกขาดจากกัน
 4. **Field-level authorization** — การเข้าถึง Profile แยกสิทธิ์ราย Field ชัดเจน (เช่น ทักษะ vs ข้อมูลติดต่อ)
+
+---
+
+## 3.4 Multi-Role Demo Login & 3 Production Workspaces (ทำงานได้จริงครบ 3 บทบาท)
+
+เพื่อความสะดวกในการทดสอบ นำเสนอ และใช้งานจริง ระบบมี **Multi-Role One-Click Demo Login Bar** ที่หน้าแรก (`/` หรือ `/auth/sign-in`) ให้สามารถสลับเข้าใช้งานได้ทันทีใน 3 บทบาทหลักที่ **ทำงานได้จริง 100% (Fully Functional & Operable)**:
+
+```mermaid
+flowchart TD
+    DEMO_BAR["Multi-Role Demo Login Bar (1-Click Switcher)"]
+    
+    DEMO_BAR -->|"1. เข้าเป็น Candidate"| JOBSEEKER["🟢 Jobseeker Workspace (/event/demo)\n• จำลองยืนยันตัวตนแบบ ThaID\n• อัปโหลด Resume & ให้ AI สกัดทักษะ\n• แต่งตัวละคร 8-bit (The Sims Studio)\n• เดินใน Career Hall หรือใช้ Navigator\n• เข้าคิวสด & รับแจ้งเตือน Ready Check\n• ห้องสัมภาษณ์กล้องครอบหน้ากาก + ดัดเสียง\n• ส่ง Private Decision & เลือกแชร์ข้อมูล"]
+
+    DEMO_BAR -->|"2. เข้าเป็น Recruiter"| RECRUITER["🟣 Recruiter Workspace (/recruiter/dashboard)\n• เลือกบูธ Cyber Orchard & ตำแหน่งงาน\n• สลับสถานะความพร้อม (Online / Break)\n• ดูคิวผู้สมัครสดแบบ Real-time\n• กด [เรียกคิวคนถัดไป] สัมภาษณ์สด\n• ให้คะแนน Rubric ระหว่างคุยวิดีโอคอลล์\n• ส่งผลการตัดสินใจ Private Decision\n• ตรวจสอบ Pipeline ผู้สมัครที่ Match แล้ว"]
+
+    DEMO_BAR -->|"3. เข้าเป็น Admin"| ADMIN["🔵 Website Admin Workspace (/ops/dashboard)\n• ติดตามสถิติงวดสด (Live CCU & Queues)\n• จัดการเปิด/ปิดบูธ และแก้ไขตำแหน่งงาน\n• สั่ง Pause / Resume งานเมื่อฉุกเฉิน\n• ส่งข้อความประกาศด่วน (Live Broadcast)\n• ตรวจสอบรายงานปัญหา (User Reports)\n• ดูบันทึกความปลอดภัย (Audit Log Viewer)"]
+```
+
+### 1. ฝั่งผู้สมัครงาน (Jobseeker / Candidate Workspace)
+- **1-Click Demo Login:** เข้าเป็น `Candidate #8F3A` ได้ทันที (หรือล็อกอินด้วย Supabase Auth)
+- **ฟังก์ชันทำงานจริง:**
+  1. ยืนยันตัวตนจำลอง ThaID (พร้อมป้าย DEMO)
+  2. นำเข้า Resume ให้ AI สกัดทักษะ พร้อมหน้าจอ Side-by-Side Review
+  3. สตูดิโอสร้างตัวละคร 8-Bit (สุ่มเสื้อผ้า ทรงผม สีผิว หน้ากากสัตว์)
+  4. เดินในฮอลล์งานแฟร์ Phaser 3 หรือเปิดโหมดรายการ Navigator
+  5. ดูรายละเอียดบูธและคะแนนความตรงกัน 0–100 พร้อมคำอธิบาย AI
+  6. กดเข้าคิวสัมภาษณ์สด และรับการแจ้งเตือน Ready Check (60s)
+  7. เข้าห้องสัมภาษณ์ LiveKit WebRTC เปิดกล้องจริง ครอบหน้ากาก และดัดเสียง
+  8. ส่งผลการตัดสินใจส่วนตัว และเลือกฟิลด์ข้อมูลติดต่อที่จะเปิดเผย
+
+### 2. ฝั่งผู้สัมภาษณ์และบริษัท (Recruiter Workspace)
+- **1-Click Demo Login:** เข้าเป็น `Recruiter #R12` (Cyber Orchard Co.) ได้ทันที
+- **ฟังก์ชันทำงานจริง:**
+  1. สลับสถานะความพร้อมรับคิว (`พร้อมรับคิว`, `กำลังสัมภาษณ์`, `พัก`, `ออฟไลน์`)
+  2. หน้าจอ Live Queue Board แสดงรายชื่อผู้สมัครที่กำลังรอคิวแบบ Real-time
+  3. ปุ่ม **`[เรียกผู้สมัครคนถัดไป]`** ส่งสัญญาณ Ready Check ไปยังผู้สมัครทันที
+  4. เข้าห้องสัมภาษณ์ร่วมกับ Candidate ใน WebRTC Room เดียวกัน
+  5. แผงประเมินรูบริก (Structured Rubric) และบันทึกโน้ตส่วนตัว
+  6. ส่งผลการตัดสินใจส่วนตัว (Private Decision)
+  7. ดูรายชื่อผู้สมัครที่เกิด Mutual Match พร้อมข้อมูลติดต่อที่ได้รับอนุญาตแล้ว
+
+### 3. ฝั่งผู้ดูแลระบบและผู้จัดงาน (Website Admin & Operations Workspace)
+- **1-Click Demo Login:** เข้าเป็น `Event Lead / System Admin` ได้ทันที
+- **ฟังก์ชันทำงานจริง:**
+  1. **Live Event Operations Dashboard:** ตรวจสอบผู้ใช้งานออนไลน์สด (CCU), ปริมาณคิวสะสม, สถานะเซิร์ฟเวอร์ และสถิติการเกิด Mutual Match
+  2. **Booth & Job Manager:** เปิด/ปิดบูธ, แก้ไขรายละเอียดงาน, สลับตำแหน่งบูธในแผนที่ 2D
+  3. **Emergency Controls:** สั่ง **Pause / Resume Event** หรือระงับการรับคิวชั่วคราว
+  4. **Live Broadcast Banner:** ส่งข้อความประกาศด่วนแจ้งเตือนทุกคนในงานแบบ Real-time
+  5. **Moderation & Incident Desk:** ตรวจสอบข้อร้องเรียน รายงานปัญหา และระงับผู้ใช้ที่ทำผิดกฎ
+  6. **Security & Audit Viewer:** ตรวจสอบ Log การเปิดเผยข้อมูลและการเข้าถึงระบบ (Tamper-evident Audit)
+

@@ -1,4 +1,4 @@
-# 2. Demo Runbook & 5-Minute Pitch Storyboard
+# 2. Demo Runbook, Real Media & 5-Minute Pitch Storyboard
 
 ---
 
@@ -8,40 +8,52 @@
 |:---:|---|---|
 | **0:00–0:25** | เปิดหน้า Landing (`/event/demo`) อธิบายปัญหาการจ้างงาน | **Skills First, Bias Last:** เริ่มต้นจากทักษะจริงก่อนตัดสินจากตัวตน |
 | **0:25–0:55** | กดใช้ Resume ตัวอย่าง แสดง Side-by-Side Redaction Review | **Candidate Agency:** AI ช่วยสกัดข้อมูล แต่ผู้สมัครเป็นผู้ตรวจสอบและควบคุม |
-| **0:55–1:35** | เข้าสู่ Neon Career Hall แสดงการเดิน และสลับโหมด Navigator | **Spatial & Inclusive:** สนุกเหมือนเกม 2D แต่เข้าถึงได้ 100% ผ่าน List Mode |
+| **0:55–1:35** | เข้าสู่ Neon Career Hall เดินชมบูธสมจริง สลับโหมด Navigator | **Spatial & Inclusive:** บูธมีเคาน์เตอร์ จอแสดงผล Recruiter นั่งประจำ และเข้าถึงได้ 100% ผ่าน List Mode |
 | **1:35–2:05** | เปิดบูธ Cyber Orchard ดูคะแนน 92/100 และอ่านเหตุผล | **Explainable AI:** แนะนำงานจากหลักฐานผลงานจริง ไม่ใช่ Black-box |
 | **2:05–2:35** | กดเข้าคิว, Refresh หน้าจอเพื่อโชว์ Recovery, รับ Ready Check | **Stateful & Resilient:** คิวสัมภาษณ์ไม่สูญหายแม้เน็ตหลุด |
-| **2:35–3:15** | เข้าห้องสัมภาษณ์ สลับโหมด Animal Mask / Avatar-only | **Media Privacy:** ควบคุมความเป็นส่วนตัวได้ กล้อง/ไมค์ปลอดภัย ไม่เปิดภาพจริง |
+| **2:35–3:15** | **เปิดกล้องจริง สตรีมวิดีโอพร้อม Face Tracking Mask & ดัดเสียงจริง** | **Real Production Media:** ปลอดภัย 100% ด้วย Face Landmark Overlay และ Voice DSP บนเครื่องผู้ใช้ |
 | **3:15–3:45** | ฝั่ง Candidate และ Recruiter ส่ง Private Decision แยก Tab | **Double-Blind Choice:** การตัดสินใจเป็นความลับ ปราศจากแรงกดดัน |
 | **3:45–4:20** | หน้าจอแสดง Mutual Match และ Candidate เลือกแชร์เฉพาะ Email | **Consented Reveal:** ข้อมูลติดต่อเปิดเผยเฉพาะเมื่อยินยอมทั้งสองฝ่าย |
-| **4:20–5:00** | สรุปภาพรวมสถาปัตยกรรมและโอกาสต่อยอดทางนโยบาย | **Real Prototype:** พร้อมขยายสู่ Pilot จริงด้วย Architecture ที่ได้มาตรฐาน |
+| **4:20–5:00** | สรุปภาพรวมสถาปัตยกรรมและโอกาสต่อยอดทางนโยบาย | **Feasible & Practical:** ใช้งานได้จริงบนเบราว์เซอร์ พร้อมขยายสู่ Pilot |
 
 ---
 
 ## 2.2 Step-by-Step Demo Runbook
 
-1. **เปิดเบราว์เซอร์ 2 หน้าต่าง (Side-by-Side Tabs):**
-   - Tab 1: ผู้สมัคร `http://localhost:4173/event/demo`
-   - Tab 2: ผู้สัมภาษณ์ `http://localhost:4173/demo/role/recruiter`
+1. **เปิดเบราว์เซอร์ 3 หน้าต่าง (Multi-Role Demo Setup):**
+   - Tab 1 (ผู้สมัคร): `http://localhost:4173/event/demo`
+   - Tab 2 (ผู้สัมภาษณ์): `http://localhost:4173/recruiter/demo/dashboard`
+   - Tab 3 (ผู้ดูแลระบบ): `http://localhost:4173/ops/events/demo/live`
+
 2. **Tab 1 (Candidate Flow):**
-   - กดยอมรับความยินยอม และเลือกยืนยันตัวตนแบบจำลอง
+   - กดปุ่ม `[ 👤 เข้าเป็น Candidate ]` ใน Demo Switcher Bar
+   - กดยอมรับความยินยอม และยืนยันตัวตนจำลอง ThaID
    - กดปุ่ม `ใช้ Resume ตัวอย่าง` → ตรวจทาน Masked Profile Preview → กดยืนยัน
-   - เลือก Avatar สัตว์ (จิ้งจอก/แมว) และเข้าสู่ Career Hall
+   - เข้าสตูดิโอแต่งตัวละคร 8-bit กดปุ่ม `[🎲 สุ่มตัวละคร]` แล้วเข้าสู่ Career Hall
    - เดินไปที่บูธ **Cyber Orchard Co.** หรือใช้ Navigator เลือกตำแหน่ง **Backend Developer**
    - ตรวจดูคะแนนความตรงกัน **92/100** และกด `เข้าคิวสัมภาษณ์`
-3. **Trigger Ready Check:**
-   - กดปุ่ม `Demo: เรียกคิวทันที` หรือใช้ `/demo/control` เพื่อจำลองการเรียกคิว
-   - หน้าต่าง Ready Check Alert Dialog (60s) จะปรากฏขึ้น → กด `พร้อมสัมภาษณ์ทันที`
-4. **เข้าสู่ห้องสัมภาษณ์ (Interview Room):**
-   - ผ่านการตรวจ Preflight Check เลือกลักษณะภาพ (Animal Mask หรือ Avatar-only)
-   - ดำเนินการสนทนาจำลองในห้องสัมภาษณ์
-5. **ส่งผลการตัดสินใจ (Private Decision):**
-   - ฝั่ง Candidate กดปุ่ม `สนใจไปต่อ` (หน้าจอจะขึ้นรอคำตอบอีกฝ่าย)
-   - สลับไป Tab 2 (Recruiter) กดปุ่ม `สนใจไปต่อ` เช่นกัน
-6. **Mutual Match & Reveal:**
-   - หน้าจอจะเฉลิมฉลองสถานะ **Mutual Match!**
+
+3. **Tab 2 (Recruiter Live Desk Flow):**
+   - สลับไป Tab 2 สังเกตเห็นชื่อ **Candidate #8F3A** ปรากฏใน Live Queue Board ทันที
+   - Recruiter กดปุ่ม **`[▶ เรียกผู้สมัครคนถัดไป]`**
+
+4. **Trigger & Attend Speed Interview:**
+   - หน้าจอ Tab 1 (ผู้สมัคร) จะเด้ง Ready Check Alert Dialog (60s) → กด `พร้อมสัมภาษณ์ทันที`
+   - ทั้งสองฝ่ายเข้าสู่หน้าห้องสัมภาษณ์: **เปิดกล้องจริงของผู้พรีเซนต์** ผ่าน `getUserMedia`
+   - แสดงการทำงานของ **Realtime Face Tracking Engine** (เรนเดอร์หน้ากากสัตว์ครอบทับแบบ Real-time)
+   - แสดงการทำงานของ **Web Audio API AudioWorklet DSP Voice Pitch Shift** ที่ดัดเสียงจริงทันที
+
+5. **ส่งผลการตัดสินใจ (Private Decision) & Mutual Match:**
+   - Tab 1 (ผู้สมัคร) กดปุ่ม `สนใจไปต่อ` (หน้าจอรอคำตอบ)
+   - Tab 2 (Recruiter) กดปุ่ม `สนใจไปต่อ`
+   - หน้าจอแสดง **🎉 MUTUAL MATCH!** ทั้งสองฝ่าย
    - Candidate ติ๊กเลือกเฉพาะ `อีเมล` และ `Portfolio` → กดยืนยันการแชร์ข้อมูล
-   - Recruiter จะได้รับข้อมูลติดต่อเฉพาะฟิลด์ที่ได้รับอนุญาต
+   - Recruiter มองเห็นข้อมูลติดต่อใน Pipeline ทันที
+
+6. **Tab 3 (Admin & Live Operations Flow):**
+   - สลับไป Tab 3 (Admin Portal) สังเกตเห็นสถิติ CCU และ Mutual Match นับเพิ่มขึ้น
+   - พิมพ์ข้อความประกาศด่วนในช่อง Live Broadcast: `“ยินดีต้อนรับสู่งาน! รอบสัมภาษณ์พิเศษเปิดแล้ว”` แล้วกด `[📢 ส่งประกาศ]`
+   - สังเกตเห็นแถบประกาศสีนีออนปรากฏขึ้นบนหน้าจอ Tab 1 และ Tab 2 แบบ Real-time ทันที!
 
 ---
 
@@ -49,7 +61,7 @@
 
 | Scenario Preset | Candidate Choice | Recruiter Choice | Media Mode | Queue / State Behavior |
 |---|:---:|:---:|---|---|
-| **Happy Match** | สนใจไปต่อ | สนใจไปต่อ | Animal Mask / Avatar | Ready check ผ่านทันที → เกิด Mutual Match และเปิด Reveal |
+| **Happy Match** | สนใจไปต่อ | สนใจไปต่อ | Real Face Mask + Voice DSP | Ready check ผ่านทันที → เกิด Mutual Match และเปิด Reveal |
 | **No Match** | สนใจไปต่อ | ยังไม่ไปต่อ | Avatar-only | ผลลัพธ์ปิดเงียบ ไม่เปิดเผยว่าใครเลือก Pass |
 | **Media Denied** | สนใจไปต่อ | สนใจไปต่อ | Camera Denied | สลับเข้าสู่ Avatar-only mode อัตโนมัติและสัมภาษณ์ต่อได้ |
 | **Queue Timeout** | — | — | — | ปล่อยให้เวลา 60s หมดลง → แสดงปุ่มเสนอเข้าคิวใหม่ (Requeue) |
