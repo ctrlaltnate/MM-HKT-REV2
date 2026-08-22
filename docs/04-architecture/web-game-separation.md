@@ -85,7 +85,7 @@ Web เริ่ม/หยุด Game ผ่าน adapter ที่มี versi
 
 ### Native scene ownership (mandatory)
 
-`apps/game` ต้องสร้าง plain floor และ runtime entities ด้วย Phaser 4 โดยตรง: `Layer` แยก background/structure/actors/foreground/lighting, `Container` สำหรับ prefab ที่ประกอบหลายชิ้น, Arcade static/dynamic bodies บนวัตถุจริง และ `DynamicTexture` สำหรับ avatar compositor. Website รับเฉพาะ typed event และห้ามเป็นเจ้าของ visual object ในโลกเกม การโหลดภาพ hall สำเร็จรูปที่มี booth/คน/prop แล้วใช้ DOM/CSS/transparent hotspot ทับ ถือว่าละเมิด boundary นี้
+`apps/game` ต้องสร้าง plain floor และ runtime entities ด้วย Phaser 4 โดยตรง: `Layer` แยก background/runtime-shadow/structure/actors/foreground/lighting, `Container` สำหรับ prefab ที่ประกอบหลายชิ้น, Arcade static/dynamic bodies บนวัตถุจริง และ `DynamicTexture` สำหรับ shared player/NPC compositor. Object/actor source ไม่มี baked shadow; Phaser สร้าง owner-linked shadow แยก Website รับเฉพาะ typed event และห้ามเป็นเจ้าของ visual object ในโลกเกม การโหลดภาพ hall สำเร็จรูปที่มี booth/คน/prop แล้วใช้ DOM/CSS/transparent hotspot ทับ ถือว่าละเมิด boundary นี้
 
 Implementation note (22 August 2026): ตรวจ Phaser official API ผ่าน Context7 MCP ก่อนลงมือ โดยยืนยันการใช้ `setInteractive()` กับ Game Object/Container, `Layer` สำหรับจัดกลุ่ม scene graph, Arcade `collide`/`overlap` และ static body สำหรับ geometry/sensor รวมถึง `textures.addDynamicTexture()`, `DynamicTexture.draw()` และ `Texture.setFilter(NEAREST)` สำหรับ avatar compositor. MCP เป็นแหล่งตรวจ API ระหว่างพัฒนา ไม่ถูก bundle เป็น production dependency
 

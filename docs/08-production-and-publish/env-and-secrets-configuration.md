@@ -1,76 +1,101 @@
-# 5. ตัวแปร Environment (.env) และที่อยู่ API Keys ที่ต้องนำมาใส่
+# Environment and Secrets Configuration
+
+> Commit only placeholder names in `.env.example`. Put real values in a local ignored file or deployment secret manager. Never paste a real key into Docs, Git, issue, screenshot, client bundle or browser storage.
 
 ---
 
-## 5.1 ตัวอย่างไฟล์ `.env.local` / `.env.production` (คัดลอกไปใช้ได้ทันที)
-
-สร้างไฟล์ชื่อ `.env.local` ใน Root Folder ของโปรเจกต์ หรือใส่ในเมนู **Environment Variables** บน Vercel:
+## 1. Runtime Modes
 
 ```bash
-# ========================================================
-# 1. ฐานข้อมูล & เรียลไทม์ SUPABASE
-# ========================================================
-# ดูที่: Supabase Dashboard -> Project Settings -> API
-VITE_SUPABASE_URL=https://your-project-id.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOi... (anon public key)
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi... (service_role secret key)
-
-# ========================================================
-# 2. ฐานข้อมูลเอกสาร MONGODB ATLAS
-# ========================================================
-# ดูที่: MongoDB Atlas -> Clusters -> Connect -> Drivers
-MONGODB_URI=mongodb+srv://db_user:password123@cluster0.abcde.mongodb.net/maskedmatch?retryWrites=true&w=majority
-
-# ========================================================
-# 3. ปัญญาประดิษฐ์ AI (เลือกใช้ตัวใดตัวหนึ่งหรือใส่ทั้งคู่)
-# ========================================================
-# ดูที่: https://platform.openai.com/api-keys
-OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-# หรือใช้ Google Gemini (ฟรีเริ่มต้น): https://aistudio.google.com/
-GEMINI_API_KEY=AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-# หรือใช้ Anthropic Claude: https://console.anthropic.com/
-ANTHROPIC_API_KEY=sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxx
-
-# ========================================================
-# 4. วิดีโอคอลล์ห้องสัมภาษณ์ LIVEKIT CLOUD
-# ========================================================
-# ดูที่: LiveKit Cloud Dashboard -> Settings -> Project Keys
-LIVEKIT_URL=wss://your-project.livekit.cloud
-LIVEKIT_API_KEY=APIxxxxxxxxxxxx
-LIVEKIT_API_SECRET=secretxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-# ========================================================
-# 5. ตั้งค่าแอปพลิเคชันทั่วไป
-# ========================================================
-VITE_APP_TITLE=MaskedMatch Virtual Job Fair
-NODE_ENV=production
+# Public build-time configuration; safe to expose to the browser.
+VITE_APP_MODE=demo
+VITE_API_BASE_URL=http://127.0.0.1:8787
+VITE_REALTIME_URL=ws://127.0.0.1:8787/realtime
+VITE_ENABLE_REAL_MEDIA=false
+VITE_MEDIA_PUBLIC_URL=
 ```
 
----
+| `VITE_APP_MODE` | Behavior |
+|---|---|
+| `demo` | Use `DemoAppGateway`, deterministic fixtures and cross-tab `DemoScenarioStore`; show Demo badge |
+| `connected` | Use backend/realtime adapters; missing/unhealthy services show truthful error/degraded state and never fall back to fixtures |
 
-## 5.2 ตารางบอกตำแหน่งที่ต้องไปเอา API Keys มาใส่ (ชัดเจน 100%)
-
-| ตัวแปรใน `.env` | บริการ | วิธีเข้าไปเอา Key ใน Dashboard (ทีละสเต็ป) |
-|---|---|---|
-| `VITE_SUPABASE_URL` | **Supabase** | เข้า [supabase.com](https://supabase.com) → เลือกโปรเจกต์ → ไปที่เมนูฟันเฟือง **Project Settings** (ซ้ายล่าง) → เลือก **API** → คัดลอกค่า **Project URL** |
-| `VITE_SUPABASE_ANON_KEY` | **Supabase** | อยู่ในหน้าเดียวกับด้านบน (Project Settings → API) → ดูที่หัวข้อ **Project API keys** → คัดลอกค่า **`anon public`** |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Supabase** | อยู่ในหน้าเดียวกับด้านบน (Project Settings → API) → ดูที่หัวข้อ **Project API keys** → กดเปิดตาและคัดลอกค่า **`service_role secret`** *(ใช้เฉพาะฝั่ง Backend)* |
-| `MONGODB_URI` | **MongoDB Atlas** | เข้า [mongodb.com/atlas](https://www.mongodb.com/atlas) → กดปุ่ม **Connect** ที่ Cluster → เลือก **Drivers** → คัดลอก Connection String แล้วเปลี่ยน `<password>` เป็นรหัสผ่านของคุณ |
-| `OPENAI_API_KEY` | **OpenAI** | เข้า [platform.openai.com/api-keys](https://platform.openai.com/api-keys) → กด **Create new secret key** → ตั้งชื่อแล้วกดสร้าง → คัดลอก `sk-proj-...` |
-| `GEMINI_API_KEY` | **Google Gemini** | เข้า [aistudio.google.com](https://aistudio.google.com/) → กดปุ่ม **Get API key** → กด **Create API key** → คัดลอก `AIzaSy...` |
-| `LIVEKIT_URL` | **LiveKit Cloud** | เข้า [cloud.livekit.io](https://cloud.livekit.io) → เลือกโปรเจกต์ → ดูที่ **Project Settings** → คัดลอก **WebSocket URL** (ขึ้นต้นด้วย `wss://...`) |
-| `LIVEKIT_API_KEY` | **LiveKit Cloud** | ใน LiveKit Dashboard → ไปที่ **Settings** → **Keys** → กดสร้างหรือคัดลอก **API Key** |
-| `LIVEKIT_API_SECRET` | **LiveKit Cloud** | อยู่ที่เดียวกับ API Key ด้านบน → คัดลอก **Secret Key** |
+Everything prefixed `VITE_` is public because Vite can place it in browser JavaScript. **Never prefix a secret with `VITE_`.** A public project URL or deliberately public anonymous client key is allowed only when the provider security model, server policy and row-level authorization have been reviewed.
 
 ---
 
-## 5.3 วิธีใส่ Environment Variables บน Vercel ตอนจะปล่อยเว็บจริง
+## 2. Server-Only Configuration
 
-1. ไปที่ Dashboard ของโปรเจกต์บน [vercel.com](https://vercel.com)
-2. กดไปที่แท็บ **Settings** ด้านบน → เลือกเมนู **Environment Variables** ทางซ้าย
-3. พิมพ์ชื่อตัวแปรในช่อง **Key** (เช่น `OPENAI_API_KEY`) และวางค่าลงในช่อง **Value**
-4. ติ๊กถูกเลือกทั้ง **Production**, **Preview**, และ **Development**
-5. กดปุ่ม **Save**
-6. ไปที่แท็บ **Deployments** → กดจุดสามจุด (`...`) ที่การ Deploy ล่าสุด → เลือก **Redeploy** เพื่อให้ระบบดึงค่า Environment Variables ใหม่ไปใช้งานทันที!
+Use only the variables required by the chosen adapters; providers are replaceable.
+
+```bash
+# Core backend
+APP_ENV=development
+APP_ORIGIN=http://127.0.0.1:4173
+DATABASE_URL=__SET_IN_SECRET_MANAGER__
+SESSION_SIGNING_SECRET=__SET_IN_SECRET_MANAGER__
+FIELD_ENCRYPTION_KEY=__SET_IN_SECRET_MANAGER__
+AUDIT_SIGNING_KEY=__SET_IN_SECRET_MANAGER__
+
+# Object storage / resume processing
+OBJECT_STORAGE_ENDPOINT=__PROVIDER_ENDPOINT__
+OBJECT_STORAGE_BUCKET=__BUCKET_NAME__
+OBJECT_STORAGE_ACCESS_KEY_ID=__SET_IN_SECRET_MANAGER__
+OBJECT_STORAGE_SECRET_ACCESS_KEY=__SET_IN_SECRET_MANAGER__
+
+# Optional AI extraction adapter; configure one approved provider
+AI_PROVIDER=openai_or_other_approved_provider
+AI_PROVIDER_API_KEY=__SET_IN_SECRET_MANAGER__
+AI_EXTRACTION_MODEL=__PIN_APPROVED_MODEL_VERSION__
+
+# Optional media adapter
+MEDIA_PROVIDER=livekit_or_other_approved_provider
+MEDIA_PUBLIC_URL=__PUBLIC_WSS_URL__
+MEDIA_API_KEY=__SET_IN_SECRET_MANAGER__
+MEDIA_API_SECRET=__SET_IN_SECRET_MANAGER__
+
+# Optional connected identity adapter
+IDENTITY_PROVIDER=approved_oidc_provider
+IDENTITY_CLIENT_ID=__SET_IN_SECRET_MANAGER__
+IDENTITY_CLIENT_SECRET=__SET_IN_SECRET_MANAGER__
+IDENTITY_REDIRECT_URI=https://example.invalid/v1/auth/callback
+```
+
+If a Supabase adapter is selected, its service-role key is server-only. If direct browser access is deliberately used, expose only its intended public/anonymous key and prove row-level authorization/tenant isolation before pilot. A second document database is not required by default; PostgreSQL JSONB/object storage can cover flexible resume metadata until evidence shows otherwise.
+
+---
+
+## 3. Startup Validation and Secret Boundaries
+
+- `demo`: external credentials are optional; production-like controls must still use adapters and canonical state.
+- `connected` backend: fail startup when database, signing or encryption secrets are missing/placeholder/too short.
+- Enable AI, media or identity only when all variables for that adapter exist and health checks pass.
+- Frontend validates public URL schemes and mode, but never receives database credentials, service-role keys, media signing secrets, identity client secret or AI key.
+- Backend returns capability/health booleans and sanitized error codes, never environment values.
+- CI scans repository/build artifacts/source maps for secret patterns and rejects accidental exposure.
+
+---
+
+## 4. Local and Deployment Placement
+
+| Location | Allowed content |
+|---|---|
+| committed `.env.example` | variable names and non-secret placeholders only |
+| ignored `.env.local` | developer public config; server secrets only when running local backend |
+| CI/deployment secret manager | staging/production server secrets scoped per environment |
+| frontend hosting variables | public `VITE_*` only |
+
+Development, preview/staging and production must use separate projects/credentials. Do not automatically copy a production secret into Preview/Development.
+
+---
+
+## 5. Rotation and Incident Procedure
+
+1. Revoke exposed credential at the provider first.
+2. Create a replacement with least privilege and update only the affected environment.
+3. Redeploy/restart the server adapter and verify sanitized integration health.
+4. Invalidate sessions/tokens derived from the old key where relevant.
+5. Search Git history, build artifacts and logs; purge where supported and record an incident/audit entry.
+6. Rotate signing/encryption keys through a versioned dual-read migration. Never overwrite encryption keys without a decrypt/re-encrypt plan.
+
+Use [API, AI and Media Integration Plan](./api-and-ai-integrations.md) for adapter behavior and [Production Deployment Guide](./production-deployment-guide.md) for release gates.

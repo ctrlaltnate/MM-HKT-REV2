@@ -1,10 +1,12 @@
 # MaskedMatch Documentation
 
-> **Version:** 3.0 · 22 August 2026
+> **Version:** 3.1 · 23 August 2026
 > **Phase:** R0 frontend implementation in progress
 > **Product:** Responsive Website + Landing + Virtual Job Fair
 
 เอกสารชุดนี้ใช้หลัก **one topic, one canonical owner** เพื่อให้ข้อกำหนดครบแต่ไม่ซ้ำ หากข้อความใน supporting document ขัดกับ owner ให้แก้ owner ก่อนแล้วอ้าง link/requirement ID จากไฟล์อื่น
+
+Current frontend เป็นภาพพิสูจน์แนวทาง ไม่ใช่ art/runtime ceiling การพัฒนา asset, map, avatar, NPC และ Phaser World ต่อจากนี้ต้องยึด [Game Visual & World Specification](./03-design/world-and-scene-design.md) แม้ demo ปัจจุบันยังใช้ legacy/partial assets
 
 ---
 
@@ -15,11 +17,14 @@
 | ภาพรวมและสถานะ | [Scope & Roadmap](./02-product/scope-and-roadmap.md) |
 | ศัพท์, provenance, owner ของเอกสาร | [Terminology & Document Ownership](./01-overview/terminology.md) |
 | ระบบต้องทำอะไร | [Functional Requirements](./02-product/functional-requirements.md) |
+| Flow Job Seeker / Recruiter / Organizer | [End-to-End Role Journeys](./02-product/user-journeys.md) |
 | ตรวจรับอย่างไร | [Acceptance Criteria](./02-product/acceptance-criteria.md) |
 | ออกแบบเกม/ฉาก/ตัวละคร | [Game Visual & World Specification](./03-design/world-and-scene-design.md) |
 | ออกแบบ Website/UI | [Website & Product UI Design System](./03-design/design-system.md) |
 | แยก Website กับ Phaser | [Web–Game Separation](./04-architecture/web-game-separation.md) |
 | ลงมือพัฒนา | [Agent Playbook](./07-playbooks-and-operations/agent-playbook.md) |
+| ทำ demo ครบสามบทบาท | [Three-Role Demo Runbook](./07-playbooks-and-operations/demo-runbook-and-storyboard.md) |
+| ต่อ API/provider/key อย่างปลอดภัย | [API, AI and Media Integration Plan](./08-production-and-publish/api-and-ai-integrations.md) |
 | ตรวจคุณภาพก่อนส่ง | [Definition of Done](./06-engineering-and-qa/definition-of-done.md) |
 
 ---
@@ -30,10 +35,13 @@
 
 - เกมใช้ **orthographic top-front 3/4** มุมเดียวทั้ง floor, booth, props, NPC และ player
 - พื้นหลังเป็น plain modular floor; วัตถุจริงเป็น Phaser entities แยกชิ้น มี pivot, depth, lifecycle และ owner-linked collision
-- ภาพ final ต้องเป็น original/licensed rendered pixel elements ที่มี silhouette, material และ grounded shadow; primitive ใช้ได้เฉพาะ geometry/debug/FX
-- ตัวละครมี front, back, left, right จริงอย่างน้อย 3 frames ต่อทิศ
+- ภาพ final ต้องเป็น original/licensed transparent pixel elements ที่มี silhouette/material ชัดและไม่มี baked shadow; Phaser สร้าง owner-linked shadow แยกต่างหาก
+- ตัวละครมี top-front, top-behind, top-left-side, top-right-side จริงอย่างน้อย 3 frames ต่อทิศ
 - Character Studio แยก skin, hair, เสื้อ, กางเกง/ท่อนล่าง, รองเท้า และ accessory พร้อมสี, 4-direction preview, apply และ persistence
-- Booth เป็น prefab ประกอบชิ้นส่วน มี facade/counter/showcase/queue/deco อย่างน้อย 2–3 variants ตามหมวด และ booth ที่ติดกันไม่เป็น clone ทั้งชุด
+- Booth เป็น prefab ประกอบชิ้นส่วนและผ่าน minimum environment variety catalog: facade/counter/showcase อย่างละ 4, kiosk 3, queue family 4, plant/decor อย่างละ 6 โดย colorway ไม่นับเป็น variant ใหม่
+- NPC สุ่มแบบ seeded จาก base/skin/hair/top/bottom/shoes/accessory library และ compositor เดียวกับ player
+- Directional prop ต้องมี N/E/S/W จริง; floor/road/aisle/wall ต้องมี edge/corner/turn/T/cross/end/transition/opening ครบเพื่อสร้าง map ใหม่ได้
+- Asset ทุกชิ้นใช้ semantic palette slots และ metadata เพื่อ recolor/rearrange/recombine โดยไม่ redraw หรือ bake floor/text/logo/shadow รวมกัน
 - ทุกโหมดหลักทำงานจริงและมี Navigator/List Mode equivalent
 
 ไฟล์หลักใน [`ref_pics/`](./ref_pics/) ใช้ศึกษาความอ่านง่าย, scale, density, booth anatomy และภาษา top-front เท่านั้น ห้าม import เป็น runtime texture หรือคัดลอก layout/branding/sprite
@@ -46,9 +54,10 @@
 |---|---|---|
 | Website | Product Landing, Event Landing, candidate preparation, legal/status/404 และ local resume/reset journey มีแล้ว | backend/auth/production state |
 | Game boundary | `apps/web` และ `apps/game` แยก workspace; Phaser `4.2.1` | full production integration |
-| Career Hall | plain floor, entity props, 4 booths, movement/collision, basic interactions และ Navigator bridge | variant library ตามขั้นต่ำและ full browser evidence |
-| Avatar | 4 directions × 3 frames, skin/hair/combined outfit/accessory | แยก top, bottom/trousers, shoes และ directional NPC atlas |
-| Product loop | discovery/queue fixture บางส่วน | durable queue, interview, decision/reveal, recruiter/ops และ realtime multiplayer |
+| Career Hall | plain floor, entity props, 4 booths, movement/collision, basic interactions, Navigator bridge และ U-shaped partition compositor ที่มี left/center/right, authored side returns, door left/center/right, wide opening และ shared-owner layout model | L/corner joins, adjacent-booth shared-wall demo, all-angle prop kit, complete floor/road/wall autotiles, variant library และ full browser evidence |
+| Avatar source v2 | RGBA base 4×3, hair 5×4, top 4×4, lower/shoes/accessory 10×4 generated | crop/register/per-step alignment/palette masks และ runtime atlas ยังไม่เสร็จ |
+| Actor/NPC runtime | player และ NPC ใช้ shared 4-direction × 3-frame Dynamic Texture compositor; NPC appearance เป็น seeded layers; skin/hair/top/bottom/shoes/accessory แยกเปลี่ยนได้; runtime shadow แยก owner | normalize generated source atlases, NPC movement behavior, shadow debug toggle และ combinatorial browser evidence |
+| Product loop | discovery/queue fixture บางส่วน | AC-41..44: complete Job Seeker, Recruiter/Company, Organizer/Support, shared demo state, interview, requester-first reveal และ connected adapters |
 | Visual QA | reference/provenance และ local runtime assets มีแล้ว | 390/1440 interaction captures, camera lineup, collider/depth evidence |
 
 ห้ามเรียก concept, fixture, mock, planned service หรือ static screenshot ว่า production implementation
@@ -66,9 +75,9 @@
 ### 02 — Product
 
 - [Scope & Roadmap](./02-product/scope-and-roadmap.md) — R0–R4 scope and current status
-- [User Journeys](./02-product/user-journeys.md) — candidate/recruiter/organizer/recovery flows
+- [User Journeys](./02-product/user-journeys.md) — demo-executable/API-ready Job Seeker, Recruiter/Company, Organizer/Support and recovery flows
 - [Functional Requirements](./02-product/functional-requirements.md) — normative FR catalog including `FR-WORLD-036`
-- [Acceptance Criteria](./02-product/acceptance-criteria.md) — AC-01 through AC-37 and traceability
+- [Acceptance Criteria](./02-product/acceptance-criteria.md) — AC-01 through AC-44 and traceability
 
 ### 03 — Design
 

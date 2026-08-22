@@ -22,7 +22,7 @@
 - Navigator/List Mode ทำ action สำคัญได้เท่า Canvas
 - Blind identity, private decision, consented reveal และ fail-closed media ห้ามลดทอน
 - Demo ใช้ synthetic data และติดป้าย mock อย่างตรงไปตรงมา
-- Game ต้องผ่าน G1–G7: rendered entities, top-front camera, physics/depth, directional characters, layered wardrobe, booth variants และ functional modes
+- Game ต้องผ่าน G1–G10: rendered entities, top-front camera, physics/depth, directional characters, layered wardrobe, booth variants, functional modes, runtime-shadow/shared-actor compositor, complete orientation/autotile coverage และ recolorable reusable parts
 - `docs/ref_pics/` เป็น reference only; runtime asset ผ่าน `packages/assets/manifest.json`
 - งาน world/visual ใช้ [MCP-Assisted Workflow](./07-playbooks-and-operations/mcp-assisted-workflow.md) และเก็บ evidence; ไม่บังคับ paid MCP/Phaser Editor
 

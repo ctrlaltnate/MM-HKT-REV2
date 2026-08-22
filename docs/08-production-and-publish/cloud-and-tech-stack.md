@@ -1,52 +1,72 @@
-# 2. Future Production Tech Stack & Architecture
+# Future Production Tech Stack
 
-> **สถานะ:** Future-state proposal ระหว่าง R0; มีเฉพาะ local Web/Game vertical slice ส่วน service/backend ชุดนี้ยังไม่มีใน repository
-> **เป้าหมาย:** สถาปัตยกรรมที่เข้าใจง่าย ใช้น้อยชิ้นแต่ทรงพลัง ลดภาระดูแล Server และขยายตัวได้เมื่อมีผู้ใช้จำนวนมาก
+> **Status:** Future-state proposal. The repository currently contains a local Web/Game vertical slice, not these production services.
+> **Principle:** choose replaceable providers behind ports; adding a vendor account or API key is not equivalent to implementing the product flow.
 
 ---
 
-## 2.1 Proposed Tech Stack
+## 1. Baseline Stack
 
-| ส่วนของระบบ | เทคโนโลยีที่เลือกใช้ | ทำไมถึงเลือกตัวนี้? (จุดเด่น) |
+| Layer | Baseline | Responsibility |
 |---|---|---|
-| **Website Shell** | **React + Vite (workspace แยก)** | เป็น owner ของ route, form, accessibility, queue, interview และ admin UI |
-| **Career Hall Game** | **Phaser 4.x (workspace แยก)** | เป็น owner ของ world loop, tilemap, collision, actor, camera และ proximity sensor |
-| **โฮสติ้งเว็บ (Hosting)** | **Vercel** | เชื่อมต่อกับ GitHub แล้ว Deploy อัตโนมัติใน 1 คลิก พร้อม Global Edge CDN ฟรี |
-| **ฐานข้อมูลหลัก & Realtime** | **Supabase** | ให้ครบทั้ง PostgreSQL, Auth, Realtime คิวสัมภาษณ์ และ Storage เก็บไฟล์ |
-| **ฐานข้อมูลเอกสาร & Logs** | **MongoDB Atlas** | เก็บโครงสร้าง Resume แบบยืดหยุ่น (JSON Documents) และประวัติการใช้งาน |
-| **ระบบวิดีโอ & เสียง (WebRTC)** | **LiveKit Cloud** | มีห้องสัมภาษณ์แบบ WebRTC สำเร็จรูป ไม่ต้องเขียน WebRTC Signaling เอง |
-| **AI วิเคราะห์ Resume & แมตช์งาน** | **OpenAI / Anthropic / Gemini** | ใช้สกัดทักษะ ปิดบังประวัติส่วนตัว และคำนวณคะแนนความตรงกัน 0–100 |
-| **ระบบครอบหน้ากากอวตาร (Face Mask)**| **MediaPipe FaceMesh (WASM)** | **ฟรี!** รันบนเบราว์เซอร์ของผู้ใช้เอง ไม่เสียค่า Server และปลอดภัย 100% |
-| **ระบบดัดเสียงสด (Voice Pitch Shift)** | **Web Audio API (AudioWorklet)**| **ฟรี!** รันบนเบราว์เซอร์ของผู้ใช้ ดัดเสียงได้แบบ Real-time ความหน่วงต่ำมาก |
+| Website | React + Vite + TypeScript | routes, forms, role workspaces, a11y, queue/interview UI and `AppGateway` |
+| Career Hall | Phaser 4.x, separately built | world loop, entities, collision, actor/camera and typed Web bridge |
+| Backend | TypeScript BFF/modular service | authorization, domain transitions, provider adapters and sanitized health |
+| Durable data | PostgreSQL | tenant/event/company/profile metadata, queue, session, decision, reveal, support and audit references |
+| Flexible metadata | PostgreSQL JSONB initially | parsed facts, versioned policy/model metadata and booth layout where relational columns are not useful |
+| Files | private S3-compatible object storage | resume quarantine, approved company/showcase media and signed access |
+| Realtime | WebSocket service; Redis only when needed | presence/fanout/cache; never replaces durable queue/decision transactions |
+| Media | standards-based WebRTC provider/SFU + TURN | transport only; backend owns membership, timer and interview state |
+| On-device privacy | approved landmark runtime + Web Audio API | transformed video/audio with fail-closed fallback |
+| AI assistance | provider adapter + deterministic/manual fallback | evidence-bound extraction/redaction assistance and explanations |
+| Observability | structured logs, metrics, traces and alerting | request/state/provider health without raw PII/decision values |
 
-Website และ Game แชร์เฉพาะ typed contracts, domain types และ approved game assets ตาม [Web–Game Separation](../04-architecture/web-game-separation.md) แม้สุดท้ายจะถูก deploy ภายใต้ origin เดียวกันก็ตาม
+PostgreSQL + private object storage is the default minimum. Add Redis for measured realtime/capacity needs. Add a separate document database only after workload evidence and an ADR; it is not required merely because resume extraction produces JSON.
 
 ---
 
-## 2.2 การแบ่งหน้าที่ของฐานข้อมูล: Supabase vs MongoDB
-
-เพื่อให้ระบบทำงานได้เร็วและปลอดภัย เราแบ่งการจัดเก็บข้อมูลออกเป็น 2 ส่วนตามความเหมาะสม:
+## 2. Deployment Units
 
 ```text
-┌────────────────────────────────────────┐       ┌────────────────────────────────────────┐
-│               SUPABASE                 │       │             MONGODB ATLAS              │
-│        (Structured & Real-time)        │       │         (Unstructured & Logs)          │
-├────────────────────────────────────────┤       ├────────────────────────────────────────┤
-│ • บัญชีผู้ใช้ (Users & Auth)            │       │ • ข้อความและข้อมูลดิบจาก Resume PDF    │
-│ • คิวสัมภาษณ์สด (Queue Tickets)         │       │ • ประวัติการวิเคราะห์ของ AI (Prompts)  │
-│ • ผลการตัดสินใจ (Decisions & Matches)  │       │ • บันทึกสถิติและเหตุการณ์ (Event Logs) │
-│ • การแต่งตัวละคร (Avatar Customization)│       │ • รายละเอียดบริษัทและแกลเลอรีผลงาน     │
-└────────────────────────────────────────┘       └────────────────────────────────────────┘
+CDN / Web host
+├── apps/web build
+└── apps/game build + versioned public assets
+
+Backend environment
+├── API/BFF + WebSocket gateway
+├── resume/profile worker
+├── scheduler (ready checks, expiry, retention)
+└── provider adapters (identity, object storage, AI, media, notification)
+
+Data environment
+├── PostgreSQL + encrypted Identity Vault boundary
+├── private object storage / quarantine
+├── optional Redis
+└── append-only/tamper-evident audit sink
 ```
 
-1. **Supabase (PostgreSQL):** ใช้สำหรับข้อมูลที่ต้องการความถูกต้องแม่นยำสูง (ACID) และระบบเรียลไทม์ เช่น คิวสัมภาษณ์, การแย่งคิว, การส่งคำตอบ Private Decision และการเปิดเผยข้อมูล
-2. **MongoDB Atlas:** ใช้สำหรับข้อมูลที่ไม่มีโครงสร้างตายตัว (Unstructured JSON) เช่น ข้อความที่สกัดได้จาก Resume, บันทึกการประมวลผลของ AI และบันทึกกิจกรรม
+Start as a modular backend unless independent scaling/compliance evidence justifies separate services. Logical boundaries and least-privilege credentials are mandatory even when modules deploy in one process.
 
 ---
 
-## 2.3 การทำงานของ Privacy Engines บนเบราว์เซอร์ (ไม่ต้องมี Server แพงๆ)
+## 3. Provider Selection Criteria
 
-จุดเด่นของ MaskedMatch คือการทำให้ระบบความเป็นส่วนตัวทำงานบน **เครื่องของผู้ใช้ (Client-Side)** โดยตรง:
-- **ครอบหน้ากากเรียลไทม์:** MediaPipe FaceMesh โหลดไฟล์โมเดลขนาดเล็ก (~3MB) มารันบน WebAssembly ของเครื่องผู้ใช้ เพื่อจับตำแหน่งหน้าและขยับหน้ากากสัตว์
-- **ดัดเสียงเรียลไทม์:** Web Audio API ดัดคลื่นเสียงก่อนส่งเข้า LiveKit ทำให้เสียงที่ส่งออกไปถูกแปลงเรียบร้อยแล้วตั้งแต่ต้นทาง
-- **ผลลัพธ์:** คุณไม่ต้องจ่ายค่า Server GPU สำหรับแปลงวิดีโอ/เสียง และไม่มีภาพหน้าจริงของผู้สมัครหลุดไปยังเซิร์ฟเวอร์
+Evaluate candidates using:
+
+- Thailand/target-region latency and data-location needs;
+- OIDC/security capability, tenant isolation and audit export;
+- signed upload/download and malware-scanning integration;
+- WebRTC browser/device coverage, TURN availability and short-lived token support;
+- PDPA/DPA terms, deletion/backup behavior and incident notification;
+- cost at measured concurrent users/minutes, not marketing free-tier assumptions;
+- portability through the ports in [API, AI and Media Integration Plan](./api-and-ai-integrations.md).
+
+Do not name a provider as “selected” until an ADR records owner, pricing assumptions, threat/privacy review, spike results and exit plan.
+
+---
+
+## 4. Client Privacy Boundary
+
+Face landmarks and optional voice transformation run on the participant device. Only a validated transformed track may enter the media transport; tracking loss disables outgoing video or switches to avatar. Raw media is not recorded by default. These claims require device/browser tests—client-side processing alone does not guarantee anonymity or zero latency.
+
+Website and Game share only typed contracts, domain types and approved assets as specified in [Web–Game Separation](../04-architecture/web-game-separation.md). Environment and secret placement is canonical in [Environment and Secrets](./env-and-secrets-configuration.md).

@@ -10,6 +10,8 @@
 - **Server-Authoritative Core State:** คิวสัมภาษณ์, เวลา Session, การตัดสินใจ (Decision), ผลการเปิดเผยข้อมูล (Reveal), และสถานะ Event ต้องถูกควบคุมและตัดสินโดย Server
 - **Separate Identity Vault Plane:** ข้อมูลยืนยันตัวตน (PII) ถูกแยกขาดจาก Data Plane ของงานแฟร์และการจับคู่ทักษะ
 - **Durable Persistence vs Realtime Broker:** PostgreSQL รับผิดชอบ Transactional Source of Truth ในขณะที่ Redis รับผิดชอบ Presence, Caching, และ WebSocket Realtime Fanout
+- **Three Role Surfaces, One Domain:** Job Seeker, Recruiter/Company และ Organizer/Support ใช้ canonical entities/state machines เดียวกัน แต่รับ response ตาม role, tenant และ event scope
+- **Demo/Connected Adapter Parity:** UI เรียก `AppGateway` ports เดียวกันทั้ง deterministic demo และ backend-connected mode; connected mode ห้าม fallback เป็น fixture อย่างเงียบ
 
 ---
 
@@ -19,7 +21,9 @@
 flowchart TB
     subgraph Client["Browser Client — Separate Build Artifacts"]
       subgraph WebWorkspace["Website Workspace"]
-        UI["Semantic UI + Navigator (React / DOM)"]
+        UI["Semantic UI + Navigator (React / DOM)\nCandidate · Recruiter/Company · Ops/Support"]
+        GATEWAY["AppGateway Ports\nDemo or Connected Adapter"]
+        UI --> GATEWAY
       end
       subgraph GameWorkspace["Game Workspace"]
         GAME["2D World Runtime (Phaser 4 / Canvas)"]
@@ -54,6 +58,7 @@ flowchart TB
       DECISION["Decision & Reveal Service"]
       NOTIFY["Notification Service"]
       ADMIN["Event & Company Admin Service"]
+      SUPPORT["Operations & Support Service"]
     end
 
     subgraph DataPlane["Data & Storage Infrastructure"]
@@ -66,7 +71,7 @@ flowchart TB
       MEDIAINFRA["WebRTC SFU / TURN Infrastructure"]
     end
 
-    Client --> EDGE --> BFF
+    GATEWAY --> EDGE --> BFF
     VIDEO_OUT --> MEDIAINFRA
     AUDIO_OUT --> MEDIAINFRA
     BFF --> AUTH --> AUTHDB
@@ -85,12 +90,14 @@ flowchart TB
     DECISION --> VAULT
     BFF --> NOTIFY --> DB
     BFF --> ADMIN --> DB
+    BFF --> SUPPORT --> DB
     AUTH --> AUDIT
     PROFILE --> AUDIT
     QUEUE --> AUDIT
     INTERVIEW --> AUDIT
     DECISION --> AUDIT
     ADMIN --> AUDIT
+    SUPPORT --> AUDIT
 ```
 
 ---
@@ -123,6 +130,8 @@ flowchart TB
 | **Integrity Collector** | No | บันทึกสัญญาณเบราว์เซอร์พื้นฐาน | ปราศจาก Auto-reject; ไม่แสดง Raw Timeline ให้ Recruiter; ลบใน 7 วัน |
 | **Queue Orchestrator** | No | จัดการคิว FIFO, Ready Check, Atomic Dispatch | Durable PostgreSQL Transaction, Idempotency keys |
 | **Decision & Reveal** | No | จัดการ Double-blind Decision และ Consent Reveal | ทำงานแบบ Atomic, เข้ารหัสตัวเลือก, บันทึก Append-only Audit Log |
+| **Company Publication** | No | จัดการ Company/Job/Booth/Showcase Draft, Validate, Preview และ Publish | versioned aggregate, tenant authz, moderation/provenance และ atomic publication |
+| **Operations & Support** | No | aggregate health, incident, maintenance และ support recovery | scoped aggregate by default; break-glass มี approval/TTL/audit |
 
 ---
 
@@ -146,5 +155,9 @@ flowchart TB
 - **Contract:** Phaser ส่ง semantic interaction event (`boothSelected`, `infoKioskActivated`, `queueIntent`) ไปยัง React; React เปิด context/detail UI และสามารถสั่ง navigation target กลับไปยัง Phaser ได้ ไม่มี form, modal หรือข้อมูลสำคัญถูกวาดอยู่ใน Canvas
 - **Repository boundary:** เมื่อเริ่ม implementation ให้ Website และ Game มี dependency graph, build และ test entrypoint แยกกัน โดยแชร์เฉพาะ typed contracts, domain types และ approved production assets
 - **No flat-scene shortcut:** world ต้อง compose จาก pre-generated floor/prop/foreground sprite layers และ collision metadata; ห้ามใช้เพียงภาพ background เดียวร่วมกับ CSS hotspot เพื่ออ้างว่าเป็นเกม
+
+### Three-role composition root
+
+Website composition root อ่าน `VITE_APP_MODE` แล้วสร้าง `DemoAppGateway` หรือ `HttpRealtimeAppGateway` เพียงจุดเดียว Candidate, Recruiter/Company และ Organizer/Support routes ใช้ ports ชุดเดียวกันและ role-scoped selectors; Phaser รับเฉพาะ published catalog/world snapshot กับคำสั่งที่จำเป็น จึงไม่อ่าน fixture/API/provider โดยตรง รายละเอียดอยู่ใน [API, AI and Media Integration Plan](../08-production-and-publish/api-and-ai-integrations.md)
 
 รายละเอียดและ acceptance gate ของ Phaser 4 ดูที่ [Web–Game Separation](./web-game-separation.md)

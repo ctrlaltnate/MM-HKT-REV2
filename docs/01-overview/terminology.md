@@ -30,7 +30,7 @@
 | Term | Canonical meaning |
 |---|---|
 | **Top-front 3/4** | Orthographic elevated view ที่เห็น top plane และ front plane; ไม่มี vanishing point; booth หันด้านหน้า down-screen |
-| **Realistic 8-bit** | ความน่าเชื่อถือภายในภาษา pixel art จาก scale, anatomy, material, shadow, collision และ depth ที่สอดคล้อง ไม่ใช่ photorealism |
+| **Realistic 8-bit** | ความน่าเชื่อถือภายในภาษา pixel art จาก scale, anatomy, material, runtime shadow, collision และ depth ที่สอดคล้อง ไม่ใช่ photorealism |
 | **Rendered entity** | Phaser GameObject/Sprite/Container/physics object แยกชิ้น มี ID, pivot, depth, lifecycle และ metadata; ไม่ใช่ hotspot บนภาพแบน |
 | **Plain floor** | Floor tile, aisle, pad, boundary และ non-interactive decal ที่ไม่มี booth/person/interactive prop bake อยู่ในภาพ |
 | **Foot hitbox** | Actor collider เฉพาะพื้นที่เท้า/ฐาน ไม่ครอบ transparent frame ทั้งตัว |
@@ -39,8 +39,15 @@
 | **Y-depth** | การเรียง actor/prop ด้วย base/foot Y เพื่อให้เดินหน้า–หลังวัตถุถูกต้อง |
 | **Booth prefab** | Booth runtime composition จาก facade, sign, counter, showcase, kiosk, queue, decoration, colliders และ sensors |
 | **Booth variant** | Authored alternative ที่รักษา camera/light/scale; ไม่ใช่การ flip/rotate/arbitrary scale |
-| **Directional avatar** | Anatomy และ animation จริงของ down/front, up/back, left profile, right profile |
+| **Directional avatar** | Anatomy และ animationจริงของ down/top-front, up/top-behind, left/top-left-side, right/top-right-side |
 | **Avatar layer** | ส่วนที่ compose แยกได้ ได้แก่ skin, hair, top, bottom/trousers, shoes และ accessory พร้อมสี/frames ที่สัมพันธ์กัน |
+| **Runtime shadow** | Phaser GameObject/texture แยกจาก owner sprite มี `ownerId`, base offset, depth/alpha/scale ของตนเองและไม่มี collider; ห้าม bake ลง object/actor texture |
+| **Source sheet** | Generated RGBA art ที่ยังต้อง crop/register/normalize/palette-mask/review ก่อน pack เป็น runtime atlas |
+| **Seeded NPC composition** | การสร้าง NPC จาก part library/compositor เดียวกับ player ด้วย seed ที่ reproduce configuration เดิมได้ |
+| **Orientation coverage** | ชุด authored N/E/S/W หรือ 4 actor directions ที่ครบตามชนิด asset; ไม่ใช่การ rotate/flip มุมเดียวใน runtime |
+| **Autotile topology** | ชุด tile/rule ที่ครอบคลุม center, edge, inner/outer corner, straight, turn, T, cross, endpoint, transition และ opening เพื่อประกอบ map ใหม่ได้ |
+| **Semantic palette slot** | กลุ่มสีตามความหมาย/material เช่น skin, hair, cloth, accent พร้อม highlight/base/shade ramp ที่ recolor แยกได้โดยไม่ tint ทั้งภาพ |
+| **Prefab assembly** | Data-driven arrangement ของ visual parts, anchors, colliders, sensors, shadows และ dynamic layers ที่ย้าย/สลับ/สุ่มได้โดยไม่ bake เป็นภาพก้อนเดียว |
 
 รายละเอียด normative ทั้งหมดของคำฝั่งเกมอยู่ใน [Game Visual & World Specification](../03-design/world-and-scene-design.md)
 

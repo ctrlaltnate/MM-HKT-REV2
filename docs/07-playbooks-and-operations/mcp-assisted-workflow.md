@@ -48,6 +48,13 @@ MCP เป็น **development and QA tooling** เท่านั้น ห้�
 - การเดินหน้า–หลัง prop เพื่อยืนยัน Y-depth/occlusion
 - booth combination ที่ไม่ซ้ำติดกัน
 - Character Studio ที่เปลี่ยน skin, hair, top, bottom/trousers, shoes และ accessory
+- source-file inspection ที่ยืนยัน RGBA/alpha และไม่มี baked checkerboard/floor/contact/cast shadow
+- runtime capture เมื่อเปิด/ปิด owner-linked `RuntimeShadow` layer
+- NPC seed reproducibility และหลักฐานว่า player/NPC ใช้ compositor/layer library เดียวกัน
+- character/layer coverage matrix 4 directions × 3 frames พร้อม missing-cell report
+- prop N/E/S/W turntable และ radial-symmetry waiver เมื่อเกี่ยวข้อง
+- floor/road/wall autotile test map ครบ edge/corner/turn/T/cross/end/transition/opening
+- palette-slot recolor และ prefab rearrangement captures อย่างน้อย 3 layouts
 - interactive capture ที่ viewport 390 และ 1440 CSS px
 - performance trace และ asset provenance
 

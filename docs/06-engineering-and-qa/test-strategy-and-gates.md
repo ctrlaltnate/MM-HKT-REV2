@@ -19,7 +19,8 @@
   9. Keyboard-Only Navigation ตลอด Core Flow
   10. Demo Reset คืนค่าสถานะเริ่มต้นอย่างสมบูรณ์ภายใน 10 วินาที
 - **Accessibility Tests (Axe-core & Screen Reader):** Automated Accessibility Scan + Manual Keyboard Navigation + VoiceOver/NVDA Testing
-- **Phaser World Tests:** ตรวจ scene graph/entity lifecycle, owner-linked colliders, interaction sensors, foot hitbox, Y-depth/occlusion, 4-direction animation, avatar layer persistence และ booth variant combinations ตาม [Game Visual & World Specification](../03-design/world-and-scene-design.md)
+- **Phaser World Tests:** ตรวจ scene graph/entity lifecycle, owner-linked colliders/shadows, interaction sensors, foot hitbox, Y-depth/occlusion, 4-direction animation, avatar layer persistence, seeded NPC reproducibility และ booth variant combinations ตาม [Game Visual & World Specification](../03-design/world-and-scene-design.md)
+- **Asset Pipeline Tests:** ตรวจ RGBA/alpha จริง, ไม่มี baked checkerboard/floor/contact/cast shadow, character 4 directions × 3 frames × layers, prop N/E/S/W turntable, floor/road/wall autotile topology, cell registration, semantic palette masks, rearrangement metadata, manifest checksum และพิสูจน์ด้วยการปิด `RuntimeShadow` layer
 
 ---
 
@@ -50,7 +51,13 @@
 - [ ] Match Score มีเหตุผลประกอบ 3–5 ข้อที่เข้าใจง่าย
 - [ ] Camera lineup ผ่าน top-front convention เดียวและไม่มี primitive/flat composition เป็น final world object
 - [ ] Character turnaround มี 4 ทิศ × 3 เฟรม และ skin/hair/top/bottom/trousers/shoes/accessory เปลี่ยน–บันทึก–โหลดกลับได้
+- [ ] Object/actor source เป็น RGBA ไม่มี baked shadow; Phaser shadow ผูก owner และปิดทั้ง layer ได้
+- [ ] NPC seed เดิม reproduce appearance เดิม, seed ต่างกันได้ valid variety และ render ผ่าน compositor เดียวกับ player
 - [ ] Booth variant library ผ่านจำนวนขั้นต่ำ, booth ติดกันไม่ใช้ combination เดียวกัน และ collider/sensor/depth ตรงกับ entity
+- [ ] Directional prop ผ่าน N/E/S/W หรือมี radial-symmetry waiver; ไม่มี one-view runtime rotate/flip ทดแทนมุมที่ขาด
+- [ ] Floor/road/aisle/wall test map ผ่าน straight/turn/corner/T/cross/end/transition/opening โดยไม่มี seam หรือ collider ปิดช่องเปิด
+- [ ] Booth partition test ประกอบ straight/L/U/shared-wall จาก left/center/right modules ได้ และประตู/ช่องเปิดซ้าย–กลาง–ขวารวม accessible opening เดินผ่านได้โดยไม่มี collider ซ้อน
+- [ ] Palette-slot test เปลี่ยน skin/hair/top/bottom/shoes/material/accent แยกกัน และ prefab อย่างน้อย 3 layouts rearrange ได้โดยไม่ redraw
 - [ ] มี runtime evidence ของ World ที่ 390 และ 1440 px พร้อม collision/depth interaction ไม่ใช่เฉพาะภาพ concept
 - [ ] ไม่มีข้อมูล PII บุคคลจริง, ชื่อบริษัทจริง, หรือ Asset ที่ละเมิดลิขสิทธิ์
 - [ ] ทุกหน้าจอที่มีการ Mock ติดป้าย `DEMO DATA` และ `NOT REAL THAID` ชัดเจน

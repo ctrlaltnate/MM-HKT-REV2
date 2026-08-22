@@ -10,7 +10,7 @@
 | Priority | File | Use |
 |:---:|---|---|
 | P0 | [`00_MAIN_virtual_job_fair_map.jpg`](../ref_pics/00_MAIN_virtual_job_fair_map.jpg) | hall readability, aisle width, booth density, landmark และ relative scale |
-| P0 | [`00_MAIN_spritesheet_booths_characters_props.png`](../ref_pics/00_MAIN_spritesheet_booths_characters_props.png) | top-front perspective, dimensional silhouette, prop vocabulary, actor/object scale และ grounded shadow |
+| P0 | [`00_MAIN_spritesheet_booths_characters_props.png`](../ref_pics/00_MAIN_spritesheet_booths_characters_props.png) | top-front perspective, dimensional silhouette, prop vocabulary, actor/object scale และ base footprint; ไม่คัดลอกหรือ bake เงาจาก reference |
 | P1 | [`01_top_down_hall_tileset_props.png`](../ref_pics/01_top_down_hall_tileset_props.png) | tile rhythm และ secondary prop ideas |
 | P1 | [`02_pixel_office_32x32_tileset.png`](../ref_pics/02_pixel_office_32x32_tileset.png) | 32 px grid และ office material vocabulary |
 | P2 | [`03_cyberpunk_neon_plaza.jpg`](../ref_pics/03_cyberpunk_neon_plaza.jpg) | accent/mood เท่านั้น ไม่ใช่ brightness baseline |
@@ -30,9 +30,12 @@ Reviewer บันทึกเฉพาะหลักการที่วั�
 - aisle/booth/prop density
 - silhouette readability
 - material highlight/shade direction
-- contact-shadow direction/length
+- base footprint และตำแหน่ง runtime shadow ที่ Phaser ควรสร้างแยก
 - booth anatomy และ prop categories
 - landmark/wayfinding hierarchy
+- orientation cues ของ front/back/left/right โดยไม่คัดลอก sprite
+- floor/road/wall topology ที่ต้องแปลงเป็น original autotile rules
+- material value ramps ที่ต้องแปลงเป็น semantic palette slots ไม่ใช่ exact palette copy
 
 ผลการวิเคราะห์ต้องกลายเป็น original brief ไม่ใช่คำสั่ง “ทำให้เหมือนภาพนี้”
 
@@ -58,6 +61,9 @@ Reference review
 - Files inspected:
 - Date/reviewer:
 - Camera/scale/light principles extracted:
+- Direction/orientation coverage extracted:
+- Tile topology and transition principles extracted:
+- Palette-slot/material principles extracted:
 - Density/booth/prop principles extracted:
 - Items explicitly not copied:
 - Original changes introduced:

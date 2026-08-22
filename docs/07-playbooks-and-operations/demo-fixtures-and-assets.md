@@ -76,9 +76,14 @@ uncertain_reasons:
 | `world.hall.study.v2` | `packages/assets/game/world/neon-career-hall-v2.png` | Reference only | brightness/readability study; ห้ามโหลดเป็น flat world |
 | `world.floor.atlas.v1` | `packages/assets/game/generated/mm-career-floor-v1.png` | Runtime | floor surfaces เท่านั้น |
 | `world.props.atlas.v1` | `packages/assets/game/generated/mm-career-props-v1.png` | Runtime | modular prop atlas; solid instance ต้องมี owner-linked collider |
-| `world.npcs.atlas.v1` | `packages/assets/game/generated/mm-career-npcs-v1.png` | Runtime | synthetic NPC atlas; instance ต้องมี entity ID และ foot hitbox |
+| `world.npcs.atlas.v1` | `packages/assets/game/generated/mm-career-npcs-v1.png` | Legacy retained / unused by current World | prebuilt synthetic NPC atlas; current NPC runtime ใช้ shared avatar compositor แล้ว |
+| `world.environment.parts.source.v2` | `packages/assets/game/generated/mm-topfront-environment-parts-source-v2.png` | Source only | 12 no-shadow top-front environment parts; RGBA จริง |
+| `avatar.base.turnaround.source.v2` | `packages/assets/game/generated/mm-avatar-base-turnaround-source-v2.png` | Source only | base body 4 directions × 3 poses; neutral underlayer; no shadow |
+| `avatar.hair.parts.source.v2` | `packages/assets/game/generated/mm-avatar-hair-parts-source-v2.png` | Source only | 5 hair styles × 4 directions |
+| `avatar.top.parts.source.v2` | `packages/assets/game/generated/mm-avatar-top-parts-source-v2.png` | Source only | 4 top styles × 4 directions |
+| `avatar.lower-accessory.parts.source.v2` | `packages/assets/game/generated/mm-avatar-lower-accessory-parts-source-v2.png` | Source only | 3 bottoms + 3 shoes + 4 accessories × 4 directions |
 
-ไฟล์ `packages/assets/game/generated/mm-avatar-direction-reference-v1.png` เป็น process reference ที่มีอยู่จริงแต่ยังไม่อยู่ใน manifest จึงห้ามถือเป็น approved runtime asset จนกว่าจะมี provenance, checksum, frame metadata และ reviewer approval ครบ
+ไฟล์ `packages/assets/game/generated/mm-avatar-direction-reference-v1.png` เป็น process reference รุ่นเก่าที่ยังไม่อยู่ใน manifest และมี baked contact shadow จึงห้ามถือเป็น approved runtime asset
 
 Planned asset ต้องอยู่ใน roadmap หรือ backlog ไม่ใส่ปนใน registry นี้จนกว่าไฟล์และ provenance จะมีจริง
 
@@ -90,12 +95,38 @@ Asset จะเข้า runtime ได้เมื่อผ่านทุก�
 
 1. เป็น original หรือมี license ที่อนุญาต และไม่ import จาก `docs/ref_pics/`
 2. มี `assetId`, path, kind, dimensions, source/tool, brief, reference policy, generated date, allowed use, byte size และ SHA-256
-3. ผ่าน camera, scale, pivot, collider, depth และ in-scene review ตาม [Game Visual & World Specification](../03-design/world-and-scene-design.md)
-4. object/actor ใช้ transparent PNG; floor atlas ไม่มี baked interactive object; ไม่มี embedded UI text
-5. atlas แบ่ง `floor`, `booth`, `props`, `characters`, `fx` และผ่าน texture/download budget
+3. ผ่าน camera, scale, pivot, collider, depth, alpha และ runtime-shadow review ตาม [Game Visual & World Specification](../03-design/world-and-scene-design.md)
+4. object/actor ใช้ transparent RGBA จริง; ไม่มี checkerboard/floor/contact/cast shadow bake อยู่ในไฟล์; ไม่มี embedded UI text
+5. atlas แบ่ง `floor`, `wall`, `booth`, `props`, `avatar-base`, `avatar-hair`, `avatar-top`, `avatar-bottom`, `avatar-shoes`, `avatar-accessory`, `shadow`, `fx` และผ่าน texture/download budget
 6. งานที่ใช้ MCP/tool มี evidence ตาม [MCP-Assisted Workflow](./mcp-assisted-workflow.md)
 
 Emoji, copied sprite, copied logo, unauthorized reference และภาพ hall แบนที่ทำหน้าที่แทน runtime entities ไม่ผ่าน admission
+
+### 3.1 Production manifest and sidecar contract
+
+Provenance record ระดับไฟล์ใน `packages/assets/manifest.json` อย่างเดียวไม่พอสำหรับ atlas production ทุก source cell/runtime frame ต้องมี manifest entry หรือ sidecar metadata ที่ machine อ่านได้ โดยใช้ field ขั้นต่ำดังนี้:
+
+| Field | Required meaning |
+|---|---|
+| `assetId`, `partId`, `variantId` | stable identity ของ family, ชิ้นส่วน และ silhouette/material variant |
+| `kind`, `runtimePolicy`, `sourceAssetId` | source/runtime role และสายการ derive ย้อนกลับไปยัง source sheet |
+| `orientation` | `north`, `east`, `south`, `west` หรือ reviewed `radial-symmetric` |
+| `animation`, `frameIndex` | `idle`, `step-left`, `step-right` หรือ prop/tile frame ที่ประกาศชัด |
+| `origin`, `anchors`, `visualBounds`, `baseFootprint` | จุดประกอบ layer, pivot, ขอบภาพ และฐานสำหรับ collider/shadow |
+| `paletteSlots` | semantic ramps เช่น skin, hair, cloth, material, accent; ระบุ highlight/base/shade แยกกัน |
+| `occlusionParts`, `layerOrder` | ชิ้นหน้า/หลังและลำดับซ้อนที่เปลี่ยนตามทิศ |
+| `collisionProfileId`, `shadowProfileId` | อ้าง runtime metadata; shadow ไม่อยู่ใน source texture |
+| `topology` | สำหรับ tile: center/edge/corner/turn/T/cross/end/transition/opening และ neighbor rule |
+| `alphaPolicy`, `bakedContent` | ต้องเป็น RGBA และประกาศ `bakedContent: []`; ห้าม floor/text/logo/neighbor/shadow |
+| `reviewStatus`, `reviewEvidence` | camera/alpha/turnaround/autotile/palette/rearrange evidence ที่ผ่านแล้ว |
+
+กฎความครบถ้วน:
+
+- character part หนึ่ง variant จะเป็น `runtime-ready` ได้เมื่อ matrix `4 directions × 3 motion frames` ครบทุก cell ที่รองรับและ anchor registration ผ่าน
+- directional prop หนึ่ง variant จะเป็น `runtime-ready` ได้เมื่อ authored N/E/S/W ครบ หรือมี radial-symmetry exception ที่ review แล้ว
+- tile family จะเป็น `runtime-ready` ได้เมื่อ topology coverage ตาม section 4.3 ของ Game Visual & World Specification ครบและ autotile test map ไม่มี seam
+- source sheet ที่มีหลายชิ้นเป็นเพียง container; runtime อ้างแต่ละ part/cell ด้วย ID ห้ามอ้าง crop coordinate กระจัดกระจายใน scene code
+- manifest ปัจจุบันเป็น provenance inventory ระดับไฟล์ของ R0; ห้ามตีความว่าคำว่า `source-sheet` หมายถึง coverage ภายในครบแล้ว
 
 ---
 
@@ -103,9 +134,13 @@ Emoji, copied sprite, copied logo, unauthorized reference และภาพ hal
 
 | Gap | Required outcome |
 |---|---|
-| Booth variety | เพิ่ม facade/counter/showcase/queue/deco library ให้ครบขั้นต่ำตาม `FR-WORLD-036` |
-| Avatar wardrobe | แยก top, bottom/trousers และ shoes พร้อมสีและ frame ครบ 4 ทิศ |
-| Directional NPC | เพิ่ม front/back/left/right และ movement frames สำหรับ NPC ที่เดิน |
+| Booth/prop variety | normalize source v2, เพิ่ม variant ให้ครบขั้นต่ำ และ author N/E/S/W สำหรับ directional prop ตาม `FR-WORLD-036/038` |
+| Avatar wardrobe | source v2 มี part categories แล้ว; ต้อง crop/register, author ทุก layer × 4 directions × 3 frames, palette masks และ pack runtime atlases |
+| Directional NPC | Shared seeded compositor implemented; ยังต้องเพิ่ม movement schedule, generated-source atlas normalization และ browser evidence |
+| Runtime shadow | Owner-linked Phaser shadow layer implemented สำหรับ actor/partition/หลัก props; ยังต้องเพิ่ม debug toggle และ state profiles ตาม `FR-WORLD-037` |
+| Floor/road/wall tiles | สร้าง reusable autotile families ครบ topology, transition, opening และ collision metadata ตาม `FR-WORLD-038` |
+| Booth partition kit | U-shaped left/center/right + authored side returns + glass + door left/center/right + wide-opening พร้อม segmented colliders และ multi-owner shared-wall model implemented; เพิ่ม adjacent-booth demo, L/corners/joins และ low-divider/material variants |
+| Recolor/rearrange | เพิ่ม semantic palette slots, anchors, occlusion parts และ prefab metadata ตาม `FR-WORLD-039` |
 | Evidence | เพิ่ม camera lineup, collider/depth capture และ screenshots ที่ 390/1440 px |
 
 สถานะนี้ต้องอัปเดตพร้อม manifest และ runtime; ห้ามเปลี่ยนคำว่า planned เป็น implemented จากภาพ concept เพียงอย่างเดียว

@@ -41,13 +41,15 @@
 
 ### Game quality
 
-12. Career Hall ต้องผ่าน G1–G7 ของ [Game Visual & World Specification](../03-design/world-and-scene-design.md)
+12. Career Hall ต้องผ่าน G1–G10 ของ [Game Visual & World Specification](../03-design/world-and-scene-design.md)
 13. Final world object เป็น rendered/authored entity แยกชิ้น ไม่ใช่ flat hall, CSS hotspot หรือ primitive placeholder
-14. ทุก scene element ใช้ orthographic top-front 3/4 camera, grid, scale, top-left light และ down-right shadow convention เดียว
+14. ทุก scene element ใช้ orthographic top-front 3/4 camera, grid, scale และ top-left material-light convention เดียว; texture ไม่มี baked shadow และ Phaser render shadow แยก
 15. Player/NPC ใช้ directional anatomy จริง, foot hitbox, Y-depth และ owner-linked collision/sensor
 16. Character Studio แยก skin, hair, top, bottom/trousers, shoes และ accessory พร้อม 4-direction preview/apply/persist
 17. Booth เป็น modular prefab และผ่าน variant minimum; ห้ามใช้ flip/rotate/arbitrary scale หลอกความหลากหลาย
 18. งาน visual ใช้ two `00_MAIN_*` files เป็น master reference ด้าน readability เท่านั้น ห้าม copy asset/layout/branding
+19. Player/NPC ใช้ base/skin/hair/top/bottom/shoes/accessory compositor เดียว; NPC สุ่มแบบ seeded และห้ามใช้ full-body atlas เป็น final system
+20. Character/layer และ directional prop ต้องมี authored orientation/frame coverage ครบ; floor/road/wall ต้องมี complete autotile topology และทุก part ต้อง recolor/rearrange ผ่าน palette slots/metadata ได้
 
 ---
 

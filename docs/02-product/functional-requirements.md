@@ -25,6 +25,11 @@
 | **FR-WEB-008** | **P0-GATE** | **World Lifecycle Boundary:** เข้า World แล้ว Website ต้อง mount Phaser 4 runtime เพียงหนึ่ง instance; เมื่อออกจาก World ต้อง destroy/unmount runtime และกลับ Event/Landing ได้ โดยไม่มี duplicated canvas, listener หรือ game input ค้าง |
 | **FR-WEB-009** | **P0-GATE** | **Truthful Completeness:** สิ่งที่เป็น frontend fixture, mock identity, local persistence หรือยังไม่มี backend/media engine ต้องติดป้ายชัดเจนบน UI และเอกสาร ห้ามใช้คำว่า production-ready จนผ่าน server, security, media, accessibility และ operational gates ที่เกี่ยวข้อง |
 | **FR-WEB-010** | **P0-GATE** | **Cohesive Product UI:** Website, Landing, Event, candidate flow และ World HUD ต้องใช้ design language เดียวกัน มี hierarchy, spacing, type scale, surface, focus/hover/pressed/disabled state และ responsive navigation ที่ตั้งใจออกแบบ; ห้ามใช้ raw browser control, card ที่กระจายไร้ grid, overlay ที่บัง world โดยไม่จำเป็น หรือเอฟเฟกต์ neon/glass จำนวนมากแทน information hierarchy |
+| **FR-WEB-011** | **P0-GATE** | **Three Executable Role Surfaces:** ต้องมี Job Seeker, Recruiter/Company และ Organizer/Support workspace ที่เข้าได้จาก route/role guard จริง มี loading/empty/error/recovery state และไม่ใช่ dashboard mockup ที่มี control กดไม่ได้ |
+| **FR-WEB-012** | **P0-GATE** | **Complete Job Seeker Loop:** Sign in/Mock Verify → Consent → CV upload/demo/manual → Process/Review → Character Studio → Hall/Booth/Job → single active queue → Ready Check → Media Preflight → Interview → private decision → result → consent reveal/return to hall ต้องเดินครบได้ใน demo ด้วย visible controls |
+| **FR-WEB-013** | **P0-GATE** | **Complete Recruiter Loop:** Recruiter ต้องสร้าง/แก้ company, job, JD, salary, rubric, booth และ showcase; preview/validate/publish; ตั้ง availability; รับคิว; สัมภาษณ์; ตัดสินใจ; ขอข้อมูลหลัง mutual match และส่ง follow-up ได้ครบใน demo |
+| **FR-WEB-014** | **P0-GATE** | **Executable Organizer/Support Overview:** Organizer/Support ต้องเห็น event/queue/interview/integration health, pause/resume/broadcast, company moderation และ support ticket recovery ผ่าน aggregate/scoped data โดยไม่เห็น decision/PII ที่ไม่มีสิทธิ์ |
+| **FR-WEB-015** | **P0-GATE** | **Demo/Connected Contract Parity:** `demo` และ `connected` mode ต้องใช้ typed gateway และ canonical state/validation/error envelope ชุดเดียวกัน; connected mode ห้าม fallback เป็น fixture อย่างเงียบ และ provider secrets ห้ามอยู่ใน frontend bundle |
 
 ---
 
@@ -73,6 +78,8 @@
 | **FR-BOOTH-001** | P0 | Booth มี overview, active jobs, tech/skill tags, queue state, recruiter availability และ accessibility note |
 | **FR-BOOTH-002** | P0 | บริษัทแก้ visual theme ได้เฉพาะ template/token ที่ผ่าน contrast/asset/license validation |
 | **FR-BOOTH-003** | P0 | ทุก logo, sprite, video และ sound ต้องมี asset owner/license record |
+| **FR-BOOTH-004** | P0 | Company Editor ต้อง Save Draft, Preview, Validate, Publish และ Unpublish company/job/booth ได้ พร้อม salary range, rubric และ optimistic version-conflict recovery |
+| **FR-BOOTH-005** | P0 | Showcase/Hall of Fame รองรับ product, project, award, case study, culture และ benefit โดยทุก item มี provenance, display order, moderation และ publish status; ห้ามเผยบุคคลจริงโดยไม่มีสิทธิ์ |
 
 ---
 
@@ -120,7 +127,7 @@ Score (0–100):
 | **FR-WORLD-012** | P0 | Asset โหลดเป็น lobby/zone chunk; ห้าม preload ทั้ง event โดย default |
 | **FR-WORLD-013** | P2 | ถ้าเปิด Main Stage live broadcast ต้องมี live captions ที่ระบุ speaker, text fallback และ accessibility owner sign-off |
 | **FR-WORLD-014** | R0 | Indoor hall ต้องมี 4 booth zone พร้อม dynamic logo/sign layer, interaction radius และ click/tap/keyboard action |
-| **FR-WORLD-015** | R0 | NPC crowd มีอย่างน้อย 12 ตัว/5 role silhouettes พร้อม synthetic dialogue; NPC ห้ามเปิด PII หรือแอบอ้างว่าเป็นผู้ใช้จริง |
+| **FR-WORLD-015** | R0 | NPC crowd มีอย่างน้อย 12 ตัว/5 role silhouettes พร้อม synthetic dialogue โดยสร้างจาก base body และ customization layer library เดียวกับ player ผ่าน seeded random configuration; ห้ามใช้ระบบ NPC สำเร็จรูปคนละ anatomy/compositor, เปิด PII หรือแอบอ้างว่าเป็นผู้ใช้จริง |
 | **FR-WORLD-016** | R0 | Camera-follow, click/tap movement และ NPC/prop animation ต้องใช้ time-based easing และรักษา input response; Reduced Motion ต้องมี stationary equivalent |
 | **FR-WORLD-017** | R0 | Player/NPC/prop ต้องเป็น runtime layer แยกจาก environment และ depth-sort อย่างถูกต้องตามแกน Y |
 | **FR-WORLD-018** | R0 | Generated/third-party world asset ทุกไฟล์ต้องมี provenance/allowed-use record และห้ามคัดลอก asset/trade dress จากภาพอ้างอิง |
@@ -138,16 +145,19 @@ Score (0–100):
 | **FR-WORLD-030** | R0 | **Runtime Avatar Composition:** การเลือก skin, hair style/color, top style/color, bottom/trousers style/color, shoes style/color และ accessory ต้อง compose เป็น Phaser Dynamic Texture จริง, preview ใน Phaser mini-scene, apply กับ player ทันที และ persist local preference; ห้ามสลับภาพตัวละครสำเร็จรูปทั้งตัวเพื่อจำลอง customization |
 
 > [!IMPORTANT]
-> **P0 WORLD GATE — ลำดับความสำคัญสูงสุด:** `FR-WORLD-025`, `FR-WORLD-027` และ `FR-WORLD-031..036` เป็น release blockers ที่อยู่เหนือ glow, HUD polish, animation และ feature เพิ่มทั้งหมด ห้ามยอมรับ scene ที่ “ทำงานได้แต่ยังใช้กล่องแบน”, วัตถุคนละมุม, avatar หน้าเดียวแล้ว flip หรือ booth clone ทั้งหมดเป็น Done
+> **P0 WORLD GATE — ลำดับความสำคัญสูงสุด:** `FR-WORLD-025`, `FR-WORLD-027` และ `FR-WORLD-031..039` เป็น release blockers ที่อยู่เหนือ glow, HUD polish, animation และ feature เพิ่มทั้งหมด ห้ามยอมรับ scene ที่ “ทำงานได้แต่ยังใช้กล่องแบน”, วัตถุคนละมุม/มุมไม่ครบ, baked shadow, avatar หน้าเดียวแล้ว flip, tile kit ต่อฉากไม่ได้ หรือ booth clone ทั้งหมดเป็น Done
 
 | ID | Pri | Requirement Description |
 |---|:---:|---|
-| **FR-WORLD-031** | **P0-GATE** | **Authentic Rendered Element:** Visual final ของ booth, facade, counter, desk, monitor, kiosk, plant, queue rail, truss, lounge, player และ NPC ต้องใช้ original/licensed pre-rendered pixel asset หรือ authored sprite/tile ที่มี silhouette, ด้านหน้า/ด้านข้าง, material detail, grounded shadow และมุมมอง top-front 3/4 สอดคล้องกัน Primitive rectangle/ellipse ใช้ได้เฉพาะ floor geometry, collision, sensor, debug หรือ FX; ห้ามใช้เป็นตัวแทนวัตถุ final |
+| **FR-WORLD-031** | **P0-GATE** | **Authentic Rendered Element:** Visual final ของ booth, facade, counter, desk, monitor, kiosk, plant, queue rail, truss, lounge, player และ NPC ต้องใช้ original/licensed pre-rendered pixel asset หรือ authored sprite/tile ที่มี silhouette, ด้านหน้า/ด้านข้าง, material detail และมุมมอง top-front 3/4 สอดคล้องกัน โดย source/object texture ต้องเป็น transparent RGBA และไม่มี baked floor/contact/cast shadow; Primitive rectangle/ellipse ใช้ได้เฉพาะ floor geometry, runtime shadow, collision, sensor, debug หรือ FX ห้ามใช้เป็นตัวแทนวัตถุ final |
 | **FR-WORLD-032** | **P0-GATE** | **Master Reference Fidelity:** Art direction และการตกแต่งต้องอิง `00_MAIN_virtual_job_fair_map.jpg` และ `00_MAIN_spritesheet_booths_characters_props.png` เป็น master references สูงสุดด้าน scale, density, booth anatomy, furniture vocabulary, palette และ readability โดยสร้าง asset ต้นฉบับใหม่ ห้ามคัดลอก company, logo, character หรือ map layout จาก reference |
 | **FR-WORLD-033** | **P0-GATE** | **Game-Grade Movement & Collision:** ทุก solid rendered prop ต้องมี collision geometry ที่ผูก `ownerId/entityId`, ตรงกับฐานวัตถุ ไม่ใช้ full transparent frame; player/NPC ใช้ foot hitbox, sensor แยกจาก solid body, navigation ต้องหยุดที่ approach point ที่เดินถึงได้ และ actor ต้องเดินหน้า/หลัง prop ตาม Y-depth โดยไม่ทะลุหรือค้างชนเป้าหมาย |
-| **FR-WORLD-034** | **P0-GATE** | **True Directional Sims-style Avatar:** Player avatar ต้องมี authored/composed sprite จริงอย่างน้อย 4 ทิศ `down/front`, `up/back`, `left profile`, `right profile` และอย่างน้อย 3 เฟรมต่อทิศ `idle`, `step-left`, `step-right`; side/back ต้องมี anatomy, hair, เสื้อ, กางเกง/ท่อนล่าง, รองเท้า และ accessory ของมุมนั้นจริง ห้ามใช้ front frame, horizontal flip หรือ rotation หลอกเป็นด้านหลัง ผู้ใช้ต้องปรับ skin tone, hair style/color, top style/color, bottom/trousers style/color, shoe style/color และ accessory ได้แยกกันโดยไม่ล็อกตามเพศ พร้อม preview 4 ด้านและ apply/persist ใน World |
-| **FR-WORLD-035** | **P0-GATE** | **Single Top-Front Camera Convention:** Floor, booth facade, desk, monitor, kiosk, chair, plant, queue rail, NPC และ player ต้องใช้ orthographic top-front 3/4 view เดียวกัน เห็น top plane + front plane ตามชนิดวัตถุ, เส้นตั้งไม่บรรจบ, baseline/grid scale คงที่ และรับแสงจาก top-left/ทอดเงา down-right; ห้ามกลับ booth แถวล่างให้เปิดคนละทิศ, ผสม isometric/side/front camera หรือย่อขยายวัตถุจนสัดส่วนเทียบ actor ผิด |
-| **FR-WORLD-036** | **P0-GATE** | **Modular Booth Variant Library:** Booth ต้องประกอบจาก runtime entities แยกชิ้นและมีอย่างน้อย facade 3 แบบ, counter 3 แบบ, showcase 3 แบบ, kiosk 2 แบบ, queue setup 3 แบบ และ decoration/seating/plant อย่างละ 3 แบบ; booth ที่ติดกันห้ามใช้ combination เหมือนกันทุกหมวด ความหลากหลายต้องมาจาก authored variant, approved palette, prop cluster และ dynamic sign ห้ามใช้ arbitrary scale/flip/rotation ที่ทำให้ top-front perspective, light หรือ collider ผิด |
+| **FR-WORLD-034** | **P0-GATE** | **True Directional Sims-style Avatar:** Player avatar และทุก compatible layer ต้องมี authored/composed sprite จริง 4 ทิศ `down/top-front`, `up/top-behind`, `left/top-left-side`, `right/top-right-side` × อย่างน้อย 3 เฟรม `idle`, `step-left`, `step-right`; body, hair, เสื้อ, กางเกง/ท่อนล่าง, รองเท้า และ accessory ต้องมี anatomy/occlusion/anchor ของมุมนั้นจริง ห้ามใช้ front frame, horizontal flip หรือ rotation หลอกเป็นด้านหลัง ผู้ใช้ต้องปรับ skin tone, hair style/color, top style/color, bottom/trousers style/color, shoe style/color และ accessory ได้แยกกันโดยไม่ล็อกตามเพศ พร้อม preview 4 ด้านและ apply/persist ใน World |
+| **FR-WORLD-035** | **P0-GATE** | **Single Top-Front Camera Convention:** Floor, booth facade, desk, monitor, kiosk, chair, plant, queue rail, NPC และ player ต้องใช้ orthographic top-front 3/4 view เดียวกัน เห็น top plane + front plane ตามชนิดวัตถุ, เส้นตั้งไม่บรรจบ, baseline/grid scale คงที่, material highlight มาจาก top-left และ runtime shadow มี down-right bias; ห้ามกลับ booth แถวล่างให้เปิดคนละทิศ, ผสม isometric/side/front camera หรือย่อขยายวัตถุจนสัดส่วนเทียบ actor ผิด |
+| **FR-WORLD-036** | **P0-GATE** | **Modular Booth Variant Library:** Booth ต้องประกอบจาก runtime entities แยกชิ้นและมีอย่างน้อย facade/backwall 4 แบบ, counter 4 แบบ, showcase/workstation 4 แบบ, kiosk 3 แบบ, queue family 4 แบบ, seating 3 แบบ, plant 6 แบบ และ decor kit 6 แบบ; booth ที่ติดกันห้ามใช้ combination เหมือนกันทุกหมวด ความหลากหลายต้องมาจาก authored silhouette/material variant, approved palette, prop cluster และ dynamic sign ห้ามใช้ arbitrary scale/flip/rotation ที่ทำให้ top-front perspective, light หรือ collider ผิด และ colorway ไม่นับเป็น variant ใหม่ |
+| **FR-WORLD-037** | **P0-GATE** | **Runtime Shadow & Shared Actor Compositor:** Object, player และ NPC texture ห้ามมี baked contact/cast shadow; Phaser ต้องสร้าง shadow GameObject/texture แยก ผูก `ownerId`, วางที่ฐาน, depth-sort และปรับ scale/alpha ตาม entity state โดยไม่มี collider NPC ทุกตัวต้องสุ่ม `AvatarAppearance` แบบ seeded จาก base/skin/hair/top/bottom/shoes/accessory library และ render ด้วย compositor/atlas contract เดียวกับ player เพื่อให้ทิศ, animation, palette และ wardrobe ใช้กฎเดียวกัน |
+| **FR-WORLD-038** | **P0-GATE** | **Complete Orientation, Partition & Autotile Coverage:** Directional prop เช่น booth module, counter, desk, chair, sofa, kiosk, display, sign, door และ queue gate ต้องมี authored `north/east/south/west` ใน top-front camera เดียวกัน เว้นแต่ผ่าน radial-symmetry review; floor/aisle/road/booth-pad/wall kit ต้องมี center, edges, inner/outer corners, horizontal/vertical, turns, T-junctions, cross, endpoints, transitions, openings และ wall caps/pillars ที่จำเป็นเพื่อประกอบ map ใหม่โดยไม่มี seam ชุดกั้นบูธต้องมี left/center/right ends, repeatable middle, corner/join, solid/glass/low-divider variants และประตู/ช่องเปิดตำแหน่งซ้าย–กลาง–ขวาพร้อม collider segments ที่ไม่ปิดทางเดิน ห้าม runtime rotate/flip มุมเดียวเพื่อแทน coverage ที่ขาด |
+| **FR-WORLD-039** | **P0-GATE** | **Reusable Palette-Slot Asset Contract:** Source/runtime part ต้องเป็น transparent RGBA แยกจาก floor, neighbor, logo, text, company color และ shadow พร้อม metadata `assetId`, `variantId`, `orientation`, `frame`, `origin`, `anchors`, `baseFootprint`, `paletteSlots`, `occlusionParts`, `shadowProfileId`; recolor ต้องเปลี่ยน semantic highlight/base/shade ramps แยก skin/hair/top/bottom/shoes/material/accent และ prefab ต้อง rearrange/recombine ได้โดยไม่ redraw texture |
 
 ---
 
@@ -167,6 +177,7 @@ Score (0–100):
 | **FR-QUEUE-010** | P1 | Notify ที่ 5 นาทีและ ready check ผ่าน in-app; web push/email เป็น opt-in |
 | **FR-QUEUE-011** | P0 | Organizer pause queue พร้อม reason และ next update ได้ |
 | **FR-QUEUE-012** | P0 | Queue logs เก็บ transition actor, time, reason และ version |
+| **FR-QUEUE-013** | P0 | Candidate มี active queue ticket ได้ไม่เกินหนึ่งใบต่อ event; join ซ้ำหรือ join booth อื่นต้องคืน ticket เดิมและให้ผู้ใช้ยกเลิกอย่างชัดเจนก่อนสร้างใบใหม่ |
 
 ---
 
@@ -215,12 +226,15 @@ Score (0–100):
 | **FR-DEC-002** | P0 | Decision ใช้ idempotent submit และเข้ารหัสระหว่างส่ง/เก็บ |
 | **FR-DEC-003** | P0 | หลัง submit แก้ไม่ได้ เว้นแต่ event policy มี short undo window ที่เท่ากันทั้งสองฝ่าย |
 | **FR-DEC-004** | P0 | No-match copy สุภาพ ไม่เปิด decision ของอีกฝ่าย และไม่ลด ranking |
+| **FR-DEC-005** | P0 | Resolver ต้องส่งผลทันทีเมื่อ decision ของทั้งสองฝ่ายครบ; ระหว่างมีเพียงหนึ่ง decision ต้องซ่อนค่าคำตอบจากอีกฝ่ายและ operator ที่ไม่เกี่ยวข้อง |
 | **FR-REVEAL-001** | P0 | Mutual match ยังไม่ reveal อัตโนมัติ; ต้องผ่าน field-level consent |
-| **FR-REVEAL-002** | P0 | Candidate เลือกเปิด email, phone, portfolio, full resume แยกกันได้ |
+| **FR-REVEAL-002** | P0 | Candidate เลือกเปิด legal name, email, phone, portfolio, education credential และ resume file แยกกันได้ และอนุญาตเพียง subset ของคำขอได้ |
 | **FR-REVEAL-003** | P0 | Recruiter เปิดเผยชื่อ/ตำแหน่ง/contact owner และ company next-step policy ตอบกลับ |
 | **FR-REVEAL-004** | P0 | ทุก view/download/reveal ต้องมี audit event |
 | **FR-REVEAL-005** | P0 | หากฝ่ายใดไม่ยืนยัน reveal ภายใน window ให้ match คงอยู่แบบ masked |
 | **FR-REVEAL-006** | P1 | Candidate ถอน share สำหรับ future access ได้ โดยไม่ลบ audit ที่กฎหมายกำหนด |
+| **FR-REVEAL-007** | P0 | หลัง Mutual Match Recruiter ต้องสร้าง `RevealRequest` ระบุ field + purpose ก่อน Candidate grant/deny; default template มี `legal_name`, `email`, `phone`, `resume_file` ส่วน `postal_address` ห้ามเป็น default และต้องมี job-specific justification/policy allowance |
+| **FR-REVEAL-008** | P0 | Recruiter อ่าน/ดาวน์โหลดได้เฉพาะ field ที่อยู่ใน request เดิมและ Candidate grant แล้ว; request เพิ่มต้องเป็น version ใหม่และขอ consent ใหม่ ห้ามใช้คำยินยอมแบบเหมารวม |
 
 ---
 
@@ -240,11 +254,13 @@ Score (0–100):
 |---|:---:|---|
 | **FR-OPS-001** | P0 | Dashboard แสดง concurrent users, instance capacity, queue depth, recruiter availability, call health และ incident |
 | **FR-OPS-002** | P0 | Organizer pause entry/queue/zone และ broadcast message ได้ |
+| **FR-OPS-003** | P0 | Integration Health ต้องแสดง Auth, Profile Worker, Object Storage, Realtime, Media, Notification และ Audit แบบไม่เปิด secret พร้อม timestamp และ degraded-mode action |
 | **FR-MOD-001** | P0 | ผู้ใช้ report harassment, impersonation, inappropriate content, privacy leak และ technical issue ได้ |
 | **FR-MOD-002** | P0 | Moderator action: warn, mute world media, remove from zone, suspend event access; ทุก action มี reason/audit |
 | **FR-MOD-003** | P0 | Break-glass access ต้องมี approval/reason, time limit (≤30 min) และ alert ถึง auditor |
 | **FR-SUPPORT-001** | P0 | มี help route ที่ไม่ต้องควบคุม avatar และรองรับภาษาไทย/อังกฤษ |
 | **FR-SUPPORT-002** | P1 | Accessibility request ติดต่อ support ก่อน event ได้โดยไม่เปิดเผย diagnosis เกินจำเป็น |
+| **FR-SUPPORT-003** | P0 | Support ticket ต้อง create/assign/update/resolve, ผูก event/session แบบ pseudonymous และเก็บ operator action audit; support ห้ามอ่าน private decision หรือ contact field หากไม่ได้รับ scoped break-glass approval |
 
 ---
 

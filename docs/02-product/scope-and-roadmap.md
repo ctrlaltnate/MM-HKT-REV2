@@ -9,7 +9,8 @@
 - scaffold `apps/web` (React DOM) และ `apps/game` (Phaser 4.2.1) เป็นคนละ workspace แล้ว
 - มี Product Landing, Event Landing, Mock Verify/Consent, Profile Import/Masked Review, Character Setup, legal/status/404 และ route journey ที่ resume/reset ผ่าน local demo state ได้
 - มี Career Hall 1 ฉาก, 4 synthetic booths, NPC crowd, player movement, collision, proximity interaction, DOM booth detail, queue fixture และ Navigator parity ขั้นต้น
-- Game visual gate ยังไม่ครบ: wardrobe ปัจจุบันยังรวม outfit, booth variant library และ directional NPC ยังไม่ถึงขั้นต่ำ, browser collision/depth evidence ยัง pending จึงห้ามเรียก World ว่า Done
+- Generated V2 source sheets มี environment parts และ avatar base/hair/top/bottom/shoes/accessory แบบ RGBA/no-shadow แล้ว แต่ยังต้อง normalize/pack และยังไม่ถูกใช้เป็น runtime atlas
+- Game runtime แยก top/bottom/shoes และใช้ shared seeded player/NPC compositor พร้อม owner-linked shadows, U-shaped side-return partition และ multi-owner shared-wall model แล้ว; visual gate ยังไม่ครบเพราะ generated source atlas normalization, adjacent-booth/L/corner-join demo, complete autotiles/prop orientations, booth variant library, shadow debug toggle และ browser collision/depth evidence ยัง pending จึงห้ามเรียก World ว่า Done
 - Web–Game ติดต่อผ่าน versioned typed contract ใน `packages/contracts`; domain fixtures และ runtime asset แยก package
 - ผ่าน typecheck, unit test และ production build; Browser visual QA ยังต้องทำซ้ำเมื่อ browser control พร้อม
 - backend, database, production authentication, realtime multiplayer, durable queue, interview media, decision/reveal, recruiter/ops portal และ deployment pipeline ยังไม่เริ่ม และห้ามแสดงว่าเป็นของจริง
@@ -35,7 +36,7 @@
 - **Functional Event Landing:** แสดง Demo state, schedule, booths/jobs, accessibility/privacy, journey progress, Start/Resume/Reset และ Guest World โดยไม่ต้องแก้ URL เอง
 - **Responsive Web Shell:** ผ่าน Smoke Test ที่ความกว้าง 320, 390, 768, 1024 และ 1440 CSS px
 - **Interactive Neon Career Hall:** 1 ฮอลล์ในอาคารขนาดใหญ่, 4 บริษัทสมมติ, ช่อง Dynamic Logo, NPC Crowd (≥12 ตัว/5 บทบาท), Scene Props และ Smooth Camera Easing
-- **P0 Game Visual Gate:** ผ่าน G1–G7 ของ [Game Visual & World Specification](../03-design/world-and-scene-design.md): top-front camera เดียว, real rendered entities, collision/depth, directional characters, wardrobe แยกเสื้อ–กางเกง–รองเท้า, modular booth variants และ functional modes
+- **P0 Game Visual Gate:** ผ่าน G1–G10 ของ [Game Visual & World Specification](../03-design/world-and-scene-design.md): top-front camera เดียว, real rendered entities, collision/depth, directional characters, wardrobe แยกเสื้อ–กางเกง–รองเท้า, modular booth variants, functional modes, no baked shadow, shared player/NPC compositor, complete orientation/autotile coverage และ recolorable/rearrangeable parts
 - **Navigator / List Mode Parity:** โหมดรายการแบบ Semantic DOM 100% สำหรับค้นหา ดูบูธ เข้าคิว และนำทางโดยไม่ต้องควบคุม Canvas
 - **Digital ID Verification & Consent:** ป้ายชัดเจน `DEMO DATA / OFFICIAL DIGITAL ID COMPLIANT`
 - **Resume Import & Masked Profile:** เครื่องมือ Redaction สังเคราะห์ พร้อม Side-by-side Review ให้ Candidate ตรวจสอบและ Approve

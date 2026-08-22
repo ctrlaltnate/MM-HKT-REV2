@@ -1,4 +1,4 @@
-# 4. Detailed Screen Blueprints, Wireframes & Production Media (SC-01 to SC-17)
+# 4. Detailed Screen Blueprints, Wireframes & Production Media (SC-01 to SC-21)
 
 > **Visual Standard:** ทุกหน้าจอต้องใช้ **Generated Elements / Vector SVGs / Pixel Art** ในการแสดงผล **ห้ามใช้อิโมจิ** ในวัตถุ ตัวละคร บูธ หรือปุ่มบนเว็บ
 
@@ -25,6 +25,10 @@
 | **SC-15** | Recruiter Dashboard | Recruiter | `/recruiter/demo/dashboard` |
 | **SC-16** | Organizer Live Operations | Event Organizer | `/ops/events/:id/live` |
 | **SC-17** | Demo Controller | Demo Presenter | `/demo/control` |
+| **SC-18** | Company Profile & Job Editor | Company Admin | `/company/profile`, `/company/jobs` |
+| **SC-19** | Booth, Showcase & Publication | Company Admin | `/company/booths`, `/company/showcase`, `/company/publication` |
+| **SC-20** | Recruiter Reveal Request & Follow-up | Recruiter | `/recruiter/matches/:id` |
+| **SC-21** | Organizer Support & Integration Health | Organizer / Support | `/ops/support`, `/ops/integrations` |
 
 ---
 
@@ -85,7 +89,7 @@
 
 - **Goal:** สร้าง avatar แบบ The Sims ก่อนเข้า World โดยแยก `skin`, `hair`, `top`, `bottom/trousers`, `shoes` และ `accessory`
 - **Primary action:** `บันทึกตัวละครและเข้าสู่งาน`
-- **Required controls:** Randomize, front/back/left/right preview, picker ของทุก layer และ back/recovery
+- **Required controls:** Randomize, top-front/top-behind/top-left-side/top-right-side preview, picker ของทุก layer และ back/recovery
 - **Required states:** default, changed/unsaved, saved, invalid combination และ Reduced Motion
 - **Desktop:** preview และ controls วางสองคอลัมน์; controls scroll โดย preview ยังมองเห็น
 - **Mobile:** preview อยู่บน, direction selector ต่อด้วย category controls; save เป็น sticky action แต่ไม่บัง option สุดท้าย
@@ -170,7 +174,9 @@
 - **Goal:** แสดงผลลัพธ์ Mutual Match หรือ No-match อย่างสุภาพ
 
 ### SC-14 — Field-Level Reveal Consent
-- **Goal:** ยืนยันการแชร์ข้อมูลรายฟิลด์ที่เลือกไว้ (Email, Phone, Portfolio, Resume)
+- **Goal:** แสดงคำขอของ Recruiter ก่อน แล้วให้ Candidate grant เป็นรายฟิลด์/บางส่วนหรือ deny; รองรับ legal name, email, phone, portfolio, education credential และ resume โดย postal address ไม่ถูกเลือก default
+- **Required states:** waiting for recruiter request, request received with purpose/expiry, partial grant, all granted, denied และ expired
+- **Privacy:** Mutual Match ไม่แสดงค่าฟิลด์, Recruiter อ่านได้เฉพาะ grant และการกดดู/ดาวน์โหลดมี audit
 
 ### SC-15 — Recruiter Live Desk & Candidate Pipeline
 - **Goal:** จัดการคิวสด, สลับสถานะความพร้อม, ตรวจสอบผู้สมัครในคิว, กดเรียกคิวคนถัดไป, ประเมินรูบริก และดูผลการ Match
@@ -234,3 +240,31 @@
 ### SC-17 — Demo Controller (Hidden Screen)
 - **Goal:** ควบคุมการสาธิตบนเวที, สลับ Scenario Presets, และ Reset Data ภายใน 10 วินาที
 - **Route:** `/demo/control`
+
+### SC-18 — Company Profile & Job Editor
+
+- **Goal:** ให้ Company Admin กรอก company profile และสร้าง job ที่พร้อมนำไปแสดง/เข้าคิวจริง
+- **Required fields:** company identity/summary/work locations/contact owner; job title/JD/responsibilities/must-have/nice-to-have/evidence/salary/type/work mode/duration/rubric
+- **Primary actions:** Save Draft, validate field, preview public view และ recover version conflict
+- **Required states:** loading, empty first-use, dirty draft, saving, saved, validation failed, unauthorized และ version conflict
+
+### SC-19 — Booth, Showcase & Publication
+
+- **Goal:** ประกอบ booth จาก template/tokens และจัด showcase/Hall of Fame ก่อน publish aggregate version เดียวไป World/Navigator
+- **Showcase:** product, project, award, case study, culture และ benefit พร้อม title, description, provenance, media, order และ moderation status
+- **Primary actions:** add/reorder/remove, booth preview, Validate, Publish, Pause, Resume และ Unpublish
+- **Required states:** draft, validating, ready, published, paused, invalid provenance และ old-version conflict
+
+### SC-20 — Recruiter Reveal Request & Follow-up
+
+- **Goal:** หลัง Mutual Match ให้ Recruiter ระบุ field + purpose ที่ต้องการ แล้วรอ Candidate consent ก่อนอ่านข้อมูล/ส่ง next step
+- **Default template:** legal name, email, phone, resume; postal address ไม่เป็น default และต้องมีเหตุผล/สิทธิ์ตาม policy
+- **Required states:** request not sent, requested, partially granted, granted, denied, expired และ follow-up sent
+- **Guardrail:** field ที่ไม่ grant ต้อง masked/disabled ทั้ง UI และ API; การ request เพิ่มสร้าง version/consent ใหม่
+
+### SC-21 — Organizer Support & Integration Health
+
+- **Goal:** จัดการ maintenance/support ของ Candidate และ Recruiter ผ่าน event/queue/interview health, incident, support ticket และ sanitized provider status
+- **Primary actions:** pause/resume/broadcast, assign/update/resolve ticket, open incident และดู recovery action
+- **Required states:** healthy, degraded, unavailable, maintenance, empty tickets, assigned, escalated และ resolved
+- **Guardrail:** ค่า default เป็น aggregate/pseudonymous; ห้ามแสดง raw decision, contact grant value, biometric landmark หรือ secret และ break-glass ต้องมี approval/reason/TTL/audit

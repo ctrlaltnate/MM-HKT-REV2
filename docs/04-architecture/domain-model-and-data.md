@@ -14,11 +14,12 @@
 | **`CandidateEventAlias`** | `career_event_id`, `candidate_id`, `candidate_code`, `profile_version` | Restricted Mapping | Identity / Profile DB |
 | **`ResumeAsset`** | `storage_key`, `hash`, `mime`, `scan_status`, `uploaded_at` | **Restricted PII** | Private Object Store |
 | **`RedactionSpan`** | `source_ref`, `category`, `range`, `confidence`, `action` | Restricted | Profile DB |
-| **`Organization`** | `tenant_id`, `legal_name`, `verification_status` | Internal / Public | Admin DB |
+| **`Organization`** | `tenant_id`, `legal_name`, `display_name`, `verification_status`, `profile_version` | Internal / Public | Admin DB |
 | **`Event`** | `id`, `tenant_id`, `slug`, `lifecycle`, `timezone`, `policy_version` | Public / Internal | Admin DB |
 | **`EventPolicy`** | `event_id`, `duration`, `ready_deadline`, `requeue_limit`, `version` | Internal | Admin DB |
-| **`Booth`** | `id`, `event_id`, `organization_id`, `zone`, `theme`, `status` | Public | Admin DB |
-| **`JobPosting`** | `id`, `title`, `must_have_skills`, `weights`, `work_mode`, `salary` | Public / Internal | Admin DB |
+| **`Booth`** | `id`, `event_id`, `organization_id`, `zone`, `theme`, `layout`, `publication_version`, `status` | Public | Admin DB |
+| **`JobPosting`** | `id`, `organization_id`, `title`, `jd`, `must_have_skills`, `weights`, `work_mode`, `salary`, `publication_status` | Public / Internal | Admin DB |
+| **`ShowcaseItem`** | `id`, `organization_id`, `type`, `title`, `media_ref`, `provenance`, `display_order`, `status` | Public / Internal | Admin DB / Object Store |
 | **`RecommendationResult`** | `event_id`, `candidate_id`, `job_id`, `score`, `reasons`, `version` | Sensitive Decision Support | Match DB |
 | **`QueueTicket`** | `id`, `event_id`, `candidate_id`, `job_id`, `joined_at`, `state`, `version` | Sensitive Operational | Queue DB |
 | **`InterviewSession`** | `id`, `ticket_id`, `starts_at`, `ends_at`, `media_mode`, `state`, `version` | Sensitive Operational | Interview DB |
@@ -26,15 +27,20 @@
 | **`DecisionCase`** | `session_id`, `event_id`, `deadline`, `state`, `version` | **Highly Sensitive** | Decision DB |
 | **`Decision`** | `case_id`, `actor_id`, `encrypted_choice`, `submitted_at` | **Highly Sensitive** | Decision DB |
 | **`MutualMatch`** | `case_id`, `event_id`, `state`, `reveal_deadline` | Sensitive | Decision DB |
+| **`RevealRequest`** | `match_id`, `requester_id`, `requested_fields`, `purposes`, `version`, `expires_at`, `status` | Restricted Intent | Decision / Consent DB |
 | **`RevealGrant`** | `owner_id`, `recipient_id`, `granted_fields`, `status`, `expires_at`| **Restricted PII** | Identity / Decision DB |
+| **`FollowUp`** | `match_id`, `sender_id`, `type`, `next_step`, `status`, `due_at` | Sensitive | Post-match DB |
 | **`Assessment`** | `match_id`, `template_ref`, `deadline`, `status` | Sensitive | Post-match DB |
 | **`ConsentRecord`** | `user_id`, `purpose`, `policy_version`, `granted_at`, `withdrawn_at`| Restricted Compliance | Consent Store |
 | **`BreakGlassRequest`** | `requester_id`, `approver_id`, `reason`, `fields`, `ttl`, `state` | **Highly Sensitive** | Audit / Consent Store |
 | **`DataSubjectRequest`** | `user_id`, `type`, `scope`, `due_at`, `state` | Restricted Compliance | Consent / DSAR Store |
 | **`AuditEvent`** | `id`, `actor_id`, `action`, `target_resource`, `occurred_at`, `hash` | Restricted Compliance | Append-Only Audit Store |
 | **`Presence`** | `pseudonym`, `zone_id`, `coordinates_x_y`, `status` | Ephemeral | Redis Cache |
-| **`AvatarCustomizationConfig`**| `candidate_id`, `skin_tone`, `hair_style`, `hair_color`, `top_style`, `top_color`, `bottom_style`, `bottom_color`, `shoe_style`, `shoe_color`, `accessory` | Public Aesthetic | Profile DB / Presence |
+| **`AvatarAppearance`**| `owner_type`, `owner_id`, `appearance_seed?`, `skin_tone`, `hair_style`, `hair_color`, `top_style`, `top_color`, `bottom_style`, `bottom_color`, `shoe_style`, `shoe_color`, `accessory` | Public Aesthetic | Profile DB / Presence / Synthetic Fixture |
 | **`Notification`** | `id`, `recipient_id`, `type`, `redacted_payload`, `status` | Internal | Notification DB |
+| **`SupportTicket`** | `id`, `event_id`, `pseudonymous_subject`, `category`, `state`, `assignee_id`, `resolution` | Sensitive Operational | Support / Audit DB |
+
+`RevealRequest` ต้องเกิดหลัง Mutual Match และก่อน `RevealGrant`; `granted_fields` ต้องเป็น subset ของ request version เดียวกัน ค่า contact จริงอ่านผ่าน Identity Vault ด้วย scoped token เท่านั้น ไม่ replicate ลง `RevealRequest`, `RevealGrant`, notification หรือ WebSocket event
 
 ---
 

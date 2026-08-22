@@ -117,11 +117,16 @@ stateDiagram-v2
     RESOLVER --> NO_MATCH: At least one PASS
     AWAITING_DECISIONS --> DECISION_EXPIRED: TIMEOUT (24h)
     ONE_DECISION_SUBMITTED --> DECISION_EXPIRED: TIMEOUT (24h)
-    MUTUAL_MATCH --> REVEAL_PENDING: Initialize Consent
-    REVEAL_PENDING --> PARTIALLY_REVEALED: GRANT_FIELDS (Candidate)
-    PARTIALLY_REVEALED --> REVEALED: GRANT_RECIPROCAL (Recruiter)
-    REVEAL_PENDING --> REVEAL_EXPIRED: TIMEOUT (24h)
-    REVEALED --> CLOSED: COMPLETE
+    MUTUAL_MATCH --> REVEAL_REQUEST_PENDING: Initialize masked match
+    REVEAL_REQUEST_PENDING --> CANDIDATE_CONSENT_PENDING: REQUEST_FIELDS (Recruiter)
+    CANDIDATE_CONSENT_PENDING --> PARTIALLY_REVEALED: GRANT_SUBSET (Candidate)
+    CANDIDATE_CONSENT_PENDING --> REVEALED: GRANT_ALL (Candidate)
+    CANDIDATE_CONSENT_PENDING --> REVEAL_DENIED: DENY (Candidate)
+    REVEAL_REQUEST_PENDING --> REVEAL_EXPIRED: TIMEOUT (24h)
+    CANDIDATE_CONSENT_PENDING --> REVEAL_EXPIRED: TIMEOUT (24h)
+    PARTIALLY_REVEALED --> CLOSED: COMPLETE / FOLLOW_UP
+    REVEALED --> CLOSED: COMPLETE / FOLLOW_UP
+    REVEAL_DENIED --> CLOSED: COMPLETE
     NO_MATCH --> CLOSED: COMPLETE
     CLOSED --> [*]
 ```
@@ -130,11 +135,16 @@ stateDiagram-v2
 |---|---|---|---|---|
 | `AWAITING_DECISIONS` | `SUBMIT` / 1st Party | ภายในกำหนดเวลา | `ONE_DECISION_SUBMITTED` | เข้ารหัสคำตอบ ไม่เปิดเผยผลลัพธ์ |
 | `ONE_DECISION_SUBMITTED`| `SUBMIT` / 2nd Party | ภายในกำหนดเวลา | Resolver | ถอดรหัสและประมวลผลพร้อมกันใน DB Transaction |
-| `Resolver` | Both `INTERESTED` | คำตอบทั้งสองถูกต้อง | `MUTUAL_MATCH` | สร้าง `REVEAL_PENDING` และแจ้งเตือนทั้งสองฝ่าย |
+| `Resolver` | Both `INTERESTED` | คำตอบทั้งสองถูกต้อง | `MUTUAL_MATCH` | สร้าง masked match แล้วแจ้งผลทันที โดยยังไม่เปิด PII |
 | `Resolver` | At least one `PASS` | คำตอบถูกต้อง | `NO_MATCH` | ปิดเคสโดยไม่เปิดเผยว่าใครเลือก Pass |
 | `AWAITING/ONE_SUBMITTED`| `TIMEOUT` / Scheduler| พ้นกำหนด 24 ชม. | `DECISION_EXPIRED` | ไม่ถือเป็น Pass และไม่เปิดเผยข้อมูล |
-| `REVEAL_PENDING` | `GRANT_FIELDS` / Candidate| เลือก Field ที่อนุญาต | `PARTIALLY_REVEALED` | สร้าง Versioned Field Grants ใน Identity Vault |
-| `PARTIALLY_REVEALED` | `GRANT_RECIPROCAL` / Recruiter| ส่งข้อมูลบริษัทตอบกลับ | `REVEALED` | ออก Scoped Token สำหรับอ่านข้อมูลที่ยินยอม |
+| `MUTUAL_MATCH` | `INITIALIZE` / System | resolver commit สำเร็จ | `REVEAL_REQUEST_PENDING` | เปิดเฉพาะช่องทางให้ Recruiter สร้างคำขอ |
+| `REVEAL_REQUEST_PENDING` | `REQUEST_FIELDS` / Recruiter | ระบุ field, purpose และ policy allowance ครบ | `CANDIDATE_CONSENT_PENDING` | สร้าง versioned `RevealRequest`; default ได้เฉพาะ name/email/phone/resume |
+| `CANDIDATE_CONSENT_PENDING` | `GRANT_SUBSET` / Candidate | field เป็น subset ของ request | `PARTIALLY_REVEALED` | สร้าง Field Grants และ scoped access เฉพาะรายการที่ยินยอม |
+| `CANDIDATE_CONSENT_PENDING` | `GRANT_ALL` / Candidate | ยืนยันแต่ละ field ใน request | `REVEALED` | สร้าง Field Grants และ scoped access ตาม request |
+| `CANDIDATE_CONSENT_PENDING` | `DENY` / Candidate | Candidate ปฏิเสธ | `REVEAL_DENIED` | ไม่เปิด PII; match ยังบันทึกแบบ masked และห้าม coercive retry |
+
+ผลลัพธ์ Decision ต้อง resolve และส่งถึงทั้งสอง client ทันทีหลัง transaction ของคำตอบที่สองสำเร็จ ส่วน Reveal เป็น transaction คนละชุด: การ Mutual Match ไม่ใช่ consent ให้เปิดข้อมูล และ Organizer/Support ไม่มีสิทธิ์ดูค่าคำตอบหรือ field ที่เปิดเผยโดยอัตโนมัติ
 
 ---
 
@@ -163,3 +173,28 @@ UPLOADED ──→ QUARANTINED ──→ SCANNING ──→ PARSING ──→ RE
 | `IN_PROGRESS` | `SUBMIT` / Candidate | ส่งผลงานสำเร็จ | `SUBMITTED` |
 | `SUBMITTED` | `REVIEW` / Recruiter | ผู้ตรวจประเมินผลเสร็จสิ้น | `REVIEWED` |
 | `REVIEWED` | `CLOSE` / System | บันทึกผลเข้าระบบ | `CLOSED` |
+
+---
+
+## 2.7 Company, Job, Booth and Showcase Publication
+
+Company workspace ใช้ publication aggregate เดียวกัน เพื่อไม่ให้ World, Navigator และ Recruiter Desk เห็นคนละ version:
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT
+    DRAFT --> VALIDATING: VALIDATE
+    VALIDATING --> DRAFT: VALIDATION_FAILED
+    VALIDATING --> READY_TO_PUBLISH: VALIDATION_PASSED
+    READY_TO_PUBLISH --> PUBLISHED: PUBLISH
+    PUBLISHED --> DRAFT: CREATE_NEW_VERSION
+    PUBLISHED --> PAUSED: PAUSE
+    PAUSED --> PUBLISHED: RESUME
+    PUBLISHED --> UNPUBLISHED: UNPUBLISH
+    PAUSED --> UNPUBLISHED: UNPUBLISH
+```
+
+- `VALIDATION_PASSED` ต้องตรวจ organization verification, required company/job fields, salary policy, job rubric, booth accessibility, asset provenance และ showcase moderation
+- `PUBLISH` เปลี่ยน `publication_version` แบบ atomic และ broadcast `company.publication.updated`; World/Navigator โหลดเฉพาะ version ที่ publish แล้ว
+- การแก้ข้อมูลหลัง publish สร้าง Draft version ใหม่ ห้ามแก้ snapshot ที่ผู้สมัครกำลังดูอยู่เงียบๆ
+- Demo adapter ต้องใช้ lifecycle นี้จริง รวม conflict (`expected_version` ไม่ตรง), validation failure, pause/resume และ unpublish

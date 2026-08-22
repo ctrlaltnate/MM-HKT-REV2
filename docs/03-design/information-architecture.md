@@ -31,6 +31,7 @@
 | `/app/interviews/:sessionId` | 1:1 Private Speed Interview Room |
 | `/app/interviews/:sessionId/decision` | Private Post-interview Decision Submission |
 | `/app/matches` | Mutual Matches, Consented Reveal & Next Steps |
+| `/app/matches/:matchId/reveal` | Review Recruiter field request, grant subset or deny |
 | `/app/settings/privacy` | Consent Management, Reveal Grants & Data Deletion |
 | `/app/settings/accessibility` | Motion, Contrast, Text Size, Audio & Controls |
 
@@ -39,12 +40,16 @@
 | Route Path | Screen Title & Purpose |
 |---|---|
 | `/recruiter/home` | Availability Switch, Next Dispatched Session, Alerts |
+| `/recruiter/demo/dashboard` | Demo entry for Company setup + Live Desk using shared scenario |
 | `/recruiter/jobs` | Assigned Jobs, Skill Rubrics & Interview Notes |
 | `/recruiter/booths/:boothId/queue` | Booth Queue Status & Manual Dispatch Control |
 | `/recruiter/interviews/:sessionId` | Interview Room with Private Rubric Evaluator |
 | `/recruiter/matches` | Matched Candidates Pipeline (Consented Fields Only) |
 | `/company/jobs` | Job Posting Management (Create, Edit, Publish) |
+| `/company/profile` | Company details, verification and public preview |
 | `/company/booths` | Booth Content, Theme & Staff Management |
+| `/company/showcase` | Product, project, award, culture and Hall of Fame items |
+| `/company/publication` | Validate, Preview, Publish, Pause and Unpublish aggregate version |
 | `/company/analytics` | Aggregate Hiring Funnel & Equity Analytics |
 
 ### D. Organizer & Operations Routes
@@ -55,6 +60,8 @@
 | `/ops/events/:eventId/map` | Map Zones, Booth Allocation & Capacity Limits |
 | `/ops/events/:eventId/live` | Real-time System Load, Queues, Media Health |
 | `/ops/moderation` | User Reports, Warnings & Incident Holds |
+| `/ops/support` | Support ticket assignment, recovery and accessibility assistance |
+| `/ops/integrations` | Sanitized dependency health and maintenance actions |
 | `/ops/audit` | Append-only Access & Reveal Audit Viewer |
 
 ### E. Demo & Stage Control (Hidden Routes)
@@ -63,6 +70,8 @@
 |---|---|
 | `/event/demo` | R0 Standalone Hackathon Prototype Entry |
 | `/demo/control` | Demo Scenario Switcher, Data Reset & Instant Dispatch |
+
+Role guards derive from server/demo capabilities, tenant and event membership. A route must render loading, unauthorized, empty, unavailable and recoverable error states; hiding a navigation item alone is not authorization.
 
 ### F. R0 Website Implementation Status (22 August 2026)
 
@@ -73,7 +82,7 @@
 | Candidate Preparation | `/demo/verify`, `/candidate/profile/import`, `/candidate/profile/review`, `/candidate/avatar` | **Implemented as synthetic frontend demo:** consent, validation, masked side-by-side review, Phaser avatar preview และ local recovery |
 | Virtual Job Fair | `/event/demo/world`, `/app/events/event-neon-career-city/world` | **Implemented vertical slice:** Phaser 4 Career Hall, Navigator, booth detail, local queue, NPC dialogue, Info Hub และ Character Studio |
 | Legal / Recovery | `/legal/privacy`, `/legal/terms`, `/system-status`, unknown route | **Implemented:** truthful demo policy/status และ 404 recovery |
-| Queue orchestration, Interview, Decision/Reveal, Recruiter/Ops | canonical routes in sections B–E | **Not implemented yet:** อยู่ใน R0 slices 3–6 และห้ามนำเสนอว่า production-ready |
+| Queue orchestration, Interview, Decision/Reveal, Recruiter/Company/Ops | canonical routes in sections B–E | **Not implemented yet:** target flow อยู่ใน [User Journeys](../02-product/user-journeys.md) และห้ามนำเสนอว่า demo-complete/production-ready จน AC-41..44 ผ่าน |
 
 > Route inventory คือ target architecture; ตารางนี้เป็นหลักฐานสถานะ runtime ปัจจุบัน เพื่อไม่ให้คำว่า “ทุกส่วนทำงานจริง” ถูกตีความเกิน vertical slice ที่ส่งมอบแล้ว
 
