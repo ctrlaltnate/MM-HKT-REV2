@@ -17,27 +17,32 @@
 
 ```mermaid
 flowchart TB
-    subgraph Client["Responsive Web App / PWA"]
-      UI["Semantic UI + Navigator (React / DOM)"]
-      GAME["2D World Renderer (Phaser / Canvas)"]
-      
+    subgraph Client["Browser Client — Separate Build Artifacts"]
+      subgraph WebWorkspace["Website Workspace"]
+        UI["Semantic UI + Navigator (React / DOM)"]
+      end
+      subgraph GameWorkspace["Game Workspace"]
+        GAME["2D World Runtime (Phaser 4 / Canvas)"]
+      end
+      UI <-->|"Versioned typed adapter"| GAME
+
       subgraph RealMediaEngine["Realtime Client Media Privacy Engine"]
         CAM["Real Camera Stream (getUserMedia)"] --> FACE_ENG["Face Tracking Landmark Engine\n(MediaPipe / WASM FaceMesh)"]
         FACE_ENG --> MASK_COMP["Face Avatar Compositor\n(2D / 3D Animal Mask Overlay)"]
         MASK_COMP --> FAIL_GUARD{"Fail-Closed Guard\n(Tracking Loss > 3 frames)"}
         FAIL_GUARD -->|"Valid Tracking"| VIDEO_OUT["Anonymized Canvas Stream"]
         FAIL_GUARD -->|"Lost Tracking"| AVATAR_FALLBACK["Static Avatar Stream"]
-        
+
         MIC["Real Mic Stream"] --> AUDIO_DSP["Web Audio API AudioWorklet\n(Pitch Shift & Formant DSP)"]
         AUDIO_DSP --> AUDIO_OUT["Altered Audio Stream"]
       end
-      
+
       CACHE["Public Versioned Asset Cache"]
     end
 
     EDGE["CDN / WAF / Edge Rate Limiter"]
     BFF["API Gateway / Backend-For-Frontend"]
-    
+
     subgraph Services["Core Microservices / Modules"]
       AUTH["Auth & Identity Service"]
       CONSENT["Consent & DSAR Service"]
@@ -123,18 +128,23 @@ flowchart TB
 
 ## 1.5 Recommended Prototype Architecture (R0 Baseline)
 
+> เอกสารส่วนนี้เป็น **future-state architecture**; ไม่มี runtime implementation อยู่ใน repository ณ ช่วง D0
+
 ### Tech Stack
 - **Framework:** Vite + React + TypeScript
 - **Routing:** React Router (รองรับการแชร์และ Refresh URL)
 - **Styling & Tokens:** CSS Custom Properties (Design Tokens) + Scoped CSS Modules
-- **Game Engine:** Phaser 3 (สำหรับ 2D Career Hall World Canvas)
+- **Game Engine:** Phaser 4.x stable line (pin exact version หลัง compatibility spike ก่อนเริ่ม R0)
 - **Realtime Media:** WebRTC + MediaPipe FaceMesh / WASM + Web Audio API AudioWorklet
 - **UI Overlay:** Semantic HTML/DOM สำหรับ Navigation, Forms, HUD, Dialogs, และ Captions
 - **Testing:** Vitest + React Testing Library (Unit/Component), Playwright (E2E & Viewport Smoke), Axe-core (Accessibility Smoke)
 
-### Two-Zone Client Boundary (Revision 2.4)
+### Two-Workspace / Two-Zone Client Boundary (Revision 2.5)
 
-- **Zone 1 — Website Shell:** React เป็น owner ของ route, state, accessibility, form, modal, queue, recruiter/admin desk และ semantic Navigator ทั้งหมด ใช้ GSAP สำหรับ purposeful micro-transition และใช้ Minimalist Liquid Glass เฉพาะ DOM surface
-- **Zone 2 — Career Hall Runtime:** Phaser 3 เป็น owner เฉพาะ world simulation: seamless module streaming/wrap, physics/collision, actor movement, camera follow, dynamic Y-depth, booth sign และ Info Kiosk sensor
+- **Workspace / Zone 1 — Website Shell:** React เป็น owner ของ route, state, accessibility, form, modal, queue, recruiter/admin desk และ semantic Navigator ทั้งหมด ใช้ GSAP สำหรับ purposeful micro-transition และใช้ Minimalist Liquid Glass เฉพาะ DOM surface
+- **Workspace / Zone 2 — Career Hall Runtime:** Phaser 4 เป็น owner เฉพาะ world simulation: seamless module streaming/wrap, physics/collision, actor movement, camera follow, dynamic Y-depth, booth sign และ Info Kiosk sensor
 - **Contract:** Phaser ส่ง semantic interaction event (`boothSelected`, `infoKioskActivated`, `queueIntent`) ไปยัง React; React เปิด context/detail UI และสามารถสั่ง navigation target กลับไปยัง Phaser ได้ ไม่มี form, modal หรือข้อมูลสำคัญถูกวาดอยู่ใน Canvas
+- **Repository boundary:** เมื่อเริ่ม implementation ให้ Website และ Game มี dependency graph, build และ test entrypoint แยกกัน โดยแชร์เฉพาะ typed contracts, domain types และ approved production assets
 - **No flat-scene shortcut:** world ต้อง compose จาก pre-generated floor/prop/foreground sprite layers และ collision metadata; ห้ามใช้เพียงภาพ background เดียวร่วมกับ CSS hotspot เพื่ออ้างว่าเป็นเกม
+
+รายละเอียดและ acceptance gate ของ Phaser 4 ดูที่ [Web–Game Separation](./web-game-separation.md)

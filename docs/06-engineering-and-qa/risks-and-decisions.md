@@ -11,6 +11,8 @@
 | **Face Mask หลุดจนเห็นใบหน้าจริง** | ละเมิดความเป็นส่วนตัวอย่างรุนแรง | ใช้หลักการ **Fail-Closed** หยุดส่งวิดีโอทันที และสลับเป็นโหมด Avatar-only |
 | **Voice Transform ทำให้น้ำเสียงฟังไม่เข้าใจ** | คุณภาพการสัมภาษณ์ลดลง | แสดงหน้าจอทดสอบเสียงก่อนเข้าห้อง และมีโหมดเสียงธรรมดา/คำบรรยายสดทดแทน |
 | **World Canvas หนักเกินไปบนมือถือ** | ผู้ใช้เกิดอาการแลค / ละทิ้งการใช้งาน | โหลด Asset แยกตามโซน, มี Full List Mode ให้ใช้แทน, และปิด Canvas ตอนสัมภาษณ์ |
+| **Phaser 4/plugin compatibility ไม่ครบตามที่คาด** | world slice ล่าช้าหรือเกิด regression | ทำ compatibility spike, pin exact stable version และห้ามเริ่ม vertical slice ก่อนผ่าน gate |
+| **ขอบเขต Website/Game รั่วเข้าหากัน** | UI, accessibility และ game lifecycle ทดสอบยาก | แยก workspace/build/test และสื่อสารผ่าน versioned typed contract เท่านั้น |
 | **เวลาคิวประเมินไม่ตรง / รอนานเกินไป** | ผู้สมัครออกจากคิวกลางคัน | แสดงเวลารอเป็นช่วง (Range), มีระบบ Heartbeat ตรวจสอบ Recruiter ตลอดเวลา |
 | **ขาดแคลน Recruiter ในบางช่วงเวลา** | คิวสะสมเป็นจำนวนมาก | มีระบบแจ้งเตือนเจ้าหน้าที่ และ Organizer สามารถ Pause คิวชั่วคราวได้ |
 | **Integrity Signals แจ้งเตือนผิดพลาด (False Alert)**| เกิดการเลือกปฏิบัติที่ไม่เป็นธรรม | ให้สัญญาณเป็นเพียง Advisory, ห้าม Auto-reject, และลบข้อมูลภายใน 7 วัน |
@@ -35,6 +37,7 @@
 - การตรวจสอบความสอดคล้องตามกฎหมาย PDPA จาก DPO และทีมที่ปรึกษากฎหมาย
 - ผู้ให้บริการระบบ WebRTC SFU / TURN Infrastructure สำหรับการสื่อสารแบบ Real-time
 - การผลิตงานภาพ Pixel Art และ Asset ที่ถูกต้องตามลิขสิทธิ์
+- ผล Phaser 4 compatibility spike และ Web–Game contract review
 - พันธมิตรผู้จัดงาน Job Fair และบริษัทนายจ้างที่เข้าร่วมโครงการ Pilot
 
 ---

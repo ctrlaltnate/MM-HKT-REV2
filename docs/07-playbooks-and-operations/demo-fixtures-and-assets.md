@@ -75,21 +75,25 @@ uncertain_reasons:
 
 ---
 
-## 3.3 R0 Generated Asset Registry (Revision 2.1)
+## 3.3 Planned R0 Generated Asset Registry (Revision 2.2)
+
+> รายการนี้เป็น target manifest สำหรับ future implementation เท่านั้น ยังไม่มีไฟล์เหล่านี้ในช่วง D0 และ production asset ต้องสร้างใหม่จาก approved brief โดยใช้ `docs/ref_pics/` เป็น visual reference เท่านั้น
 
 | Asset ID | File Path | Role & Logical Dimensions | Provenance & Allowed Use |
 |---|---|---|---|
-| **`world.hall.v3`** | `public/assets/world/neon-career-hall-v3.png` | Indoor Hall Environment (1536×1024 px) | Original generated project asset; licensed for MaskedMatch project use |
-| **`world.atlas.runtime.v3`**| `public/assets/world/career-hall-atlas-v3.png` | Normalized 1280×1280 Phaser Atlas | Mechanically derived transparent atlas; runtime game asset |
-| **`media.mask.fox`** | `public/assets/masks/fox-mask-3d.png` | 2D/3D Face Tracking Fox Overlay | Original generated mask asset for FaceMesh tracker |
-| **`media.mask.cat`** | `public/assets/masks/cat-mask-3d.png` | 2D/3D Face Tracking Cat Overlay | Original generated mask asset for FaceMesh tracker |
-| **`media.dsp.worklet`** | `src/media/dsp/pitch-shifter-worklet.js` | AudioWorklet Processor for Realtime DSP | In-browser DSP filter code for low-latency pitch transform |
+| **`world.hall.v3`** | `packages/assets/game/world/neon-career-hall-v3.png` | Indoor Hall Environment (1536×1024 px) | Planned original asset; generation source/license must be recorded |
+| **`world.atlas.runtime.v3`**| `packages/assets/game/atlases/career-hall-atlas-v3.png` | Normalized 1280×1280 Phaser Atlas | Planned mechanically derived runtime atlas |
+| **`media.mask.fox`** | `packages/assets/media/masks/fox-mask-3d.png` | 2D/3D Face Tracking Fox Overlay | Planned original mask for FaceMesh tracker |
+| **`media.mask.cat`** | `packages/assets/media/masks/cat-mask-3d.png` | 2D/3D Face Tracking Cat Overlay | Planned original mask for FaceMesh tracker |
+| **`media.dsp.worklet`** | `apps/web/src/media/dsp/pitch-shifter-worklet.js` | AudioWorklet Processor for Realtime DSP | Planned browser DSP code; not an image asset |
 
 ---
 
 ## 3.4 Asset Production Specifications & Constraints
 
 - **Original or Licensed Only:** ห้ามนำภาพจาก Pitch Deck หรือภาพที่มีลิขสิทธิ์ของบุคคลภายนอกมาใช้งานโดยไม่ได้รับอนุญาต
+- **MCP-Assisted Iteration Required:** ใช้ MCP/tool connector ที่เหมาะสมเพื่อ inspect reference, สร้าง/ปรับ original asset และตรวจ asset ในฉากจริงตาม [MCP-Assisted Workflow](./mcp-assisted-workflow.md); การมี MCP output ไม่ได้ทำให้ได้สิทธิ์ใช้ภาพต้นทางโดยอัตโนมัติ
+- **Provenance Record:** ทุก asset ต้องบันทึก `asset_id`, brief version, MCP/tool + model/version (ถ้ามี), source references, generated timestamp, human editor, license/allowed use และ checksum
 - **Pixel Art Rules:** ใช้อัตราส่วน Integer Scale (2x/3x) และตั้งค่า `image-rendering: pixelated`
 - **No Embedded UI Text:** ห้ามเรนเดอร์ตัวหนังสือลงในรูปภาพโดยตรง เพื่อรักษาความสามารถในการเข้าถึงผ่าน Screen Reader
 - **Asset Chunking:** แยกกลุ่ม Texture Atlas เป็น `core`, `booth`, และ `props` เพื่อจำกัดขนาดการดาวน์โหลดเริ่มต้นไม่ให้เกิน 2.0 MB

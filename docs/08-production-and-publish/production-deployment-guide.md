@@ -1,6 +1,7 @@
 # 1. คู่มือการ Deploy สู่ Production ฉบับเข้าใจง่าย (Vercel + Supabase + MongoDB)
 
-> **แนวคิดหลัก:** ใช้บริการ Cloud และ Serverless สมัยใหม่ที่ติดตั้งง่าย ไม่ต้องดูแล Server เอง (Zero DevOps Overhead) ประหยัดค่าใช้จ่าย และพร้อมเปิดให้ใช้งานจริงได้ทันที
+> **สถานะ:** Future-state runbook ในช่วง D0 Documentation only; ยังไม่มี application หรือ deployment configuration ให้ deploy
+> **แนวคิดหลัก:** ใช้บริการ Cloud และ Serverless สมัยใหม่เพื่อลดภาระดูแล Server โดยต้องผ่าน security, cost และ data-governance review ก่อนใช้งานจริง
 
 ---
 
@@ -8,14 +9,17 @@
 
 ```mermaid
 flowchart TB
-    USER["ผู้ใช้งาน (Browser / Mobile)"] --> VERCEL["Vercel Edge Hosting\n(React SPA + Phaser 3 + Serverless Functions)"]
-    
+    USER["ผู้ใช้งาน (Browser / Mobile)"] --> WEB["Website artifact\nReact Product Shell"]
+    USER --> GAME["Game artifact\nPhaser 4 Career Hall"]
+    WEB --> VERCEL["Vercel Edge Hosting / BFF"]
+    GAME --> VERCEL
+
     VERCEL -->|"Auth, DB, Realtime, Storage"| SUPABASE["Supabase (All-in-One Backend)\n• PostgreSQL (User, Queue, Decision)\n• Supabase Auth (Sign-in / Session)\n• Supabase Realtime (Presence & คิวสด)\n• Supabase Storage (ไฟล์ Resume)"]
-    
+
     VERCEL -->|"Resume Facts & Logs"| MONGO["MongoDB Atlas\n(เก็บบันทึกข้อมูล Resume ดิบ & Event Logs)"]
-    
+
     VERCEL -->|"AI สกัดทักษะ & Match Score"| OPENAI["OpenAI / Anthropic / Gemini API"]
-    
+
     USER <-->|"WebRTC 1:1 Video/Audio"| LIVEKIT["LiveKit Cloud\n(บริการห้องสัมภาษณ์วิดีโอฟรี/สำเร็จรูป)"]
 ```
 

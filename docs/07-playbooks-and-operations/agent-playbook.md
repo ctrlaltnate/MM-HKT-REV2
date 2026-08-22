@@ -1,11 +1,15 @@
 # 1. AI & Coding Agent Playbook
 
-> **Version 2.1 — Interactive Career Hall & Real Media Revision**  
+> **Version 2.2 — Docs-only & Phaser 4 Architecture Revision**
 > เอกสารคู่มือสำหรับ AI Coding Agent ในการพัฒนาและต่อยอดระบบ MaskedMatch อย่างมีแบบแผน ปลอดภัย และตรงตามข้อกำหนด
 
 ---
 
 ## 1.1 Core Mission
+
+### Current instruction (D0)
+
+ขณะนี้ให้ดูแล **เอกสารเท่านั้น** ห้ามสร้าง package, source code, runtime asset, database schema, Docker หรือ deployment configuration จนกว่าผู้ใช้จะสั่งเริ่ม implementation โดยชัดเจน เมื่อได้รับอนุมัติแล้วจึงใช้ mission และ build sequence ด้านล่างเป็น future plan
 
 สร้าง **MaskedMatch R0 Hackathon Prototype** เพื่อพิสูจน์ว่า Virtual Job Fair แบบ 2D Top-Down สามารถพาผู้สมัครผ่านลูป 5 ขั้นตอนได้จริงบน Web Browser ทั้งบนสมาร์ทโฟน แท็บเล็ต และคอมพิวเตอร์:
 1. เข้า Event และยืนยันตัวตนผ่านระบบ Digital ID (Digital ID Verification)
@@ -18,7 +22,7 @@
 
 ---
 
-## 1.2 Non-Negotiable Experience Invariants (12 กฎเหล็กที่ห้ามละเมิด)
+## 1.2 Non-Negotiable Experience Invariants (16 กฎเหล็กที่ห้ามละเมิด)
 
 1. **Identity stays masked before mutual consent:** ฝั่ง Recruiter ก่อนเกิด Mutual Match ต้องไม่มีชื่อ รูป อีเมล เบอร์โทร หรือ Original Resume ของผู้สมัคร
 2. **World is optional:** ทุกฟังก์ชันและ Action ใน Canvas ต้องทำผ่าน Semantic Navigator / List Mode ได้ 100%
@@ -32,13 +36,16 @@
 10. **AI explains and defers:** แสดงเหตุผลจากหลักฐานผลงานเสมอ และผู้ใช้สามารถแก้ไขข้อมูลได้
 11. **Synthetic data only:** ใช้เฉพาะโดเมน `.test` และข้อมูลบุคคล/บริษัทจัดแสดงเท่านั้น
 12. **Truthful demo:** ทุกส่วนที่มีการจำลอง (Mock) ต้องมีป้ายกำกับชัดเจนโดยไม่ต้องเปิด DevTools
-13. **React + GSAP minimalist shell:** ทุกหน้าที่ไม่ใช่ Career Hall ต้องเป็น React Semantic DOM ใช้ GSAP อย่างพอดี และรักษา Minimalist Liquid Glass ที่มี whitespace/contrast ชัดเจน
-14. **Seamless physics world:** Career Hall ต้องเป็น Phaser world แบบ loop/streaming ที่มี collision, sensor, Y-depth และ foreground occlusion จริง; ห้ามใช้ภาพแบนร่วมกับ CSS hotspot เป็นตัวแทนเกม
+13. **Separated web shell:** ทุกหน้าที่ไม่ใช่ Career Hall ต้องอยู่ใน Website workspace และเป็น React Semantic DOM; ห้ามให้ Game workspace เป็น owner ของ form, route หรือ accessibility flow
+14. **Separated Phaser 4 physics world:** Career Hall ต้องอยู่ใน Game workspace และเป็น Phaser 4 world แบบ loop/streaming ที่มี collision, sensor, Y-depth และ foreground occlusion จริง; ห้ามใช้ภาพแบนร่วมกับ CSS hotspot เป็นตัวแทนเกม
 15. **Zero Unfinished/Raw UI Standard (ห้าม UI ดิบ/ไม่เสร็จโดยเด็ดขาด):** ห้ามแสดงผลเป็น Raw HTML ดิบที่ขาด CSS/Tailwind, ขาด Flexbox/Grid, ขาด Card/Container, ขาดสี Gradient/Glow หรือปุ่มรูปทรงดั้งเดิมของเบราว์เซอร์ ทุกหน้าจอต้องเรนเดอร์ UI ระดับ Production-grade ที่สวยงาม คมชัด มี Responsive Padding, Typography, Glassmorphism และ Neon Aesthetics ที่สมบูรณ์พร้อมใช้งานจริง 100%
+16. **MCP-assisted evidence, not guesswork:** งาน world, visual, asset และ responsive polish ต้องใช้ MCP ที่มีอยู่/ไม่มีค่าใช้จ่ายเมื่อเกี่ยวข้อง เพื่อ inspect reference ที่เปิดเผยสาธารณะ/ได้รับอนุญาต, เก็บ measurement และทำ visual QA ตาม [MCP-Assisted Workflow](./mcp-assisted-workflow.md) ไม่บังคับซื้อ Phaser Editor หรือ paid MCP; หากไม่มี MCP ที่เหมาะสมต้องบันทึก fallback และข้อจำกัด ห้ามอ้างว่า “สมจริง” จาก prompt หรือภาพเดียวโดยไม่มีหลักฐานตรวจสอบ
 
 ---
 
 ## 1.3 Recommended Build Sequence (Slices 0 to 6)
+
+> **Future only:** ห้ามเริ่ม sequence นี้ระหว่าง D0 โดยไม่มีคำสั่งอนุมัติ implementation
 
 ```text
 Slice 0: Foundation (Router, Shell, Design Tokens, Primitives, Demo Store, Test Harness)
@@ -64,6 +71,7 @@ Slice 0: Foundation (Router, Shell, Design Tokens, Primitives, Demo Store, Test 
 - อ่านข้อกำหนดที่เกี่ยวข้องในโฟลเดอร์ `docs/` (Requirements, Architecture, Design)
 - ระบุ Vertical Slice, Routes, Personas, และ Acceptance Criteria ให้ชัดเจน
 - ตรวจสอบโครงสร้างไฟล์เดิมก่อนเพิ่ม Dependency ใหม่
+- Discover MCP/tools ที่ใช้ได้และสร้าง evidence brief ตาม [MCP-Assisted Workflow](./mcp-assisted-workflow.md) ก่อนเริ่มงาน world/visual
 
 ### 2. During Coding (ระหว่างการเขียนโค้ด)
 - พัฒนาทีละ 1 Vertical Slice ตั้งแต่ Route → State Machine → UI → Error Fallback → Tests
@@ -79,10 +87,13 @@ Agent ต้องสรุปผลและรายงาน:
 - **Routes / Scenarios Covered:** เส้นทางการทำงานที่ครอบคลุม
 - **Tests Run & Results:** ผลการรัน Unit Tests, Typecheck, Build, E2E
 - **Accessibility & Responsive Checks:** ผลการตรวจทานที่ 320 px, 390 px, และ Keyboard flow
+- **MCP Evidence & Provenance:** MCP/tool ที่ใช้, source/date, ภาพหรือ measurement ก่อน–หลัง, license/allowed-use และ fallback ที่เกิดขึ้น
 
 ---
 
-## 1.5 Required npm Scripts
+## 1.5 Required npm Scripts (Future Implementation)
+
+ยังไม่มี npm workspace หรือคำสั่งเหล่านี้ในช่วง D0 รายการนี้เป็น acceptance requirement สำหรับตอน scaffold เท่านั้น
 
 ```bash
 npm run dev          # เปิด Local Development Server
@@ -103,3 +114,4 @@ npm run test:a11y    # รัน Axe-core Accessibility Tests
 - เมื่อจำเป็นต้องตัดโหมด Navigator / List Mode ออกเพื่อแลกกับให้ World เสร็จทัน
 - เมื่อจำเป็นต้องใช้ Asset ที่ไม่ชัดเจนเรื่องลิขสิทธิ์
 - เมื่อการทำงานของ Feature จะทำให้ภาพกล้องจริงหลุดออกไปโดยไม่มีการ Mask
+- เมื่อ workflow ต้องเริ่ม trial, subscription, ซื้อ credit หรือเชื่อม paid MCP/Phaser Editor ที่ผู้ใช้ยังไม่ได้อนุมัติ

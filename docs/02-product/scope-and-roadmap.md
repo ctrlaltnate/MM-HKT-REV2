@@ -2,6 +2,16 @@
 
 ---
 
+## 1.0 Current Phase — D0 Documentation Baseline
+
+**สถานะ ณ 22 สิงหาคม 2026: Documentation only**
+
+- repository เก็บเฉพาะเอกสาร product, design, architecture, governance, QA และ reference images
+- ยังไม่เริ่มสร้าง Website, Phaser game, backend, database schema หรือ deployment pipeline
+- งานถัดไปก่อน implementation คืออนุมัติ experience loop, web–game boundary, asset policy และ Phaser 4 compatibility spike plan
+- `R0` ด้านล่างคือ **future implementation scope** ไม่ใช่สิ่งที่มีอยู่แล้วใน repository
+- การเริ่ม R0 ต้องมีคำสั่งอนุมัติแยกต่างหาก และต้อง scaffold Website กับ Game เป็นคนละ workspace
+
 ## 1.1 Release Strategy Overview
 
 | Release | Focus | Target Environment | Key Objective |

@@ -156,19 +156,20 @@ flowchart LR
 
 ---
 
-## 1.9 Two-Zone React, GSAP & Minimalism Standard (Revision 2.4)
+## 1.9 Two-Zone React, GSAP & 8-Bit Product Standard (Revision 2.5)
 
 ประสบการณ์ต้องแยกเป็นสอง surface ที่มีหน้าที่ต่างกันอย่างชัดเจน:
 
 | Zone | Technology | หน้าที่ | Visual Rule |
 |---|---|---|---|
-| **Website Shell** | **React + Semantic DOM + GSAP + Lottie** | Landing, onboarding, profile, Navigator, booth detail, queue, interview, recruiter/admin และ dialog ทั้งหมด | **Minimalist Liquid Glass**: whitespace กว้าง, content hierarchy ชัด, surface โปร่ง 70–82%, blur 16–24 px, ขอบบาง, contrast ผ่าน AA |
-| **Career Hall World** | **Phaser 3** | โลกเดินสำรวจ, player/NPC, collision, booth/Info Kiosk, camera และ depth layer | Original 2D pixel-art game scene; ห้ามใช้ glass overlay หรือ web-card จำนวนมากบดบัง world |
+| **Website Shell** | **React + Semantic DOM + GSAP (future)** | Landing, onboarding, profile, Navigator, booth detail, queue, interview, recruiter/admin และ dialog ทั้งหมด | ใช้โครง 8-bit product UI ที่อ่านง่าย: pixel borders/icons, grid 4/8 px, high contrast และ generous whitespace; glass effect เป็น optional accent ไม่ใช่ visual identity หลัก |
+| **Career Hall World** | **Phaser 4 (future)** | โลกเดินสำรวจ, player/NPC, collision, booth/Info Kiosk, camera และ depth layer | Original 2D pixel-art game scene อ้างอิง mood/shape language จาก `docs/ref_pics/`; ห้าม copy asset ของ Hideout/Gather และห้ามใช้ web-card จำนวนมากบดบัง world |
 
 - **React first for product UI:** ทุก task, form, navigation, status, queue, modal และ accessibility fallback ต้องเป็น React/DOM; Phaser เป็น renderer ของโลกเกมเท่านั้น
 - **GSAP with purpose:** ใช้ GSAP สำหรับ page entry, modal/sheet, card hover และ state transition ที่นุ่มนวล (150–220 ms) เท่านั้น; ห้ามใช้ animation เพื่อทำให้ข้อมูลสำคัญอ่านยากหรือเพิ่มความหนาแน่นของ UI
 - **Minimalism:** หนึ่งหน้าต้องมี primary action เด่นเพียงหนึ่ง action ต่อ state, generous spacing ตาม grid 4/8 px, หลีกเลี่ยง dashboard ที่อัด widget และต้องไม่มี decorative element ที่ไม่มีหน้าที่
-- **Liquid Glass boundary:** Glassmorphism ใช้บน DOM Task Zone เท่านั้น; world pixel art ต้องอ่านเส้นทาง, booth, collision landmark และ Info Kiosk ได้ชัดเจนแม้ไม่มี overlay
+- **Effects boundary:** ถ้าใช้ glass/blur ให้ใช้เป็น accent บน DOM Task Zone เท่านั้น; world pixel art ต้องอ่านเส้นทาง, booth, collision landmark และ Info Kiosk ได้ชัดเจนแม้ไม่มี overlay
+- **Reference boundary:** `docs/ref_pics/` มีไว้กำหนด composition, palette, density และ sprite scale เท่านั้น; production spritesheet/atlas ต้องวาดหรือ generate ใหม่และเก็บใน asset library ของ Game
 - **Reduced motion:** เมื่อ `prefers-reduced-motion` เปิดอยู่ ให้ GSAP transition จบแบบทันทีและมี static state ที่อ่านได้เท่ากัน
 
 ---

@@ -1,46 +1,53 @@
 # MaskedMatch — AI/Coding Agent Playbook (Entrypoint)
 
-> **Version 2.1 — Interactive Career Hall Revision**  
-> เอกสารฉบับนี้ถูกจัดหมวดหมู่และปรับปรุงเข้าสู่ระบบเอกสารมาตรฐานของโครงการอย่างสมบูรณ์  
+> **Version 2.2 — Docs-only Architecture Revision**
+> เอกสารฉบับนี้ถูกจัดหมวดหมู่และปรับปรุงเข้าสู่ระบบเอกสารมาตรฐานของโครงการอย่างสมบูรณ์
 > สำหรับคู่มือและข้อกำหนดฉบับเต็ม กรุณาดูที่เอกสารหลักในหมวดหมู่ต่างๆ ดังนี้:
+
+> [!IMPORTANT]
+> ขณะนี้โครงการอยู่ในช่วง **Documentation only** ห้าม scaffold, implement หรือ restore website/game/backend จนกว่าผู้ใช้จะสั่งเริ่มงาน implementation โดยชัดเจน
 
 ---
 
 ## 📌 เอกสารหลักสำหรับ AI Coding Agent
 
-- **📖 คู่มือ Agent ฉบับสมบูรณ์ (Invariants, Build Sequence Slices 0–6, Testing & Gates):**  
+- **📖 คู่มือ Agent ฉบับสมบูรณ์ (Docs-only rule, 16 Invariants, Build Sequence Slices 0–6, Testing & Gates):**
   👉 [07-playbooks-and-operations/agent-playbook.md](./07-playbooks-and-operations/agent-playbook.md)
 
-- **🏛️ สถาปัตยกรรมระบบและ State Machines:**  
-  👉 [04-architecture/system-architecture.md](./04-architecture/system-architecture.md)  
-  👉 [04-architecture/state-machines.md](./04-architecture/state-machines.md)  
-  👉 [04-architecture/domain-model-and-data.md](./04-architecture/domain-model-and-data.md)  
+- **🏛️ สถาปัตยกรรมระบบและ State Machines:**
+  👉 [04-architecture/system-architecture.md](./04-architecture/system-architecture.md)
+  👉 [04-architecture/web-game-separation.md](./04-architecture/web-game-separation.md)
+  👉 [04-architecture/state-machines.md](./04-architecture/state-machines.md)
+  👉 [04-architecture/domain-model-and-data.md](./04-architecture/domain-model-and-data.md)
   👉 [04-architecture/api-and-realtime-contracts.md](./04-architecture/api-and-realtime-contracts.md)
 
-- **📋 ข้อกำหนดการทำงานและเกณฑ์การยอมรับ (FR & AC):**  
-  👉 [02-product/functional-requirements.md](./02-product/functional-requirements.md)  
+- **📋 ข้อกำหนดการทำงานและเกณฑ์การยอมรับ (FR & AC):**
+  👉 [02-product/functional-requirements.md](./02-product/functional-requirements.md)
   👉 [02-product/acceptance-criteria.md](./02-product/acceptance-criteria.md)
 
-- **🎨 ระบบการออกแบบและพิกัดฉาก World Canvas:**  
-  👉 [03-design/design-system.md](./03-design/design-system.md)  
-  👉 [03-design/world-and-scene-design.md](./03-design/world-and-scene-design.md)  
-  👉 [03-design/screen-blueprints.md](./03-design/screen-blueprints.md)  
+- **🎨 ระบบการออกแบบและพิกัดฉาก World Canvas:**
+  👉 [03-design/design-system.md](./03-design/design-system.md)
+  👉 [03-design/world-and-scene-design.md](./03-design/world-and-scene-design.md)
+  👉 [03-design/screen-blueprints.md](./03-design/screen-blueprints.md)
   👉 [03-design/accessibility-spec.md](./03-design/accessibility-spec.md)
 
-- **🛡️ ความปลอดภัย, PDPA และธรรมาภิบาล AI:**  
-  👉 [05-security-and-governance/security-and-pdpa.md](./05-security-and-governance/security-and-pdpa.md)  
+- **🛡️ ความปลอดภัย, PDPA และธรรมาภิบาล AI:**
+  👉 [05-security-and-governance/security-and-pdpa.md](./05-security-and-governance/security-and-pdpa.md)
   👉 [05-security-and-governance/ai-governance.md](./05-security-and-governance/ai-governance.md)
 
-- **🎤 คู่มือการสาธิตบนเวที 5 นาทีและชุดชุดข้อมูลมาตรฐาน (Fixtures):**  
-  👉 [07-playbooks-and-operations/demo-runbook-and-storyboard.md](./07-playbooks-and-operations/demo-runbook-and-storyboard.md)  
+- **🎤 คู่มือการสาธิตบนเวที 5 นาทีและชุดชุดข้อมูลมาตรฐาน (Fixtures):**
+  👉 [07-playbooks-and-operations/demo-runbook-and-storyboard.md](./07-playbooks-and-operations/demo-runbook-and-storyboard.md)
   👉 [07-playbooks-and-operations/demo-fixtures-and-assets.md](./07-playbooks-and-operations/demo-fixtures-and-assets.md)
 
-- **🚀 การ Deploy สู่ Production, Cloud Stack, การสเกล และ AI APIs:**  
-  👉 [08-production-and-publish/production-deployment-guide.md](./08-production-and-publish/production-deployment-guide.md)  
-  👉 [08-production-and-publish/cloud-and-tech-stack.md](./08-production-and-publish/cloud-and-tech-stack.md)  
-  👉 [08-production-and-publish/api-and-ai-integrations.md](./08-production-and-publish/api-and-ai-integrations.md)  
-  👉 [08-production-and-publish/scaling-and-infrastructure.md](./08-production-and-publish/scaling-and-infrastructure.md)  
+- **🔌 MCP-Assisted Research, Asset Iteration & Visual QA:**
+  👉 [07-playbooks-and-operations/mcp-assisted-workflow.md](./07-playbooks-and-operations/mcp-assisted-workflow.md)
+
+- **🚀 การ Deploy สู่ Production, Cloud Stack, การสเกล และ AI APIs:**
+  👉 [08-production-and-publish/production-deployment-guide.md](./08-production-and-publish/production-deployment-guide.md)
+  👉 [08-production-and-publish/cloud-and-tech-stack.md](./08-production-and-publish/cloud-and-tech-stack.md)
+  👉 [08-production-and-publish/api-and-ai-integrations.md](./08-production-and-publish/api-and-ai-integrations.md)
+  👉 [08-production-and-publish/scaling-and-infrastructure.md](./08-production-and-publish/scaling-and-infrastructure.md)
   👉 [08-production-and-publish/env-and-secrets-configuration.md](./08-production-and-publish/env-and-secrets-configuration.md)
 
-- **📑 สารบัญเอกสารทั้งหมด (Master Index):**  
+- **📑 สารบัญเอกสารทั้งหมด (Master Index):**
   👉 [docs/README.md](./README.md)

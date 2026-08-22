@@ -1,14 +1,16 @@
-# 2. Production Tech Stack & Architecture ฉบับใช้งานง่าย
+# 2. Future Production Tech Stack & Architecture
 
-> **เป้าหมาย:** สถาปัตยกรรมที่เข้าใจง่าย ใช้น้อยชิ้นแต่ทรงพลัง ไม่มีภาระดูแล Server (Serverless-first) สามารถเปิดใช้จริงได้เร็วและขยายตัวได้เมื่อมีคนเข้ามาใช้งานจำนวนมาก
+> **สถานะ:** Future-state proposal ในช่วง D0 Documentation only; ยังไม่มี service หรือ code ชุดนี้ใน repository
+> **เป้าหมาย:** สถาปัตยกรรมที่เข้าใจง่าย ใช้น้อยชิ้นแต่ทรงพลัง ลดภาระดูแล Server และขยายตัวได้เมื่อมีผู้ใช้จำนวนมาก
 
 ---
 
-## 2.1 สรุป Tech Stack ที่ใช้จริง (Everything You Need)
+## 2.1 Proposed Tech Stack
 
 | ส่วนของระบบ | เทคโนโลยีที่เลือกใช้ | ทำไมถึงเลือกตัวนี้? (จุดเด่น) |
 |---|---|---|
-| **หน้าเว็บ & เกม 2D (Frontend)** | **React + Vite + Phaser 3** | โหลดเร็ว รองรับแอนิเมชัน 2D Pixel Art และทำงานได้ดีบนทั้งคอมและมือถือ |
+| **Website Shell** | **React + Vite (workspace แยก)** | เป็น owner ของ route, form, accessibility, queue, interview และ admin UI |
+| **Career Hall Game** | **Phaser 4.x (workspace แยก)** | เป็น owner ของ world loop, tilemap, collision, actor, camera และ proximity sensor |
 | **โฮสติ้งเว็บ (Hosting)** | **Vercel** | เชื่อมต่อกับ GitHub แล้ว Deploy อัตโนมัติใน 1 คลิก พร้อม Global Edge CDN ฟรี |
 | **ฐานข้อมูลหลัก & Realtime** | **Supabase** | ให้ครบทั้ง PostgreSQL, Auth, Realtime คิวสัมภาษณ์ และ Storage เก็บไฟล์ |
 | **ฐานข้อมูลเอกสาร & Logs** | **MongoDB Atlas** | เก็บโครงสร้าง Resume แบบยืดหยุ่น (JSON Documents) และประวัติการใช้งาน |
@@ -16,6 +18,8 @@
 | **AI วิเคราะห์ Resume & แมตช์งาน** | **OpenAI / Anthropic / Gemini** | ใช้สกัดทักษะ ปิดบังประวัติส่วนตัว และคำนวณคะแนนความตรงกัน 0–100 |
 | **ระบบครอบหน้ากากอวตาร (Face Mask)**| **MediaPipe FaceMesh (WASM)** | **ฟรี!** รันบนเบราว์เซอร์ของผู้ใช้เอง ไม่เสียค่า Server และปลอดภัย 100% |
 | **ระบบดัดเสียงสด (Voice Pitch Shift)** | **Web Audio API (AudioWorklet)**| **ฟรี!** รันบนเบราว์เซอร์ของผู้ใช้ ดัดเสียงได้แบบ Real-time ความหน่วงต่ำมาก |
+
+Website และ Game แชร์เฉพาะ typed contracts, domain types และ approved game assets ตาม [Web–Game Separation](../04-architecture/web-game-separation.md) แม้สุดท้ายจะถูก deploy ภายใต้ origin เดียวกันก็ตาม
 
 ---
 

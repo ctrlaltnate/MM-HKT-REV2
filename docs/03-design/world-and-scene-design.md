@@ -9,7 +9,7 @@
 - **Logical module:** แผนผัง hall มาตรฐานมีขนาด `1536 × 1024 logical px` ต่อ 1 โมดูล แต่ runtime ต้องทำงานแบบ **toroidal wrap หรือ streamed repeating modules**: เดินพ้นขอบ corridor แล้วเข้ามายัง corridor ฝั่งตรงข้าม/โมดูลถัดไปอย่างไร้รอยต่อ จึงเดินวนกลับมาจุดเดิมได้เสมอ
 - **Open modular floor plan:** พื้นหลักต้องเป็น hall โล่ง มีทางเดินกว้างและพื้นที่ว่างสำหรับวาง/ย้าย booth module ได้ตาม event configuration; ห้ามออกแบบเป็นด่านคับแคบหรือ maze ที่ขวางการค้นพบงาน
 - **Stable landmarks:** Central Hub, Arrival Lobby, Exit Portal, Support/A11y Desk และ Device Test Pods เป็น landmark ซ้ำที่ช่วยให้ผู้ใช้รู้ตำแหน่ง แม้จะเดินผ่านขอบ loop หรือ streamed module
-- **Renderer:** ใช้ Phaser 3 พร้อม Smooth Camera-Follow และ time-based easing; background, floor, props, foreground และ sprites ถูก compose จาก pre-generated asset layers / tile chunks ไม่ใช่ procedural canvas drawing
+- **Renderer:** ใช้ Phaser 4 พร้อม Smooth Camera-Follow และ time-based easing; background, floor, props, foreground และ sprites ถูก compose จาก pre-generated asset layers / tile chunks ไม่ใช่ procedural canvas drawing
 - **Multi-Control:** รองรับ Keyboard (WASD / Arrow keys), Point-and-Click บน Desktop, Tap-to-Move บน Mobile และมี Navigator/List Mode ที่ทำงานได้เทียบเท่า 100%
 - **Strict No-Emoji Standard:** ทุก Element ภายในฉาก (NPC, พร็อพ, บูธ, ของตกแต่ง) ต้องเป็น **Generated Pixel Art / SVG Assets** ทั้งหมด ห้ามใช้อิโมจิ
 - **Visual Language Standards (Office / Convention Hall / Exhibition Booth):** ศึกษาโครงสร้างผัง, พร็อพอุปกรณ์สำนักงาน, โต๊ะ Recruiter, และซุ้มประตูทางเดินจากภาพอ้างอิงทั้ง 5 ภาพใน [docs/ref_pics/](../ref_pics/) และ [docs/03-design/reference-visual-language.md](./reference-visual-language.md)
@@ -95,7 +95,7 @@
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-> 🌟 **เกณฑ์มาตรฐานอ้างอิงหลักสูงสุด (Master Primary References):**  
+> 🌟 **เกณฑ์มาตรฐานอ้างอิงหลักสูงสุด (Master Primary References):**
 > ผังรวมบูธ 6 โซน และสไปรต์ชีตบูธแยกชิ้น ป้ายโลโก้ อุปกรณ์สำนักงาน ดูได้ที่ [docs/ref_pics/00_MAIN_virtual_job_fair_map.jpg](../ref_pics/00_MAIN_virtual_job_fair_map.jpg) และ [docs/ref_pics/00_MAIN_spritesheet_booths_characters_props.png](../ref_pics/00_MAIN_spritesheet_booths_characters_props.png)
 
 ### รายละเอียดองค์ประกอบความสมจริงของระบบ Modular Booth:
@@ -146,14 +146,14 @@
 
 ---
 
-## 3.6 Modular 8-Bit Character Compositor Architecture (Phaser 3 & The Sims Style Customizer)
+## 3.6 Modular 8-Bit Character Compositor Architecture (Phaser 4 & The Sims Style Customizer)
 
 เพื่อให้ระบบสร้างตัวละคร (Character Creator) ทำงานร่วมกับ **Phaser 2D Game Engine** ได้อย่างสมบูรณ์แบบ ลื่นไหล และปรับแต่งได้หลากหลายแบบ The Sims ระบบใช้สถาปัตยกรรม **Modular Layered Sprite Compositing**:
 
 ```mermaid
 flowchart TD
     CONFIG["AvatarCustomizationConfig (JSON State)"] --> COMPOSITOR["Phaser Sprite Compositor Engine"]
-    
+
     subgraph Layers["Modular 8-Bit Sprite Layers (16×24 / 24×32 px)"]
         L1["Layer 0: Base Body & Skin Tone (4 Palettes)"]
         L2["Layer 1: Eyes & Facial Expression (4 Directions)"]
@@ -168,7 +168,7 @@ flowchart TD
 ```
 
 ### 1. Layer Compositing & Palette Swapping
-- **Layer Stacking Order:** 
+- **Layer Stacking Order:**
   `Base Skin Body` → `Underwear/Base` → `Top/Outfit` → `Hair` → `Animal Mask / Accessories`
 - **Dynamic Palette Swapping:** ใช้ Color Lookup Table (LUT) หรือ Shader บน Phaser เพื่อเปลี่ยนสีผิว (Light, Medium, Warm Tan, Deep), สีผม (Black, Brown, Blonde, Cyan, Neon Pink ฯลฯ) และสีเสื้อผ้า โดยไม่ต้องวาด Sprite แยกทุกสี
 - **4-Direction Frame Synchronizer:** ทุกเลเยอร์ใช้ Frame Index เดียวกัน (Down: 0–3, Left: 4–7, Right: 8–11, Up: 12–15) ทำให้แอนิเมชันการเดินและทิศทางของทุกชิ้นส่วนขยับพร้อมเพรียงกัน 100%

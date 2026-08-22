@@ -1,8 +1,11 @@
 # MaskedMatch — Master Documentation Index
 
-> **Skills First. Bias Last.**  
-> **Interactive 8-bit Virtual Job Fair Documentation Hub**  
-> Version 2.1 · Interactive Career Hall & Production Revision · August 2026
+> **Skills First. Bias Last.**
+> **Interactive 8-bit Virtual Job Fair Documentation Hub**
+> Version 2.2 · Docs-only Architecture Revision · August 2026
+
+> [!IMPORTANT]
+> **สถานะปัจจุบัน: Documentation only** — repository นี้ยังไม่มี website, game runtime, backend หรือ deployment configuration ที่พร้อมรัน การเริ่ม scaffold/implementation ต้องได้รับคำสั่งแยกต่างหากหลังเอกสารและขอบเขตได้รับการอนุมัติ
 
 เอกสารทั้งหมดของโครงการ MaskedMatch ถูกจัดแบ่งออกเป็น **8 หมวดหมู่หลัก (35+ เอกสารย่อย)** อย่างเป็นระบบ ครอบคลุมทั้งด้านผลิตภัณฑ์ (Product), ประสบการณ์และการออกแบบ (UX/UI), สถาปัตยกรรมระบบ (Architecture), ความปลอดภัยและธรรมาภิบาล (Security & Governance), วิศวกรรมและการประกันคุณภาพ (Engineering & QA), คู่มือการปฏิบัติการ (Playbooks & Operations) ตลอดจนคู่มือการดีพลอยสู่ระดับ Production จริง (Production & Publish)
 
@@ -36,6 +39,7 @@ docs/
 │
 ├── 04-architecture/                          # สถาปัตยกรรมทางเทคนิคและสัญญาข้อมูล
 │   ├── system-architecture.md                # สถาปัตยกรรมระบบหลัก (Component Diagram, Media Pipeline, Stack)
+│   ├── web-game-separation.md                # ขอบเขต Website/Game, Phaser 4 decision และ integration contract
 │   ├── state-machines.md                     # แผนภาพ State Machines (Event, Queue, Interview, Decision)
 │   ├── domain-model-and-data.md              # Domain Entities, AvatarConfig, Identity Vault และ Retention
 │   └── api-and-realtime-contracts.md         # สัญญา REST API, WebSocket Protocols, Error Codes
@@ -54,9 +58,10 @@ docs/
 │
 ├── 07-playbooks-and-operations/              # คู่มือสำหรับ Agent และการนำเสนองาน
 │   ├── agent-playbook.md                     # คู่มือ AI Coding Agent (Invariants, Slices 0-6, Workflows)
+│   ├── mcp-assisted-workflow.md               # กติกาใช้ MCP เพื่อ research, asset iteration และ visual QA
 │   ├── demo-runbook-and-storyboard.md        # แผนการนำเสนอ 5 นาทีบนเวที, สคริปต์, Scenario Presets
 │   ├── demo-fixtures-and-assets.md           # ชุดชุดข้อมูลมาตรฐานมาตรฐาน (Fixtures) และ Asset Registry
-│   └── architecture-decision-records.md      # บันทึกการตัดสินใจทางสถาปัตยกรรม (ADR-001 ถึง ADR-010)
+│   └── architecture-decision-records.md      # บันทึกการตัดสินใจทางสถาปัตยกรรม (ADR-001 ถึง ADR-013)
 │
 └── 08-production-and-publish/                # คู่มือการติดตั้งและปล่อยใช้งานจริง (Production & Scale)
     ├── production-deployment-guide.md        # แผนผังและขั้นตอนการ Deploy (Cloud, Docker, Compose, SSL)
@@ -71,8 +76,8 @@ docs/
 ## 🧭 Quick Navigation by Role
 
 - 👨‍💻 **สำหรับ AI Coding Agents & Developers:**
-  1. เริ่มต้นที่ [07-playbooks-and-operations/agent-playbook.md](./07-playbooks-and-operations/agent-playbook.md) เพื่อทำความเข้าใจกฎเหล็ก 12 ประการ และ Build Sequence (Slices 0–6)
-  2. ศึกษา [04-architecture/system-architecture.md](./04-architecture/system-architecture.md) และ [04-architecture/state-machines.md](./04-architecture/state-machines.md)
+  1. เริ่มต้นที่ [07-playbooks-and-operations/agent-playbook.md](./07-playbooks-and-operations/agent-playbook.md) เพื่อดูข้อห้ามในช่วง Docs-only และ Build Sequence ในอนาคต
+  2. ศึกษา [04-architecture/web-game-separation.md](./04-architecture/web-game-separation.md), [04-architecture/system-architecture.md](./04-architecture/system-architecture.md) และ [04-architecture/state-machines.md](./04-architecture/state-machines.md)
   3. ตรวจสอบข้อกำหนดใน [02-product/functional-requirements.md](./02-product/functional-requirements.md) และ [02-product/acceptance-criteria.md](./02-product/acceptance-criteria.md)
 
 - 🚀 **สำหรับ DevOps / Platform Engineers (Deploy สู่ Production):**
@@ -98,19 +103,10 @@ docs/
 
 ---
 
-## ⚡ Quick Start Commands
+## Current Working Mode
 
-```bash
-# ติดตั้ง dependencies
-npm install
-
-# รัน Local Development Server
-npm run dev
-
-# ทดสอบ Typecheck, Build, และ Tests
-npm run typecheck
-npm run build
-npm test
-npm run test:e2e
-npm run test:a11y
-```
+- อ่านและปรับปรุงข้อกำหนดใน `docs/` เท่านั้น
+- ใช้ภาพใน [`ref_pics/`](./ref_pics/) เป็น **visual reference** สำหรับกำหนดทิศทาง 8-bit; ห้ามนำไฟล์ reference ไปใช้เป็น runtime asset โดยอัตโนมัติ
+- งาน world/visual ในอนาคตต้องใช้ MCP-assisted workflow เพื่อเก็บหลักฐาน reference, ปรับ asset และตรวจภาพจริงตาม [MCP-Assisted Workflow](./07-playbooks-and-operations/mcp-assisted-workflow.md); MCP เป็น development/QA tooling ไม่ใช่ runtime dependency
+- ยังไม่มีคำสั่งติดตั้งหรือรัน local app เพราะ implementation เดิมถูกถอดออกจาก repository แล้ว
+- เมื่อเริ่มพัฒนาในอนาคต ให้สร้าง Website และ Game เป็นคนละ workspace ตาม [Web–Game Separation](./04-architecture/web-game-separation.md) และสร้าง production asset library แยกจาก `docs/ref_pics/`

@@ -64,6 +64,24 @@
 - **Decision:** ผลิตงานภาพ Pixel Art และ Tileset ขึ้นมาใหม่ทั้งหมด และบันทึกลง Asset Registry
 - **Consequences:** ปลอดภัยจากปัญหาการละเมิดทรัพย์สินทางปัญญา และมีความพร้อมสำหรับการขยายสู่ Production
 
+### ADR-011: Phaser 4 Stable Line for the Career Hall
+- **Status:** Accepted for future implementation; compatibility spike required
+- **Context:** Career Hall ต้องรองรับ 2D top-down tilemap, sprites, collision, camera, proximity sensor และ input หลายรูปแบบ โดย Phaser 4 เป็น stable release line แล้ว
+- **Decision:** ใช้ Phaser 4.x สำหรับ Game workspace และ pin exact stable version หลังผ่าน spike ตาม [Web–Game Separation](../04-architecture/web-game-separation.md) การตรวจ public production payload เมื่อ 22 August 2026 ยืนยันว่า Hideout ใช้ Phaser 4.1.0 แต่ไม่ใช่เหตุผลให้คัดลอก version โดยไม่ทดสอบ requirement ของ MaskedMatch
+- **Consequences:** ได้ engine ที่ตรงกับ world requirement และมีแนวทางอัปเกรดชัดเจน แต่ต้องตรวจ plugin/API compatibility และ performance ก่อนเริ่ม vertical slice
+
+### ADR-012: Website and Game as Separate Workspaces
+- **Status:** Accepted for future implementation
+- **Context:** Product task UI ต้องเป็น semantic DOM ขณะที่ world simulation ต้องมี game loop ของตนเอง การรวม ownership ทำให้ accessibility, testing และ lifecycle ของ WebRTC/Canvas ซับซ้อน
+- **Decision:** แยก `apps/web` และ `apps/game`; แชร์เฉพาะ `packages/contracts`, `packages/domain` และ `packages/assets` ผ่าน typed adapter
+- **Consequences:** build/test/performance budget แยกได้, เปลี่ยน renderer ได้ง่ายขึ้น และป้องกัน Phaser object รั่วเข้า product UI แลกกับการต้องดูแล contract version อย่างเป็นระบบ
+
+### ADR-013: MCP-Assisted Evidence and Visual QA
+- **Status:** Accepted for future implementation; read-only research permitted in D0
+- **Context:** ความสมจริงของโลก 8-bit ต้องอาศัย measurement, interaction evidence, asset iteration และการตรวจ implementation จริง ไม่ควรตัดสินจาก prompt หรือภาพนิ่งเพียงภาพเดียว
+- **Decision:** งาน world/visual ต้องใช้ MCP/tool connectors ที่มีอยู่และไม่มีค่าใช้จ่ายเมื่อเกี่ยวข้องตาม [MCP-Assisted Workflow](./mcp-assisted-workflow.md) ตั้งแต่ reference inspection ถึง browser visual/performance QA พร้อม provenance record โดย MCP เป็น development/QA tooling เท่านั้น ไม่เป็น production runtime dependency และไม่บังคับซื้อ Phaser Editor/paid MCP
+- **Consequences:** ได้งานที่ตรวจสอบย้อนกลับได้และลดการเดา แต่ต้องดูแล permission, privacy, IP boundary, tool availability และ fallback อย่างชัดเจน
+
 ---
 
 ## 4.2 Standards & Official References
@@ -71,4 +89,5 @@
 - **Web Accessibility Standards:** [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/) · [WAI-ARIA 1.2 Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
 - **Web Standards & Performance:** [WebRTC 1.0](https://www.w3.org/TR/webrtc/) · [Page Visibility API Level 2](https://www.w3.org/TR/page-visibility-2/) · [Google Web Vitals](https://web.dev/articles/vitals)
 - **Legal & Data Protection:** [พระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)](https://www.pdpc.or.th/) · [ระบบ DOPA Digital ID (ThaID)](https://digitalid.bora.dopa.go.th/pr)
-- **Spatial Concept Inspiration:** Gather Classic 1.0 & Hideout (ใช้เป็น Reference ด้าน Spatial Presence เชิงแนวคิดเท่านั้น)
+- **Game Engine:** [Phaser releases](https://github.com/phaserjs/phaser/releases) · [Phaser API](https://docs.phaser.io/api-documentation/namespace/phaser)
+- **Spatial Concept Inspiration:** [Gather](https://www.gather.town/features) · [Gather Spatial Audio/Video](https://support.gather.town/articles/4624155403-overview-of-spatial-audio-video) · [Hideout](https://gethideout.app/) (ใช้เป็น experience reference; stack observations มาจาก public client payload เท่านั้น)
