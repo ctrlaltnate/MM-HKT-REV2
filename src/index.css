@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Press+Start+2P&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-canvas: #070816;
+  --bg-world-night: #0D1025;
+  --surface-1: #17162E;
+  --surface-2: #262047;
+  --surface-3: #352C5E;
+  
+  --brand-purple: #8B5CF6;
+  --brand-purple-dark: #6D28D9;
+  --brand-purple-glow: rgba(139, 92, 246, 0.45);
+  --brand-pink: #FF4FD8;
+  --brand-pink-glow: rgba(255, 79, 216, 0.45);
+  --brand-cyan: #37E7FF;
+  --brand-cyan-glow: rgba(55, 231, 255, 0.45);
+  --brand-mango: #FFD84D;
+  --brand-mango-glow: rgba(255, 216, 77, 0.45);
+  
+  --status-success: #4ADE80;
+  --status-warning: #FBBF24;
+  --status-danger: #FF5A6F;
+  --status-info: #38BDF8;
+  
+  --text-primary: #F8F7FF;
+  --text-muted: #BBB6D5;
+  --text-dim: #7B759D;
+  --text-on-accent: #070816;
+  --focus-ring: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: #070816;
+  color: #F8F7FF;
+  font-family: 'Noto Sans Thai', 'Chakra Petch', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #070816;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #262047;
+  border: 1px solid #8B5CF6;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8B5CF6;
+}
+
+/* Pixel rendering */
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Animations */
+@keyframes neon-pulse {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px currentColor); }
+  50% { opacity: 0.85; filter: drop-shadow(0 0 3px currentColor); }
+}
+
+.animate-pulse-slow {
+  animation: neon-pulse 3s infinite ease-in-out;
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s infinite ease-in-out;
+}
+
+@keyframes scale-up {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-scale-up {
+  animation: scale-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}
+
+@keyframes slide-left {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-left {
+  animation: slide-left 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
