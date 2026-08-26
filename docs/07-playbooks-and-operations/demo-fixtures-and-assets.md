@@ -78,25 +78,9 @@ uncertain_reasons:
 
 ## 2. Runtime Asset Source of Truth
 
-`packages/assets/manifest.json` เป็น machine-readable source of truth หากตารางนี้ต่างจาก manifest ให้แก้ทั้งสองจุดใน change เดียวกัน
+Repository `HEAD` ปัจจุบันยังไม่มี `packages/assets/manifest.json` และไม่มี runtime/source asset ที่ผ่าน admission ดังนั้น runtime inventory ว่าง ภาพเจ็ดไฟล์ใน `docs/ref_pics/` เป็น reference only
 
-| Asset ID | Path | Runtime status | Purpose |
-|---|---|---|---|
-| `world.hall.v1` | `packages/assets/game/world/neon-career-hall-v1.png` | Reference only | archived composition study; ห้ามโหลดเป็น flat world |
-| `world.hall.study.v2` | `packages/assets/game/world/neon-career-hall-v2.png` | Reference only | brightness/readability study; ห้ามโหลดเป็น flat world |
-| `world.floor.atlas.v1` | `packages/assets/game/generated/mm-career-floor-v1.png` | Runtime | floor surfaces เท่านั้น |
-| `world.props.atlas.v1` | `packages/assets/game/generated/mm-career-props-v1.png` | Legacy only | retained for provenance; current Career Hall does not load it |
-| `world.environment.parts.runtime.v2` | `packages/assets/game/generated/mm-topfront-environment-parts-runtime-v2.png` | Runtime | normalized 384×384 no-shadow atlas; Phaser owns shadow/collider |
-| `world.npcs.atlas.v1` | `packages/assets/game/generated/mm-career-npcs-v1.png` | Legacy retained / unused by current World | prebuilt synthetic NPC atlas; current NPC runtime ใช้ shared avatar compositor แล้ว |
-| `world.environment.parts.source.v2` | `packages/assets/game/generated/mm-topfront-environment-parts-source-v2.png` | Source only | 12 no-shadow top-front environment parts; RGBA จริง |
-| `avatar.base.turnaround.source.v2` | `packages/assets/game/generated/mm-avatar-base-turnaround-source-v2.png` | Source only | base body 4 directions × 3 poses; neutral underlayer; no shadow |
-| `avatar.hair.parts.source.v2` | `packages/assets/game/generated/mm-avatar-hair-parts-source-v2.png` | Source only | 5 hair styles × 4 directions |
-| `avatar.top.parts.source.v2` | `packages/assets/game/generated/mm-avatar-top-parts-source-v2.png` | Source only | 4 top styles × 4 directions |
-| `avatar.lower-accessory.parts.source.v2` | `packages/assets/game/generated/mm-avatar-lower-accessory-parts-source-v2.png` | Source only | 3 bottoms + 3 shoes + 4 accessories × 4 directions |
-
-ไฟล์ `packages/assets/game/generated/mm-avatar-direction-reference-v1.png` เป็น process reference รุ่นเก่าที่ยังไม่อยู่ใน manifest และมี baked contact shadow จึงห้ามถือเป็น approved runtime asset
-
-Planned asset ต้องอยู่ใน roadmap หรือ backlog ไม่ใส่ปนใน registry นี้จนกว่าไฟล์และ provenance จะมีจริง
+เมื่อ `AST-001..009` ใน [Implementation Execution Plan](./implementation-execution-plan.md) เสร็จ ให้สร้าง `packages/assets/manifest.json` เป็น machine-readable source of truth และเพิ่มรายการในเอกสารนี้พร้อมไฟล์/provenance/checksum ใน change เดียวกัน Planned asset ห้ามใส่ใน runtime registry ก่อนมีไฟล์จริง
 
 ---
 
@@ -145,12 +129,12 @@ Provenance record ระดับไฟล์ใน `packages/assets/manifest.js
 
 | Gap | Required outcome |
 |---|---|
-| Booth/prop variety | normalize source v2, เพิ่ม variant ให้ครบขั้นต่ำ และ author N/E/S/W สำหรับ directional prop ตาม `FR-WORLD-036/038` |
-| Avatar wardrobe | source v2 มี part categories แล้ว; ต้อง crop/register, author ทุก layer × 4 directions × 3 frames, palette masks และ pack runtime atlases |
-| Directional NPC | Shared seeded compositor implemented; ยังต้องเพิ่ม movement schedule, generated-source atlas normalization และ browser evidence |
-| Runtime shadow | Owner-linked Phaser shadow layer implemented สำหรับ actor/partition/หลัก props; ยังต้องเพิ่ม debug toggle และ state profiles ตาม `FR-WORLD-037` |
+| Booth/prop variety | สร้าง original source, normalize, เพิ่ม variant ให้ครบขั้นต่ำ และ author N/E/S/W สำหรับ directional prop ตาม `FR-WORLD-036/038` |
+| Avatar wardrobe | สร้าง/crop/register ทุก layer × 4 directions × 3 frames, palette masks และ pack runtime atlases |
+| Directional NPC | สร้าง shared seeded compositor, movement schedule, atlas normalization และ browser evidence |
+| Runtime shadow | สร้าง owner-linked Phaser shadow layer, debug toggle และ state profiles ตาม `FR-WORLD-037` |
 | Floor/road/wall tiles | สร้าง reusable autotile families ครบ topology, transition, opening และ collision metadata ตาม `FR-WORLD-038` |
-| Booth partition kit | continuous L-corner/side-return + glass + door left/center/right + wide-opening พร้อม segmented colliders; A1/A2 เป็น adjacent demo ใช้ shared wall/collider ที่มี owner สองบูธ | เพิ่ม low-divider/material variants และ Chrome doorway traversal evidence |
+| Booth partition kit | สร้าง straight/L/U/shared-wall + glass/low-divider + door left/center/right + wide opening พร้อม segmented colliders และ traversal evidence |
 | Recolor/rearrange | เพิ่ม semantic palette slots, anchors, occlusion parts และ prefab metadata ตาม `FR-WORLD-039` |
 | Evidence | เพิ่ม camera lineup, collider/depth capture และ screenshots ที่ 390/1440 px |
 

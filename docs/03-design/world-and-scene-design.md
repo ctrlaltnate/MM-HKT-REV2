@@ -552,21 +552,19 @@ Screenshot สวยหนึ่งภาพไม่ถือว่าผ่า
 
 ## 10. Current Implementation Status and Gaps
 
-| Capability | Current R0 status | Required next gap |
-|---|---|---|
-| Plain floor + entity props | Implemented vertical slice | เพิ่ม variant atlas และ camera lineup QA |
-| No-shadow environment source v2 | Generated RGBA source sheet | crop/register/normalize/pack ก่อน runtime; ยังไม่ใช่ approved atlas |
-| All-angle environment coverage | Not complete | source v2 ส่วนใหญ่มี canonical south view เท่านั้น; ต้อง author N/E/S/W ตาม 3.4/5.5 |
-| Floor/aisle/wall autotiles | Partial floor atlas only | เพิ่ม road topology, transitions, walls, corners, junctions, openings และ material variants ตาม 4.3 |
-| 4 booth pads | Implemented | ขยาย production library ให้ครบ facade 4, counter 4, showcase 4, kiosk 3 และหมวดอื่นตาม 5.2/8.5 |
-| Player direction | 4 directions × 3 frames implemented | เพิ่ม asymmetric layer QA |
-| Layered avatar compositor | Implemented as Phaser Dynamic Texture: skin/hair/top/bottom/shoes/accessory แยก style/color และ migrate local legacy outfit ได้ | normalize generated source atlases, add palette-mask evidence และ exhaustive combination QA |
-| Modular avatar source v2 | Base 4×3, hair 5×4, top 4×4, lower/shoes/accessory 10×4 generated as RGBA source sheets | normalize anchors, author per-step overlays, palette map และ pack compositor atlases |
-| NPC actors | 12 synthetic NPC ใช้ seeded `AvatarAppearance` + shared player compositor; legacy full-body atlas ไม่ถูกโหลดใน current World | เพิ่ม directional movement schedules และ seed/combination browser evidence |
-| Runtime shadow layer | Implemented owner-linked layer สำหรับ player, NPC, partition และหลัก props | เพิ่ม state-responsive shadow profile และ debug toggle ตาม 6.4 |
-| Booth partition compositor | continuous L-corner/side-return ใช้ left/center/right, glass, door-left/center/right และ wide-opening พร้อม segmented colliders; A1/A2 วางติดกันและใช้ shared wall/collider ชุดเดียวที่มี ownerIds สองบูธ | เพิ่ม low-divider/material variants และ Chrome runtime doorway traversal/collider screenshot evidence |
-| Collision/Y-depth | Implemented vertical slice | เพิ่ม automated collider/depth evidence scene |
-| Browser visual QA | Pending browser session | เก็บ 390/1440 screenshots และ interaction evidence |
-| Streamed/endless module | Not implemented | ห้ามอ้างว่า endless จนมี wrap/stream + navigation continuity |
+Repository `HEAD` ปัจจุบันไม่มี Game workspace, runtime asset manifest หรือ generated/runtime asset files ภาพทั้งหมดใน `docs/ref_pics/` เป็น reference only
 
-ตารางนี้ต้องอัปเดตเมื่อ runtime เปลี่ยน เพื่อแยก target requirement ออกจากสิ่งที่ทำเสร็จจริง
+| Capability | Current status | Required next work |
+|---|---|---|
+| Phaser runtime and scene layers | `NOT_STARTED` | `FND-004`, `MOV-001` และ `WRD-001` ใน execution plan |
+| Plain floor, entity props and four booths | `NOT_STARTED` | asset pipeline + entity/prefab implementation |
+| Character source/compositor | `NOT_STARTED` | base/wardrobe proof, 4×3 coverage, anchors and shared compositor |
+| NPC actors | `NOT_STARTED` | seeded appearances, shared compositor and movement schedules |
+| Runtime shadow layer | `NOT_STARTED` | owner-linked shadow factory and debug toggle |
+| Booth partition kit | `NOT_STARTED` | straight/L/U/shared-wall, doorway variants and segmented colliders |
+| Collision/Y-depth/navigation | `NOT_STARTED` | Movement Lab and automated evidence scenes |
+| Directional props and autotiles | `NOT_STARTED` | authored N/E/S/W and complete topology coverage |
+| Browser visual QA | `NOT_STARTED` | 390/1440 interaction captures and overlays |
+| Streamed/endless module | `NOT_STARTED` | wrap/stream + navigation continuity before using “endless” copy |
+
+ตารางนี้ต้องอัปเดตเมื่อ runtime เปลี่ยน เพื่อแยก target requirement ออกจากสิ่งที่ทำเสร็จจริง ลำดับ task อยู่ใน [Implementation Execution Plan](../07-playbooks-and-operations/implementation-execution-plan.md)

@@ -1,0 +1,29 @@
+{
+  "name": "@maskedmatch/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@google/genai": "2.19.0",
+    "cors": "2.8.5",
+    "dotenv": "17.4.2",
+    "express": "5.2.1",
+    "multer": "2.2.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/cors": "2.8.19",
+    "@types/multer": "2.0.0",
+    "@types/node": "26.3.0",
+    "tsx": "4.23.12",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
+  }
+}

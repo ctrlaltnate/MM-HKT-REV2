@@ -1,12 +1,12 @@
 # MaskedMatch Documentation
 
-> **Version:** 3.1 · 23 August 2026
-> **Phase:** R0 frontend implementation in progress
+> **Version:** 3.2 · 26 August 2026
+> **Phase:** Website-first local foundation in progress
 > **Product:** Responsive Website + Landing + Virtual Job Fair
 
 เอกสารชุดนี้ใช้หลัก **one topic, one canonical owner** เพื่อให้ข้อกำหนดครบแต่ไม่ซ้ำ หากข้อความใน supporting document ขัดกับ owner ให้แก้ owner ก่อนแล้วอ้าง link/requirement ID จากไฟล์อื่น
 
-Current frontend เป็นภาพพิสูจน์แนวทาง ไม่ใช่ art/runtime ceiling การพัฒนา asset, map, avatar, NPC และ Phaser World ต่อจากนี้ต้องยึด [Game Visual & World Specification](./03-design/world-and-scene-design.md) แม้ demo ปัจจุบันยังใช้ legacy/partial assets
+Repository ปัจจุบันมี React/Vite website และ Express local API ที่รันได้แล้ว ส่วน Phaser game และ runtime asset pipeline ยังไม่เริ่ม การพัฒนาต่อให้ใช้ [Implementation Execution Plan](./07-playbooks-and-operations/implementation-execution-plan.md) และยึด [Game Visual & World Specification](./03-design/world-and-scene-design.md) เป็น visual/runtime contract
 
 ---
 
@@ -23,6 +23,8 @@ Current frontend เป็นภาพพิสูจน์แนวทาง �
 | ออกแบบ Website/UI | [Website & Product UI Design System](./03-design/design-system.md) |
 | แยก Website กับ Phaser | [Web–Game Separation](./04-architecture/web-game-separation.md) |
 | ลงมือพัฒนา | [Agent Playbook](./07-playbooks-and-operations/agent-playbook.md) |
+| ทำ implementation ทีละส่วน | [Implementation Execution Plan](./07-playbooks-and-operations/implementation-execution-plan.md) |
+| ดูสถานะล่าสุด/รับช่วงงานต่อ | [Current Progress and Handoff](./07-playbooks-and-operations/current-progress-and-handoff.md) |
 | ทำ demo ครบสามบทบาท | [Three-Role Demo Runbook](./07-playbooks-and-operations/demo-runbook-and-storyboard.md) |
 | ต่อ API/provider/key อย่างปลอดภัย | [API, AI and Media Integration Plan](./08-production-and-publish/api-and-ai-integrations.md) |
 | ตรวจคุณภาพก่อนส่ง | [Definition of Done](./06-engineering-and-qa/definition-of-done.md) |
@@ -50,15 +52,14 @@ Current frontend เป็นภาพพิสูจน์แนวทาง �
 
 ## Current Truthful Status
 
-| Area | Current R0 state | Not complete yet |
+| Area | Current state | Next required work |
 |---|---|---|
-| Website | Product Landing, Event Landing, candidate preparation, legal/status/404 และ local resume/reset journey มีแล้ว | backend/auth/production state |
-| Game boundary | `apps/web` และ `apps/game` แยก workspace; Phaser `4.2.1` | full production integration |
-| Career Hall | plain floor, V2 no-shadow runtime props, 4 booths, movement/collision, Navigator bridge, continuous L-corner/side returns, door left/center/right, wide opening และบูธ A1/A2 ที่ติดกันด้วย shared wall/collider owner เดียวสองบูธ | all-angle prop kit, complete floor/road/wall autotiles, larger variant library และ Chrome visual/doorway traversal evidence |
-| Avatar source v2 | RGBA base 4×3, hair 5×4, top 4×4, lower/shoes/accessory 10×4 generated | crop/register/per-step alignment/palette masks และ runtime atlas ยังไม่เสร็จ |
-| Actor/NPC runtime | player และ NPC ใช้ shared 4-direction × 3-frame Dynamic Texture compositor; NPC appearance เป็น seeded layers; skin/hair/top/bottom/shoes/accessory แยกเปลี่ยนได้; runtime shadow แยก owner | normalize generated source atlases, NPC movement behavior, shadow debug toggle และ combinatorial browser evidence |
-| Product loop | discovery/queue fixture บางส่วน | AC-41..44: complete Job Seeker, Recruiter/Company, Organizer/Support, shared demo state, interview, requester-first reveal และ connected adapters |
-| Visual QA | reference/provenance, normalized environment V2 atlas และ geometry/unit evidence มีแล้ว | Chrome extension connection, 390/1440 interaction captures, doorway traversal, camera lineup และ collider/depth screenshots |
+| Repository | npm workspaces, web/API apps, tests และ seven reference images | เพิ่ม E2E/a11y gates และ shared contracts |
+| Website | `IN_PROGRESS`; responsive shell, local membership, Candidate/Admin/Recruiter preparation และ fair directory ใช้งานได้ | masked-review approval, server auth, legal/status และ production accessibility evidence |
+| Game | `NOT_STARTED` | Phaser host, movement lab, collision/depth and typed bridge |
+| Runtime assets | `NOT_STARTED`; references are not runtime assets | source/metadata pipeline, manifest, atlas and admission evidence |
+| Multi-role preparation | `LOCAL_FOUNDATION`; Admin สร้าง fair, Recruiter สร้าง booth/job, Candidate เข้าร่วมหลาย fair | server authorization, moderation, tenant/event scope และ durable storage |
+| Connected services | Gemini Resume analysis ต่อผ่าน server-side local API; บริการอื่น `NOT_STARTED` | backend, durable state, realtime, media, audit and deployment |
 
 ห้ามเรียก concept, fixture, mock, planned service หรือ static screenshot ว่า production implementation
 
@@ -115,6 +116,8 @@ Current frontend เป็นภาพพิสูจน์แนวทาง �
 ### 07 — Playbooks and Operations
 
 - [Agent Playbook](./07-playbooks-and-operations/agent-playbook.md)
+- [Implementation Execution Plan](./07-playbooks-and-operations/implementation-execution-plan.md)
+- [Current Progress and Handoff](./07-playbooks-and-operations/current-progress-and-handoff.md)
 - [MCP-Assisted Workflow](./07-playbooks-and-operations/mcp-assisted-workflow.md)
 - [Demo Fixtures & Asset Registry](./07-playbooks-and-operations/demo-fixtures-and-assets.md)
 - [Demo Runbook & Storyboard](./07-playbooks-and-operations/demo-runbook-and-storyboard.md)
@@ -130,21 +133,8 @@ Current frontend เป็นภาพพิสูจน์แนวทาง �
 
 ---
 
-## Run the Current Frontend Slice
+## Run Status
 
-```bash
-npm install
-npm run dev
-```
+เริ่ม local website และ API ด้วย `npm run dev`; ตรวจด้วย `npm run typecheck`, `npm test` และ `npm run build` จาก repository root ดูวิธีตั้งค่า Gemini และข้อจำกัดของ Local identity ที่ [root README](../README.md)
 
-เปิด `http://127.0.0.1:4173/` หาก port ถูกใช้อยู่ ให้ปิด process เดิมหรือรัน workspace ด้วย port อื่นที่ระบุชัดเจน
-
-Quality commands:
-
-```bash
-npm run typecheck
-npm run test
-npm run build
-```
-
-Asset source of truth คือ `packages/assets/manifest.json`; visual reference อยู่ใน `docs/ref_pics/` และไม่ใช่ runtime asset
+`npm run test:e2e` และ `npm run assets:validate` ยังไม่ถูกสร้าง และต้องเพิ่มก่อนอ้างระดับ L1 ตาม plan ส่วน `docs/ref_pics/` ยังคงเป็น visual reference only และห้าม import เข้า runtime

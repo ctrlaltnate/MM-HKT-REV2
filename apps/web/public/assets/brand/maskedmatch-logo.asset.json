@@ -1,0 +1,17 @@
+{
+  "assetId": "brand.maskedmatch.logo.v1",
+  "file": "maskedmatch-logo.png",
+  "kind": "website-logo",
+  "dimensions": {
+    "width": 384,
+    "height": 384
+  },
+  "format": "PNG",
+  "alpha": true,
+  "generatedAt": "2026-08-26",
+  "sourceTool": "OpenAI built-in imagegen",
+  "sourceMode": "logo-brand",
+  "promptSummary": "Compact 8-bit MM monogram fused into a privacy-mask silhouette; cyan, violet and near-black; transparent background; no extra words or trademarks.",
+  "allowedUse": "MaskedMatch website branding and favicon",
+  "sha256": "7a1011e1cf8e8032eb7b6e8d2e26511cfd5661d34723d6ceffc6fc5103f4001d"
+}

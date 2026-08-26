@@ -78,18 +78,23 @@
 
 Role guards derive from server/demo capabilities, tenant and event membership. A route must render loading, unauthorized, empty, unavailable and recoverable error states; hiding a navigation item alone is not authorization.
 
-### F. R0 Website Implementation Status (22 August 2026)
+### F. R0 Website Implementation Status (26 August 2026)
 
-| Surface | Implemented Route | Current Status |
+| Surface | Target Route | Current Status |
 |---|---|---|
-| Product Website / Landing | `/` | **Implemented:** value proposition, how-it-works, World/Navigator parity และ Event CTA |
-| Event Landing | `/event/demo`, `/events/neon-career-city` | **Implemented:** schedule, 4 booths, privacy/a11y, progress, resume/reset และ Guest World |
-| Candidate Preparation | `/demo/verify`, `/candidate/profile/import`, `/candidate/profile/review`, `/candidate/avatar` | **Implemented as synthetic frontend demo:** consent, validation, masked side-by-side review, Phaser avatar preview และ local recovery |
-| Virtual Job Fair | `/event/demo/world`, `/app/events/event-neon-career-city/world` | **Implemented vertical slice:** Phaser 4 Career Hall, Navigator, booth detail, local queue, NPC dialogue, Info Hub และ Character Studio |
-| Legal / Recovery | `/legal/privacy`, `/legal/terms`, `/system-status`, unknown route | **Implemented:** truthful demo policy/status และ 404 recovery |
-| Queue orchestration, Interview, Decision/Reveal, Recruiter/Company/Ops | canonical routes in sections B–E | **Not implemented yet:** target flow อยู่ใน [User Journeys](../02-product/user-journeys.md) และห้ามนำเสนอว่า demo-complete/production-ready จน AC-41..44 ผ่าน |
+| Product Website / Landing | `/` | `IMPLEMENTED_LOCAL`; responsive 8-bit/liquid-glass shell + GSAP motion |
+| Local membership / workspace | `/auth`, `/app` | `IMPLEMENTED_LOCAL`; browser-only identity, not ThaID/server auth |
+| Fair directory/detail | `/fairs`, `/fairs/:fairId` | `IMPLEMENTED_LOCAL`; published/live fairs, booths, jobs and multi-fair join |
+| Candidate profile and Resume analysis | `/candidate/profile` | `IMPLEMENTED_LOCAL`; PDF text preview + consented Gemini server gateway; approval/versioning remains |
+| Recruiter preparation | `/recruiter/workspace` | `IMPLEMENTED_LOCAL`; company, booth and published job authoring |
+| Admin fair preparation | `/admin/fairs` | `IMPLEMENTED_LOCAL`; create and transition Draft → Published → Live → Ended |
+| Event Landing | `/event/demo`, `/events/neon-career-city` | `NOT_STARTED` |
+| Canonical connected Candidate routes | `/auth/sign-in`, `/app/onboarding`, `/candidate/profile/import`, `/candidate/profile/review`, `/candidate/avatar` | `NOT_STARTED`; local route above is an interim composition, not route-contract completion |
+| Virtual Job Fair | `/event/demo/world`, `/app/events/event-neon-career-city/world` | `NOT_STARTED` |
+| Legal / Recovery | `/legal/privacy`, `/legal/terms`, `/system-status`, unknown route | `NOT_STARTED` |
+| Queue orchestration, Interview, Decision/Reveal, Recruiter/Company/Ops | canonical routes in sections B–E | `NOT_STARTED`; ห้ามนำเสนอว่า demo-complete/production-ready จน AC-41..44 ผ่าน |
 
-> Route inventory คือ target architecture; ตารางนี้เป็นหลักฐานสถานะ runtime ปัจจุบัน เพื่อไม่ให้คำว่า “ทุกส่วนทำงานจริง” ถูกตีความเกิน vertical slice ที่ส่งมอบแล้ว
+> Route inventory คือ target architecture; งานเริ่มตาม [Implementation Execution Plan](../07-playbooks-and-operations/implementation-execution-plan.md) และเปลี่ยนสถานะได้เมื่อมี code/test/evidence ใน repository ปัจจุบันเท่านั้น
 
 ---
 

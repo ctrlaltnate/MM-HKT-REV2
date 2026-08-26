@@ -73,13 +73,13 @@ flowchart TD
 | Recruiter console | `/recruiter/demo` (alias `/company/demo`) | company/job form, publish state, live synthetic queue, interview readiness, decision and contact-field request persist locally | organization, job, queue, interview, decision and reveal-request APIs |
 | Operations console | `/operations/demo` (alias `/admin/demo`) | service-health board and resolvable synthetic support inbox | telemetry, audit, incident, support and privileged queue-control APIs |
 
-### 1.2.1 R0 browser-visible implementation status
+### 1.2.1 Browser-visible implementation status
 
-- Candidate routes ตั้งแต่ Event → Verify → Profile → Review → Avatar → Career Hall ทำงานผ่าน visible controls และ local persistence
-- Recruiter Demo ทำงานผ่าน visible controls สำหรับ publish booth/job, call queue, interview readiness, `INTERESTED`/`PASS` และเลือก field request หลังสนใจ
-- Operations Demo แสดง event health และเปิด/ปิด support ticket ได้จาก UI
-- Media, mutual-decision resolver, candidate per-field grant และ connected API adapters ยังเป็น production integration gap; UI ต้องติดป้าย Demo และห้ามอ้างว่าเชื่อม backend แล้ว
-- Phaser 4 avatar compositor ต้อง flush `DynamicTexture.render()` หลัง draw ทุกครั้ง; regression test ครอบคลุม Player, NPC และ Avatar Preview ที่ใช้ compositor กลาง
+- Website-first local slice มี visible routes สำหรับ membership, Candidate profile/PDF analysis, fair directory/detail, Admin fair และ Recruiter company/booth/job พร้อม browser persistence
+- local slice นี้ยังไม่ใช่ identity verification หรือ production authorization; Password hash และข้อมูลอยู่ใน browser เครื่องเดียว
+- Candidate approval/versioning, Operations journey, mutual-decision resolver, per-field reveal grant, media, game และ connected domain adapters ยังไม่ถูกสร้าง
+- ลำดับ implementation ใช้ [Implementation Execution Plan](../07-playbooks-and-operations/implementation-execution-plan.md)
+- เมื่อสร้าง Phaser compositor ต้อง flush/render ตาม API ของ version ที่ pin และเพิ่ม regression test ครอบคลุม Player, NPC และ Avatar Preview ที่ใช้ compositor กลาง
 
 ### 1.3 CV and contact data contract
 
@@ -224,4 +224,4 @@ DemoScenario
 | Reveal request denied/partial | recruiter sees only granted fields; no coercive retry |
 | API unavailable in connected mode | truthful offline/error state; never silently switch to demo data |
 
-Flow จะถือว่า production-demo-complete เมื่อผู้ทดสอบทำ Happy Match และ No Match ได้ครบจาก visible controls ในสาม role tabs โดยไม่แก้ local storage หรือเรียก developer console ปัจจุบัน R0 ครบถึง recruiter decision/field request และ operations support แต่ mutual resolver + candidate grant ยังเป็น gap ตาม section 1.2.1
+Flow จะถือว่า production-demo-complete เมื่อผู้ทดสอบทำ Happy Match และ No Match ได้ครบจาก visible controls ในสาม role tabs โดยไม่แก้ local storage หรือเรียก developer console ปัจจุบัน flow ทั้งหมดเป็น target และยังไม่ผ่าน gate ตาม section 1.2.1

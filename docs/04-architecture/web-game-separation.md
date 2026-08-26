@@ -1,7 +1,7 @@
 # Web–Game Separation & Phaser 4 Direction
 
-> **Status:** Implemented boundary · R0 Vertical Slice 1 · 22 August 2026
-> **Implementation:** `apps/web`, `apps/game`, `packages/contracts`, `packages/domain`, `packages/assets`
+> **Status:** Accepted target boundary · implementation not present at repository `HEAD` · 26 August 2026
+> **Target implementation:** `apps/web`, `apps/game`, `packages/contracts`, `packages/domain`, `packages/assets`
 
 ## 1. Intent
 
@@ -27,9 +27,9 @@ MaskedMatch จะใช้แนวคิดของ [Hideout](https://gethide
 
 Primary references: [Phaser releases](https://github.com/phaserjs/phaser/releases), [Phaser API documentation](https://docs.phaser.io/api-documentation/namespace/phaser), [Gather spatial audio/video](https://support.gather.town/articles/4624155403-overview-of-spatial-audio-video)
 
-## 3. Implemented Repository Boundary
+## 3. Target Repository Boundary
 
-โครงสร้าง implementation ปัจจุบันแยกเป็นคนละ workspace:
+เมื่อเริ่ม implementation ต้องแยกเป็นคนละ workspace:
 
 ```text
 apps/

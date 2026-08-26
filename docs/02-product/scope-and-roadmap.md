@@ -2,18 +2,16 @@
 
 ---
 
-## 1.0 Current Phase — R0 Implementation Started
+## 1.0 Current Phase — Website-first Local Foundation In Progress
 
-**สถานะ ณ 23 สิงหาคม 2026: Website foundation, Candidate Preparation และ World vertical slice implemented; three-role executable flow remains target work**
+**สถานะ ณ 26 สิงหาคม 2026: repository มี runnable Website และ local API แล้ว; Game, production backend และ runtime assets ยังไม่เริ่ม**
 
-- scaffold `apps/web` (React DOM) และ `apps/game` (Phaser 4.2.1) เป็นคนละ workspace แล้ว
-- มี Product Landing, Event Landing, Mock Verify/Consent, Profile Import/Masked Review, Character Setup, legal/status/404 และ route journey ที่ resume/reset ผ่าน local demo state ได้
-- มี Career Hall 1 ฉาก, 4 synthetic booths, NPC crowd, player movement, collision, proximity interaction, DOM booth detail, queue fixture และ Navigator parity ขั้นต้น
-- Generated V2 source sheets มี environment parts และ avatar base/hair/top/bottom/shoes/accessory แบบ RGBA/no-shadow แล้ว แต่ยังต้อง normalize/pack และยังไม่ถูกใช้เป็น runtime atlas
-- Game runtime แยก top/bottom/shoes และใช้ shared seeded player/NPC compositor พร้อม owner-linked shadows; environment V2 ถูก normalize เป็น 384×384 no-shadow runtime atlas แล้ว; partition มี continuous L-corner/side returns และ A1/A2 เป็น adjacent-booth demo ที่ใช้ shared wall/collider owner สองบูธจริง; visual gate ยังไม่ครบเพราะ character source atlas normalization, complete autotiles/prop orientations, booth variant library, shadow debug toggle และ Chrome doorway/collision/depth evidence ยัง pending จึงห้ามเรียก World ว่า Done
-- Web–Game ติดต่อผ่าน versioned typed contract ใน `packages/contracts`; domain fixtures และ runtime asset แยก package
-- ผ่าน typecheck, unit test และ production build; Browser visual QA ยังต้องทำซ้ำเมื่อ browser control พร้อม
-- backend, database, production authentication, realtime multiplayer, durable queue, interview media, decision/reveal, Recruiter/Company, Organizer/Support และ deployment pipeline ยังไม่เริ่ม และห้ามแสดงว่าเป็นของจริง
+- มี npm workspaces, React/Vite website, Express API, local persistence, role-aware routes และ Vitest/typecheck/build scripts; ยังไม่มี shared `packages/`, runtime asset manifest, E2E harness หรือ deployment artifact
+- implementation รุ่นก่อนมีอยู่ใน Git history แต่ใช้ architecture/asset shortcuts ที่ไม่ผ่านข้อกำหนดปัจจุบัน จึงห้าม restore ทั้งก้อนแล้วอ้างว่าเป็น R0 implementation
+- ภาพใน `docs/ref_pics/` เป็น reference only และยังไม่มี asset ใดผ่าน runtime admission
+- Website foundation, Candidate Resume PDF/Gemini preparation, Admin fair creation และ Recruiter booth/job authoring มีสถานะ `IN_PROGRESS` พร้อม unit/build evidence; Career Hall, queue/interview/decision/reveal, durable backend, realtime, media และ deployment pipeline ยัง `NOT_STARTED`
+- ลำดับงานและ exit gate อยู่ใน [Implementation Execution Plan](../07-playbooks-and-operations/implementation-execution-plan.md)
+- เมื่อ implementation เริ่ม ให้เปลี่ยนสถานะเป็นราย task/delivery level `L1 Playable`, `L2 Demo Complete` หรือ `L3 Pilot Ready`; ห้ามใช้คำว่า implemented จาก mockup, historical commit หรือเอกสารเพียงอย่างเดียว
 
 ## 1.1 Release Strategy Overview
 

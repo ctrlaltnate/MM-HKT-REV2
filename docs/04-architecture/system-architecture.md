@@ -137,7 +137,7 @@ flowchart TB
 
 ## 1.5 Recommended Prototype Architecture (R0 Baseline)
 
-> โครงสร้าง frontend/workspace ส่วนนี้เริ่มใช้งานแล้วใน R0; backend, durable realtime, production identity และ media infrastructure ด้านล่างยังเป็น future-state จนกว่าจะมี implementation/evidence จริง
+> โครงสร้าง frontend/workspace และ production services ส่วนนี้เป็น target architecture; repository `HEAD` ปัจจุบันยังไม่มี implementation และต้องสร้างตาม [Implementation Execution Plan](../07-playbooks-and-operations/implementation-execution-plan.md)
 
 ### Tech Stack
 - **Framework:** Vite + React + TypeScript

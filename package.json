@@ -1,0 +1,22 @@
+{
+  "name": "maskedmatch",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n WEB,API -c cyan,magenta \"npm run dev -w @maskedmatch/web\" \"npm run dev -w @maskedmatch/api\"",
+    "dev:web": "npm run dev -w @maskedmatch/web",
+    "dev:api": "npm run dev -w @maskedmatch/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "10.0.5",
+    "typescript": "7.0.2"
+  }
+}

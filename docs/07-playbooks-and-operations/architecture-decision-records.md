@@ -65,13 +65,13 @@
 - **Consequences:** ปลอดภัยจากปัญหาการละเมิดทรัพย์สินทางปัญญา และมีความพร้อมสำหรับการขยายสู่ Production
 
 ### ADR-011: Phaser 4 Stable Line for the Career Hall
-- **Status:** Accepted and implemented in R0 frontend
+- **Status:** Accepted; implementation not present at repository `HEAD`
 - **Context:** Career Hall ต้องรองรับ orthographic top-front 2D tilemap, sprites, collision, camera, proximity sensor และ input หลายรูปแบบ โดย Phaser 4 เป็น stable release line แล้ว
 - **Decision:** ใช้ Phaser 4.x สำหรับ Game workspace ตาม [Web–Game Separation](../04-architecture/web-game-separation.md); R0 pin ที่ `4.2.1` การตรวจ public production payload เมื่อ 22 August 2026 พบว่า Hideout ใช้ Phaser 4.1.0 แต่ไม่ใช่เหตุผลให้คัดลอก version โดยไม่ทดสอบ requirement ของ MaskedMatch
 - **Consequences:** ได้ engine ที่ตรงกับ world requirement; การอัปเกรด dependency/plugin ต้องผ่าน compatibility, typecheck, build และ performance test
 
 ### ADR-012: Website and Game as Separate Workspaces
-- **Status:** Accepted and implemented in R0 frontend
+- **Status:** Accepted; implementation not present at repository `HEAD`
 - **Context:** Product task UI ต้องเป็น semantic DOM ขณะที่ world simulation ต้องมี game loop ของตนเอง การรวม ownership ทำให้ accessibility, testing และ lifecycle ของ WebRTC/Canvas ซับซ้อน
 - **Decision:** แยก `apps/web` และ `apps/game`; แชร์เฉพาะ `packages/contracts`, `packages/domain` และ `packages/assets` ผ่าน typed adapter
 - **Consequences:** build/test/performance budget แยกได้, เปลี่ยน renderer ได้ง่ายขึ้น และป้องกัน Phaser object รั่วเข้า product UI แลกกับการต้องดูแล contract version อย่างเป็นระบบ
