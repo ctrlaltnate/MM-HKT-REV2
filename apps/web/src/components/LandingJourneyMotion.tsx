@@ -28,7 +28,7 @@ export function LandingJourneyMotion() {
           <span className="journey-chip">ผู้สมัครคุม consent เอง</span>
         </div>
       </div>
-      <div className="journey-stage" aria-label="ภาพเคลื่อนไหวจากโปรไฟล์สู่การวิเคราะห์และงานแฟร์">
+      <div className="journey-stage" role="img" aria-label="ภาพเคลื่อนไหวจากโปรไฟล์สู่การวิเคราะห์และงานแฟร์">
         <DotLottieReact
           className="journey-lottie"
           src="/assets/motion/profile-to-fair.json"

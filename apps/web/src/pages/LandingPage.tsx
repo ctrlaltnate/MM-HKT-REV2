@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ArrowRight,
   CalendarPlus,
@@ -8,18 +9,29 @@ import {
   Store,
   UsersRound,
 } from "lucide-react";
+import type { JobFair } from "@maskedmatch/contracts";
 
 import { AnimatedPage } from "../components/AnimatedPage";
 import { GlassPanel } from "../components/GlassPanel";
 import { LandingJourneyMotion } from "../components/LandingJourneyMotion";
 import { PixelHallArt } from "../components/PixelHallArt";
 import { PixelButton, PixelLink, PixelSurface, StatusPill } from "../components/PixelUI";
+import { InteractiveSkillSimulator } from "../components/InteractiveSkillSimulator";
+import { FairQuickPreviewModal } from "../components/FairQuickPreviewModal";
+import { DashboardPage } from "./DashboardPage";
 import { useApp } from "../context/AppContext";
 import { useAuthModal } from "../context/AuthModalContext";
 
 export function LandingPage() {
   const { user, database } = useApp();
   const { openAuthModal } = useAuthModal();
+  const [previewFair, setPreviewFair] = useState<JobFair | null>(null);
+
+  // If user is logged in, show personalized role dashboard as the home page
+  if (user) {
+    return <DashboardPage />;
+  }
+
   const publicFairs = database.fairs.filter((fair) => fair.status === "PUBLISHED" || fair.status === "LIVE");
   const publicFairIds = new Set(publicFairs.map((fair) => fair.id));
   const publicBooths = database.booths.filter((booth) => booth.status === "PUBLISHED" && publicFairIds.has(booth.fairId));
@@ -76,7 +88,18 @@ export function LandingPage() {
             </div>
             <PixelHallArt />
             <div className="hero-showcase-footer">
-              <div><strong>{publicFairs.length}</strong><span>งานแฟร์ที่เปิดอยู่</span></div>
+              <button
+                type="button"
+                className="showcase-stat-btn"
+                onClick={() => {
+                  const firstFair = publicFairs[0];
+                  if (firstFair) setPreviewFair(firstFair);
+                }}
+                title="กดเพื่อดูตัวอย่างงานแฟร์"
+              >
+                <strong>{publicFairs.length}</strong>
+                <span>งานแฟร์ที่เปิดอยู่ ↗</span>
+              </button>
               <div><strong>{publicBooths.length}</strong><span>บูธบริษัท</span></div>
               <div><strong>{publicJobs.length}</strong><span>ตำแหน่งงาน</span></div>
             </div>
@@ -107,7 +130,7 @@ export function LandingPage() {
             <PixelSurface data-reveal>
               <div className="landing-step-head"><span className="feature-number">02</span><ScanSearch aria-hidden="true" /></div>
               <h3>สรุปจากหลักฐาน</h3>
-              <p>Gemini คืน structured summary, skills, ระดับความมั่นใจ และจุดที่ควรถามเพิ่ม</p>
+              <p>ระบบ AI คืน structured summary, skills, ระดับความมั่นใจ และจุดที่ควรถามเพิ่ม</p>
               <ul className="benefit-list"><li>อ่านจุดแข็งได้ในไม่กี่นาที</li><li>อ้างอิงหลักฐานจาก Resume</li></ul>
             </PixelSurface>
             <div className="flow-connector" aria-hidden="true"><ArrowRight /></div>
@@ -118,6 +141,9 @@ export function LandingPage() {
               <ul className="benefit-list"><li>เริ่มคุยจากทักษะ</li><li>เปิดเผยข้อมูลเมื่อพร้อม</li></ul>
             </PixelSurface>
           </div>
+
+          {/* Interactive Skill Simulator Playground */}
+          <InteractiveSkillSimulator />
         </div>
       </section>
 
@@ -132,28 +158,51 @@ export function LandingPage() {
 
         <div className="role-grid">
           <PixelSurface className="role-card candidate" data-reveal>
+            <div className="role-card-media">
+              <img src="/assets/roles/candidate_role.jpg" alt="ภาพประกอบ Candidate Workspace" loading="lazy" />
+            </div>
             <StatusPill tone="cyan">Candidate</StatusPill>
-            <span className="role-icon"><UsersRound aria-hidden="true" /></span>
             <h3>สร้างประวัติและเลือกการแชร์</h3>
-            <p>เปลี่ยน Resume ให้เป็นโปรไฟล์ทักษะที่นำกลับมาแก้ไขได้ เลือกเข้าร่วมหลายงาน และเปิด–ปิดการแชร์ได้จากบัญชีเดียว</p>
-            <ul className="benefit-list"><li>วิเคราะห์ Resume ด้วย Gemini</li><li>เก็บประวัติและงานที่เข้าร่วม</li><li>ควบคุม consent รายบัญชี</li></ul>
-            {user?.role === "candidate" ? <PixelLink to="/candidate/profile" tone="neutral">เปิดโปรไฟล์ผู้สมัคร <ArrowRight aria-hidden="true" /></PixelLink> : <PixelButton type="button" tone="neutral" onClick={() => openAuthModal("login")}>เข้าสู่ระบบ Job Seeker <ArrowRight aria-hidden="true" /></PixelButton>}
+            <p>
+              เปลี่ยน Resume PDF ให้เป็นโปรไฟล์ทักษะที่นำกลับมาต่อยอดได้ พร้อมระบบ AI สกัดหลักฐานความเชี่ยวชาญ และเลือกเปิดเผยข้อมูลให้บริษัทแบบ Masked เมื่อยินยอม
+            </p>
+            <ul className="benefit-list">
+              <li>วิเคราะห์ Resume ด้วยระบบ AI</li>
+              <li>เก็บประวัติและงานแฟร์ที่เข้าร่วม</li>
+              <li>ควบคุม Consent และความเป็นส่วนตัว</li>
+            </ul>
           </PixelSurface>
+
           <PixelSurface className="role-card recruiter" data-reveal>
+            <div className="role-card-media">
+              <img src="/assets/roles/recruiter_role.jpg" alt="ภาพประกอบ Recruiter Workspace" loading="lazy" />
+            </div>
             <StatusPill tone="violet">Recruiter</StatusPill>
-            <span className="role-icon"><Store aria-hidden="true" /></span>
-            <h3>เปิดบูธและประกาศตำแหน่ง</h3>
-            <p>จัดการข้อมูลบริษัท บูธ และตำแหน่งงานครบวงจร พร้อมดู Candidate Board ที่เน้นความเหมาะสมกับ JD ก่อนข้อมูลส่วนตัว</p>
-            <ul className="benefit-list"><li>จัดการหลายบูธตามงานแฟร์</li><li>ระบุเงินเดือนและ skill requirements</li><li>เห็นเฉพาะโปรไฟล์ที่ยินยอม</li></ul>
-            {user?.role === "recruiter" ? <PixelLink to="/recruiter/workspace" tone="neutral">เปิด Recruiter dashboard <ArrowRight aria-hidden="true" /></PixelLink> : <PixelButton type="button" tone="neutral" onClick={() => openAuthModal("login")}>เข้าสู่ระบบ Recruiter <ArrowRight aria-hidden="true" /></PixelButton>}
+            <h3>เปิดบูธและค้นหาทักษะที่ใช่</h3>
+            <p>
+              จัดการบูธบริษัทและตำแหน่งงานใน Career Fair พร้อมดู Candidate Board ที่คัดกรองจากทักษะและ Job Description อย่างเป็นธรรมก่อนเปิดเผยข้อมูลส่วนตัว
+            </p>
+            <ul className="benefit-list">
+              <li>จัดการหลายบูธตามงานแฟร์</li>
+              <li>ระบุเงินเดือนและ skill requirements</li>
+              <li>เห็นเฉพาะโปรไฟล์ที่ยินยอม</li>
+            </ul>
           </PixelSurface>
+
           <PixelSurface className="role-card admin" data-reveal>
+            <div className="role-card-media">
+              <img src="/assets/roles/admin_role.jpg" alt="ภาพประกอบ Admin Operations Center" loading="lazy" />
+            </div>
             <StatusPill tone="mango">Admin</StatusPill>
-            <span className="role-icon"><CalendarPlus aria-hidden="true" /></span>
-            <h3>สร้างและเปิด Job Fair</h3>
-            <p>ควบคุมวงจรงานตั้งแต่ Draft จนปิดงาน เห็นจำนวนบูธ สมาชิก และ Recruiter ที่รับผิดชอบในแต่ละ Job Fair</p>
-            <ul className="benefit-list"><li>เปิด–ปิดงานตามเวลา</li><li>ติดตามบริษัทและ Recruiter</li><li>เห็นภาพรวมจากแดชบอร์ดเดียว</li></ul>
-            {user?.role === "admin" ? <PixelLink to="/admin/fairs" tone="neutral">เปิด Admin dashboard <ArrowRight aria-hidden="true" /></PixelLink> : <PixelButton type="button" tone="neutral" onClick={() => openAuthModal("login")}>เข้าสู่ระบบ Admin <ArrowRight aria-hidden="true" /></PixelButton>}
+            <h3>จัดและบริหาร Virtual Job Fair</h3>
+            <p>
+              ควบคุมวงจรงานแฟร์ตั้งแต่การตั้งค่า Draft, กำหนดเวลาเปิด-ปิดงาน, อนุมัติสิทธิ์ Recruiter และติดตามภาพรวมความเคลื่อนไหวทั้งหมดจากศูนย์ควบคุมเดียว
+            </p>
+            <ul className="benefit-list">
+              <li>กำหนดการเปิด–ปิดงานแฟร์แบบกำหนดเวลา</li>
+              <li>จัดการสิทธิ์และคำขอเข้าร่วมของ Recruiter</li>
+              <li>มอนิเตอร์สถานะบูธและผู้ร่วมงานแบบรวมศูนย์</li>
+            </ul>
           </PixelSurface>
         </div>
       </section>
@@ -178,6 +227,15 @@ export function LandingPage() {
           )}
         </PixelSurface>
       </section>
+
+      {/* Quick Preview Modal */}
+      <FairQuickPreviewModal
+        fair={previewFair}
+        booths={database.booths}
+        jobs={database.jobs}
+        open={Boolean(previewFair)}
+        onClose={() => setPreviewFair(null)}
+      />
     </AnimatedPage>
   );
 }

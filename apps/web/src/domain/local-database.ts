@@ -3,6 +3,7 @@ import type {
   CandidateProfile,
   Company,
   FairMembership,
+  JobApplication,
   JobFair,
   JobPosting,
   LocalDatabase,
@@ -23,6 +24,7 @@ const emptyDatabase = (): LocalDatabase => ({
   companies: [],
   booths: [],
   jobs: [],
+  applications: [],
 });
 
 function loadDatabase(): LocalDatabase {
@@ -204,6 +206,33 @@ export function createFair(ownerId: string, input: Omit<JobFair, "id" | "ownerId
   return fair;
 }
 
+export function updateFair(
+  fairId: string,
+  input: Partial<Omit<JobFair, "id" | "ownerId" | "createdAt">>,
+): JobFair {
+  const existing = database.fairs.find((fair) => fair.id === fairId);
+  if (!existing) throw new Error("FAIR_NOT_FOUND");
+  const updated: JobFair = { ...existing, ...input };
+  commit({
+    ...database,
+    fairs: database.fairs.map((fair) => (fair.id === fairId ? updated : fair)),
+  });
+  return updated;
+}
+
+export function deleteFair(fairId: string): void {
+  const boothIdsToDelete = new Set(
+    database.booths.filter((b) => b.fairId === fairId).map((b) => b.id),
+  );
+  commit({
+    ...database,
+    fairs: database.fairs.filter((fair) => fair.id !== fairId),
+    memberships: database.memberships.filter((m) => m.fairId !== fairId),
+    booths: database.booths.filter((b) => b.fairId !== fairId),
+    jobs: database.jobs.filter((j) => !boothIdsToDelete.has(j.boothId)),
+  });
+}
+
 export function setFairStatus(fairId: string, status: JobFair["status"]): void {
   commit({
     ...database,
@@ -211,14 +240,167 @@ export function setFairStatus(fairId: string, status: JobFair["status"]): void {
   });
 }
 
-export function joinFair(userId: string, fairId: string, role: FairMembership["role"]): void {
-  if (database.memberships.some((item) => item.userId === userId && item.fairId === fairId)) return;
+export function joinFair(
+  userId: string,
+  fairId: string,
+  role: FairMembership["role"] = "CANDIDATE",
+): FairMembership {
+  const existing = database.memberships.find(
+    (item) => item.userId === userId && item.fairId === fairId,
+  );
+  if (existing) return existing;
+  const membership: FairMembership = {
+    id: createId("member"),
+    userId,
+    fairId,
+    role,
+    status: role === "CANDIDATE" ? "ACTIVE" : "PENDING_APPROVAL",
+    joinedAt: new Date().toISOString(),
+  };
   commit({
     ...database,
-    memberships: [
-      ...database.memberships,
-      { id: createId("member"), userId, fairId, role, joinedAt: new Date().toISOString() },
-    ],
+    memberships: [...database.memberships, membership],
+  });
+  return membership;
+}
+
+export function requestRecruiterFairAccess(userId: string, fairId: string): FairMembership {
+  const existing = database.memberships.find(
+    (item) => item.userId === userId && item.fairId === fairId && item.role === "RECRUITER",
+  );
+  if (existing) {
+    if (existing.status === "REJECTED") {
+      const updated: FairMembership = {
+        ...existing,
+        status: "PENDING_APPROVAL",
+        joinedAt: new Date().toISOString(),
+        reviewedAt: undefined,
+        reviewedBy: undefined,
+      };
+      commit({
+        ...database,
+        memberships: database.memberships.map((m) => (m.id === existing.id ? updated : m)),
+      });
+      return updated;
+    }
+    return existing;
+  }
+  const membership: FairMembership = {
+    id: createId("member"),
+    userId,
+    fairId,
+    role: "RECRUITER",
+    status: "PENDING_APPROVAL",
+    joinedAt: new Date().toISOString(),
+  };
+  commit({
+    ...database,
+    memberships: [...database.memberships, membership],
+  });
+  return membership;
+}
+
+export function inviteRecruiterToFair(
+  fairId: string,
+  email: string,
+  adminUserId: string,
+): FairMembership {
+  const normalizedEmail = email.trim().toLowerCase();
+  const existingUser = database.users.find(
+    (u) => u.email.toLowerCase() === normalizedEmail,
+  );
+  const targetUserId = existingUser ? existingUser.id : `pending_user_${normalizedEmail}`;
+
+  const existingMembership = database.memberships.find(
+    (m) =>
+      m.fairId === fairId &&
+      (m.userId === targetUserId || m.invitedEmail?.toLowerCase() === normalizedEmail),
+  );
+
+  if (existingMembership) {
+    const updated: FairMembership = {
+      ...existingMembership,
+      status: existingMembership.status === "ACTIVE" ? "ACTIVE" : "INVITED",
+      invitedEmail: normalizedEmail,
+      reviewedBy: adminUserId,
+      reviewedAt: new Date().toISOString(),
+    };
+    commit({
+      ...database,
+      memberships: database.memberships.map((m) =>
+        m.id === existingMembership.id ? updated : m,
+      ),
+    });
+    return updated;
+  }
+
+  const membership: FairMembership = {
+    id: createId("member"),
+    userId: targetUserId,
+    fairId,
+    role: "RECRUITER",
+    status: "INVITED",
+    invitedEmail: normalizedEmail,
+    reviewedBy: adminUserId,
+    reviewedAt: new Date().toISOString(),
+    joinedAt: new Date().toISOString(),
+  };
+  commit({
+    ...database,
+    memberships: [...database.memberships, membership],
+  });
+  return membership;
+}
+
+export function reviewFairMembership(
+  membershipId: string,
+  status: "ACTIVE" | "REJECTED",
+  adminUserId: string,
+): FairMembership {
+  const membership = database.memberships.find((m) => m.id === membershipId);
+  if (!membership) throw new Error("MEMBERSHIP_NOT_FOUND");
+  const updated: FairMembership = {
+    ...membership,
+    status,
+    reviewedAt: new Date().toISOString(),
+    reviewedBy: adminUserId,
+  };
+  commit({
+    ...database,
+    memberships: database.memberships.map((m) => (m.id === membershipId ? updated : m)),
+  });
+  return updated;
+}
+
+export function acceptFairInvitation(userId: string, fairId: string): FairMembership {
+  const user = database.users.find((u) => u.id === userId);
+  if (!user) throw new Error("USER_NOT_FOUND");
+  const membership = database.memberships.find(
+    (m) =>
+      m.fairId === fairId &&
+      (m.userId === userId ||
+        (m.invitedEmail && m.invitedEmail.toLowerCase() === user.email.toLowerCase())),
+  );
+  if (!membership) throw new Error("INVITATION_NOT_FOUND");
+  const updated: FairMembership = {
+    ...membership,
+    userId,
+    status: "ACTIVE",
+    joinedAt: new Date().toISOString(),
+  };
+  commit({
+    ...database,
+    memberships: database.memberships.map((m) => (m.id === membership.id ? updated : m)),
+  });
+  return updated;
+}
+
+export function removeFairMembership(membershipId: string): void {
+  const membership = database.memberships.find((m) => m.id === membershipId);
+  if (!membership) return;
+  commit({
+    ...database,
+    memberships: database.memberships.filter((m) => m.id !== membershipId),
   });
 }
 
@@ -243,8 +425,155 @@ export function createBooth(
   return booth;
 }
 
+export function updateBooth(
+  boothId: string,
+  input: Partial<Omit<Booth, "id" | "ownerId" | "createdAt">>,
+): Booth {
+  const existing = database.booths.find((booth) => booth.id === boothId);
+  if (!existing) throw new Error("BOOTH_NOT_FOUND");
+  const updated: Booth = { ...existing, ...input };
+  commit({
+    ...database,
+    booths: database.booths.map((booth) => (booth.id === boothId ? updated : booth)),
+  });
+  return updated;
+}
+
+export function setBoothStatus(boothId: string, status: Booth["status"]): void {
+  commit({
+    ...database,
+    booths: database.booths.map((booth) => (booth.id === boothId ? { ...booth, status } : booth)),
+  });
+}
+
+export function deleteBooth(boothId: string): void {
+  commit({
+    ...database,
+    booths: database.booths.filter((booth) => booth.id !== boothId),
+    jobs: database.jobs.filter((job) => job.boothId !== boothId),
+  });
+}
+
 export function createJob(input: Omit<JobPosting, "id" | "createdAt">): JobPosting {
   const job: JobPosting = { ...input, id: createId("job"), createdAt: new Date().toISOString() };
   commit({ ...database, jobs: [...database.jobs, job] });
   return job;
+}
+
+export function updateJob(
+  jobId: string,
+  input: Partial<Omit<JobPosting, "id" | "createdAt">>,
+): JobPosting {
+  const existing = database.jobs.find((job) => job.id === jobId);
+  if (!existing) throw new Error("JOB_NOT_FOUND");
+  const updated: JobPosting = { ...existing, ...input };
+  commit({
+    ...database,
+    jobs: database.jobs.map((job) => (job.id === jobId ? updated : job)),
+  });
+  return updated;
+}
+
+export function setJobStatus(jobId: string, status: JobPosting["status"]): void {
+  commit({
+    ...database,
+    jobs: database.jobs.map((job) => (job.id === jobId ? { ...job, status } : job)),
+  });
+}
+
+export function deleteJob(jobId: string): void {
+  commit({
+    ...database,
+    jobs: database.jobs.filter((job) => job.id !== jobId),
+    applications: (database.applications || []).filter((app) => app.jobId !== jobId),
+  });
+}
+
+export function applyToJob(input: {
+  jobId: string;
+  boothId: string;
+  fairId: string;
+  companyId: string;
+  candidateUserId: string;
+  matchScore: number;
+}): JobApplication {
+  const currentApps = database.applications || [];
+  const existing = currentApps.find(
+    (app) => app.jobId === input.jobId && app.candidateUserId === input.candidateUserId,
+  );
+  if (existing) return existing;
+
+  const newApp: JobApplication = {
+    id: createId("app"),
+    jobId: input.jobId,
+    boothId: input.boothId,
+    fairId: input.fairId,
+    companyId: input.companyId,
+    candidateUserId: input.candidateUserId,
+    status: "APPLIED",
+    appliedAt: new Date().toISOString(),
+    matchScore: input.matchScore,
+    revealConsentGiven: false,
+  };
+
+  commit({
+    ...database,
+    applications: [...currentApps, newApp],
+  });
+  return newApp;
+}
+
+export function updateApplicationStatus(
+  applicationId: string,
+  status: JobApplication["status"],
+  extra?: { interviewNote?: string; scheduledInterviewAt?: string },
+): JobApplication {
+  const currentApps = database.applications || [];
+  const existing = currentApps.find((app) => app.id === applicationId);
+  if (!existing) throw new Error("APPLICATION_NOT_FOUND");
+
+  const updated: JobApplication = {
+    ...existing,
+    status,
+    interviewNote: extra?.interviewNote !== undefined ? extra.interviewNote : existing.interviewNote,
+    scheduledInterviewAt:
+      extra?.scheduledInterviewAt !== undefined
+        ? extra.scheduledInterviewAt
+        : existing.scheduledInterviewAt,
+  };
+
+  commit({
+    ...database,
+    applications: currentApps.map((app) => (app.id === applicationId ? updated : app)),
+  });
+  return updated;
+}
+
+export function toggleApplicationRevealConsent(
+  applicationId: string,
+  revealConsentGiven: boolean,
+): JobApplication {
+  const currentApps = database.applications || [];
+  const existing = currentApps.find((app) => app.id === applicationId);
+  if (!existing) throw new Error("APPLICATION_NOT_FOUND");
+
+  const updated: JobApplication = {
+    ...existing,
+    revealConsentGiven,
+    status: revealConsentGiven && existing.status === "REVEAL_REQUESTED" ? "REVEALED" : existing.status,
+  };
+
+  commit({
+    ...database,
+    applications: currentApps.map((app) => (app.id === applicationId ? updated : app)),
+  });
+  return updated;
+}
+
+export function withdrawApplication(applicationId: string): void {
+  const currentApps = database.applications || [];
+  commit({
+    ...database,
+    applications: currentApps.filter((app) => app.id !== applicationId),
+  });
 }

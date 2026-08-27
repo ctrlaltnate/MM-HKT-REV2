@@ -8,11 +8,28 @@ import {
 
 import {
   createBooth,
+  updateBooth,
+  setBoothStatus,
+  deleteBooth,
   changeLocalPassword,
   createFair,
+  updateFair,
+  deleteFair,
   createJob,
+  updateJob,
+  setJobStatus,
+  deleteJob,
   getDatabaseSnapshot,
   joinFair,
+  requestRecruiterFairAccess,
+  inviteRecruiterToFair,
+  reviewFairMembership,
+  acceptFairInvitation,
+  removeFairMembership,
+  applyToJob,
+  updateApplicationStatus,
+  toggleApplicationRevealConsent,
+  withdrawApplication,
   loginLocalUser,
   logoutLocalUser,
   registerLocalUser,
@@ -35,11 +52,28 @@ interface AppContextValue {
     reset: typeof resetLocalDatabase;
     saveCandidateProfile: typeof saveCandidateProfile;
     createFair: typeof createFair;
+    updateFair: typeof updateFair;
+    deleteFair: typeof deleteFair;
     setFairStatus: typeof setFairStatus;
     joinFair: typeof joinFair;
+    requestRecruiterFairAccess: typeof requestRecruiterFairAccess;
+    inviteRecruiterToFair: typeof inviteRecruiterToFair;
+    reviewFairMembership: typeof reviewFairMembership;
+    acceptFairInvitation: typeof acceptFairInvitation;
+    removeFairMembership: typeof removeFairMembership;
+    applyToJob: typeof applyToJob;
+    updateApplicationStatus: typeof updateApplicationStatus;
+    toggleApplicationRevealConsent: typeof toggleApplicationRevealConsent;
+    withdrawApplication: typeof withdrawApplication;
     saveCompany: typeof saveCompany;
     createBooth: typeof createBooth;
+    updateBooth: typeof updateBooth;
+    setBoothStatus: typeof setBoothStatus;
+    deleteBooth: typeof deleteBooth;
     createJob: typeof createJob;
+    updateJob: typeof updateJob;
+    setJobStatus: typeof setJobStatus;
+    deleteJob: typeof deleteJob;
     updateUser: typeof updateLocalUser;
     changePassword: typeof changeLocalPassword;
   };
@@ -61,11 +95,28 @@ export function AppProvider({ children }: PropsWithChildren) {
         reset: resetLocalDatabase,
         saveCandidateProfile,
         createFair,
+        updateFair,
+        deleteFair,
         setFairStatus,
         joinFair,
+        requestRecruiterFairAccess,
+        inviteRecruiterToFair,
+        reviewFairMembership,
+        acceptFairInvitation,
+        removeFairMembership,
+        applyToJob,
+        updateApplicationStatus,
+        toggleApplicationRevealConsent,
+        withdrawApplication,
         saveCompany,
         createBooth,
+        updateBooth,
+        setBoothStatus,
+        deleteBooth,
         createJob,
+        updateJob,
+        setJobStatus,
+        deleteJob,
         updateUser: updateLocalUser,
         changePassword: changeLocalPassword,
       },

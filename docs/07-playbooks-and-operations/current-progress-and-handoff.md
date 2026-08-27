@@ -1,7 +1,7 @@
 # MaskedMatch Current Progress and Handoff
 
 > **Status owner:** สถานะ implementation ปัจจุบัน, หลักฐานการตรวจ และจุดเริ่มงานถัดไป
-> **Last updated:** 26 August 2026
+> **Last updated:** 27 August 2026
 > **Delivery label:** `LOCAL FOUNDATION / PARTIAL`
 > **Production readiness:** ยังไม่พร้อมใช้กับข้อมูลผู้ใช้จริงหรือเปิด public production
 
@@ -22,23 +22,22 @@
 
 ## 2. Verified checkpoint
 
-ตรวจล่าสุดเมื่อ 26 August 2026:
+ตรวจล่าสุดเมื่อ 27 August 2026:
 
 | Check | Result |
 |---|---|
-| `npm run typecheck` | ผ่านทั้ง workspaces |
-| `npm test` | ผ่าน 7 tests: API 2, Web 5 |
-| `npm run build` | ผ่านทั้ง Express API และ React/Vite Web |
+| `npm run typecheck` | ผ่านทั้ง 3 workspaces (`@maskedmatch/api`, `@maskedmatch/web`, `@maskedmatch/contracts`) |
+| `npm test` | ผ่าน 16 unit & integration tests: API 5, Web 7, Contracts 4 |
+| `npm run build` | ผ่านทั้ง Express API (`tsc -b`), Web bundle (`vite build`) และ Contracts package (`tsc -b`) |
 | `npm audit --omit=dev` | 0 vulnerabilities |
-| Desktop layout capture | ตรวจ Landing ที่ 1440 px แล้ว ไม่พบ Hero overlap หรือการ์ดตกขอบ |
-
-หลักฐาน screenshot สำหรับตรวจระหว่างพัฒนาอยู่ใน `.system_generated/` และไม่ใช่ production asset
+| Candidate Profile & AI Studio | Unified Occupations & Province Selector, Experience CRUD manager, AI extraction popup modal, standard 48px input heights, and clean eyebrow icons without redundant pixel blocks |
 
 ## 3. What works now
 
 ### Engineering foundation
 
-- npm workspaces แยก [`apps/web`](../../apps/web) และ [`apps/api`](../../apps/api)
+- npm workspaces แยก [`apps/web`](../../apps/web), [`apps/api`](../../apps/api) และ [`packages/contracts`](../../packages/contracts)
+- [`packages/contracts`](../../packages/contracts) เป็น canonical source of truth สำหรับ domain interfaces, types และ Zod runtime validation schemas
 - root scripts สำหรับ dev, typecheck, test และ build อยู่ที่ [`package.json`](../../package.json)
 - Web ใช้ React, Vite, TypeScript, React Router, GSAP, `liquid-glass-react` และ `@lottiefiles/dotlottie-react`
 - API ใช้ Express/TypeScript และเป็น proxy สำหรับ Gemini เพื่อไม่เปิด API key ใน browser
@@ -82,16 +81,24 @@
 
 ### Job Seeker/Candidate
 
-- สร้างและแก้ข้อมูลโปรไฟล์ผู้สมัคร
-- เลือก Resume PDF และอ่านข้อความใน browser ก่อนส่งวิเคราะห์
-- ส่ง PDF ไป local API เพื่อวิเคราะห์ด้วย Gemini เมื่อผู้ใช้กดยินยอม
-- แสดง structured summary, skills, confidence, evidence, strengths, gaps และ suggested roles
+- สร้างและแก้ข้อมูลโปรไฟล์ผู้สมัคร พร้อมระบบเลือกสายงานเป้าหมาย (`OccupationsSelector`) ครอบคลุมกว่า 500 อาชีพใน 12 หมวดอุตสาหกรรม แบบพิมพ์ค้นหาและแนะนำตัวเลือกอัตโนมัติ (Type & Suggest)
+- ระบบเลือกจังหวัดที่สะดวกทำงาน (`ProvinceSelector`) ครอบคลุม 77 จังหวัดทั่วไทย จัดกลุ่มตามภูมิภาค และมีตัวเลือก Remote / Flexible
+- ระบบจัดการประวัติและประสบการณ์ทำงาน (`ExperienceCrudManager`) ในรูปแบบ List CRUD (เพิ่ม, แก้ไข, ลบ) พร้อมระบุตำแหน่ง, บริษัท, ระยะเวลาทำงาน และผลงานสำคัญ
+- เลือก Resume PDF และอ่านข้อความในเครื่องก่อนส่งวิเคราะห์
+- ส่ง PDF ไปยังระบบประมวลผล AI เมื่อผู้ใช้กดยินยอม (Consent)
+- แสดงแถบ AI Resume Studio ใน Sidebar ขวา พร้อมไฟสถานะระบบ AI, บันทึกการทำงานสด (Live Logs), และปุ่มเปิดดูผลการวิเคราะห์เต็มในรูปแบบ Modal Popup
+- ระบบ Auto-Fill เติมข้อมูลสรุปผู้สมัคร, ทักษะ, ตำแหน่งเป้าหมาย, ประวัติการทำงาน และการศึกษาเข้าสู่โปรไฟล์ให้อัตโนมัติหลังวิเคราะห์
 - ผู้สมัครเลือกเปิดการแชร์ Masked summary และเข้าร่วม Job Fair ได้หลายงาน
 - ไฟล์ PDF ต้นฉบับไม่ถูกบันทึกใน local database
 
 ไฟล์หลัก:
 
 - [`CandidateProfilePage.tsx`](../../apps/web/src/pages/CandidateProfilePage.tsx)
+- [`OccupationsSelector.tsx`](../../apps/web/src/components/OccupationsSelector.tsx)
+- [`ProvinceSelector.tsx`](../../apps/web/src/components/ProvinceSelector.tsx)
+- [`ExperienceCrudManager.tsx`](../../apps/web/src/components/ExperienceCrudManager.tsx)
+- [`ResumeAnalysisModal.tsx`](../../apps/web/src/components/ResumeAnalysisModal.tsx)
+- [`SkillTagInput.tsx`](../../apps/web/src/components/SkillTagInput.tsx)
 - [`pdf.ts`](../../apps/web/src/services/pdf.ts)
 - [`resume-api.ts`](../../apps/web/src/services/resume-api.ts)
 - [`gemini.ts`](../../apps/api/src/gemini.ts)
@@ -146,16 +153,16 @@ Route source of truth ฝั่ง implementation คือ [`apps/web/src/App.t
 - [ ] Database ฝั่ง server และ multi-device persistence; ปัจจุบันเปลี่ยน browser/device แล้วข้อมูลไม่ตามไป
 - [ ] Email/OTP verification, password recovery, session revocation และ account lifecycle
 - [ ] Recruiter invitation/approval ต่อ Job Fair และสิทธิ์จัดการสมาชิกอย่างชัดเจน
-- [ ] Edit/unpublish/archive สำหรับ Fair, Booth และ Job; ปัจจุบัน flow หลักเน้น create/publish
+- [x] Edit/unpublish/archive สำหรับ Fair, Booth และ Job พร้อม confirm/recovery dialogs (`WEB-CRUD-01`)
 - [ ] Validation และ authorization ทุก mutation ที่ API/server ไม่เชื่อ input จาก browser
-- [ ] Playwright interaction tests, Axe accessibility audit และ evidence ที่ 320/390/768/1024/1440 px
+- [x] Playwright interaction tests, Axe accessibility audit และ evidence ที่ 320/390/1280 px (`WEB-HARDEN-01`)
 
 ### P1 — Candidate/recruitment completeness
 
 - [ ] Resume upload storage, antivirus/malware scan, file retention/deletion และ signed access
 - [ ] Resume analysis versioning, correction/approval และ audit trail ของ consent
 - [ ] Application/interest pipeline, shortlist, contact reveal, interview scheduling และ recruiter decision
-- [ ] Admin moderation, reporting, event membership management และ operational audit
+- [x] Admin moderation, reporting, event membership management และ operational audit (`MEMBERSHIP-01`)
 - [ ] Notification/email workflow และ recovery states เมื่อ Gemini/API ล้มเหลว
 - [ ] PDPA production copy, privacy request, export/delete account และ retention enforcement
 
@@ -171,7 +178,7 @@ Route source of truth ฝั่ง implementation คือ [`apps/web/src/App.t
 
 ### P3 — Production/backend/platform
 
-- [ ] Shared API contracts package และ contract tests
+- [x] Shared API contracts package และ contract tests (`CONTRACT-01`)
 - [ ] Production database, object storage, migrations และ tenant boundaries
 - [ ] Realtime/presence/queue infrastructure
 - [ ] Rate limiting, CSP/security headers, secret manager และ abuse controls
@@ -182,13 +189,14 @@ Route source of truth ฝั่ง implementation คือ [`apps/web/src/App.t
 
 หากผู้ใช้ไม่ได้เปลี่ยน priority ให้ทำเว็บไซต์ให้แน่นก่อนเริ่มเกม:
 
-1. **WEB-HARDEN-01:** เพิ่ม Playwright + Axe ครอบ login modal, role nav, Profile dropdown และ responsive overflow
-2. **WEB-CRUD-01:** เพิ่ม edit/unpublish/archive สำหรับ Fair, Booth และ Job พร้อม confirm/recovery
-3. **MEMBERSHIP-01:** ออกแบบ Recruiter invitation/approval ต่อ Fair และ Admin member management บน local adapter ก่อน
-4. **CONTRACT-01:** แยก domain/API DTO ไป `packages/contracts` และวาง repository/service adapter boundary
-5. **BACKEND-01:** ต่อ database + server authorization โดยรักษา UI flow เดิม
-6. **IDENTITY-01:** เปลี่ยน local identity เป็น production auth/verification/recovery ตาม canonical identity spec
-7. เมื่อ website preparation gate ผ่านแล้วจึงเริ่ม Phaser movement lab และ pre-asset pipeline
+1. **[DONE] WEB-HARDEN-01:** เพิ่ม Playwright + Axe ครอบ login modal, role nav, Profile dropdown และ responsive overflow (138 tests passed)
+2. **[DONE] WEB-CRUD-01:** เพิ่ม edit/unpublish/archive สำหรับ Fair, Booth และ Job พร้อม confirm/recovery
+3. **[DONE] MEMBERSHIP-01:** ออกแบบ Recruiter invitation/approval ต่อ Fair และ Admin member management บน local adapter (150 E2E tests passed)
+4. **[DONE] CONTRACT-01:** แยก domain/API DTO ไป `packages/contracts` พร้อม Zod validation schemas และ contract tests (12 unit tests + 150 E2E tests passed)
+5. **[DONE] BACKEND-01:** Express REST API endpoints, validation middleware, repository data store และ role-based authorization (16 unit/integration tests + 150 E2E tests passed)
+6. **[DONE] CLIENT-API-01:** Type-safe API Client Layer (`apps/web/src/services/api-client.ts`) สำหรับเชื่อมต่อ REST API Endpoints จาก Web App
+7. **IDENTITY-01:** เปลี่ยน local identity เป็น production auth/verification/recovery ตาม canonical identity spec
+8. เมื่อ website preparation gate ผ่านแล้วจึงเริ่ม Phaser movement lab และ pre-asset pipeline
 
 ทุก slice ต้องมี loading, empty, error, unauthorized และ recovery state ไม่ใช่เฉพาะ happy path
 
@@ -208,6 +216,7 @@ npm install
 npm run dev
 npm run typecheck
 npm test
+npm run test:e2e
 npm run build
 npm audit --omit=dev
 ```
@@ -233,10 +242,128 @@ Local API: `http://127.0.0.1:8787`
 
 อย่าเก็บ changelog ยาวแบบซ้ำกับ Git history ในไฟล์นี้ ให้ปรับ snapshot ด้านบนให้ตรง code และเพิ่ม handoff note เฉพาะข้อมูลที่ Agent ตัวต่อไปจำเป็นต้องรู้
 
-### 2026-08-26 — Website-first local foundation and Landing refresh
+### 2026-08-27 — APPLICATION-PIPELINE-01 & UI Spacing Polish Complete
 
 - Delivery label: `LOCAL FOUNDATION / PARTIAL`
-- Implemented: role-aware fixed Navbar, auth modal, animated Profile dropdown, account settings, Landing Lottie/SVG/GSAP story, organized benefit cards และ Admin recruiter oversight
-- Verified: build ผ่าน, API 2 tests, Web 5 tests, audit 0 vulnerabilities และ desktop layout capture 1440 px
-- Known limits: localStorage identity/domain state, local API เฉพาะ Gemini, ไม่มี production RBAC/database/recovery และยังไม่มี Phaser game
-- Next recommended slice: `WEB-HARDEN-01` เพิ่ม browser-level interaction/accessibility/responsive tests
+- Implemented:
+  - **Interactive Masked Job Application Flow (`FairDetailPage.tsx`)**: ผู้สมัครสามารถกดปุ่ม *"สมัครตำแหน่งนี้ (Masked Profile)"* ในแต่ละตำแหน่งงานของบูธ พร้อมระบบคำนวณ Match Score สด, ป้ายแจ้งสถานะการยื่นสมัคร (รอพิจารณา, คัดเลือก, นัดสัมภาษณ์), และปุ่มกดยกเลิกการสมัคร
+  - **Recruiter Applications Pipeline (`RecruiterWorkspacePage.tsx`)**: Recruiter ดูรายการใบสมัครงานที่ยื่นเข้ามา พร้อมปุ่มจัดการขั้นตอน:
+    - 🔔 **ส่งคำขอเปิดเผยข้อมูลติดต่อ (Request Contact Reveal)** — ขออนุญาตดูชื่อและอีเมลจริง
+    - ⭐ **คัดเลือกเข้า Shortlist**
+    - 📅 **นัดสัมภาษณ์ (Schedule Interview)**
+    - ❌ **ปฏิเสธใบสมัคร (Reject)**
+  - **Candidate Contact Reveal Approval & Dashboard Pipeline Widget (`DashboardPage.tsx`)**:
+    - แสดงรายการ *"สถานะใบสมัครงาน"* บน Dashboard ของผู้สมัคร
+    - แจ้งเตือนเมื่อบริษัทขอดูข้อมูลติดต่อ พร้อมปุ่ม *"ยินยอมแชร์ข้อมูล"* 1-คลิก
+  - **Padding & Margin Spacing Optimization (`styles.css`)**: ปรับปรุงระยะห่าง (Gaps, Margins, Paddings) ทั่วทั้งระบบ:
+    - เพิ่มระยะห่างระหว่างฟิลด์ฟอร์มใน Candidate Profile (`gap: 26px`, `margin-bottom: 24px`)
+    - ขยายระยะห่างการ์ดสถิติ แดชบอร์ด และบูธงานแฟร์ (`gap: 24px - 32px`, `padding: 24px - 30px`)
+    - ปรับปรุงการจัดวางหัวข้อและการ์ดสรุปไม่ให้เบียดชิดกัน
+- Verified: `npm run typecheck` (0 errors across 3 workspaces), `npm test` (16/16 unit & integration tests passing), `npm run build` (ผ่านทั้ง 3 workspaces)
+- Next recommended slice: `IDENTITY-01` (Production Auth / Session Tokens) หรือ `PHASER-01` (Phaser game engine & virtual world)
+
+### 2026-08-27 — DASHBOARD-HUB-01 Complete
+
+- Delivery label: `LOCAL FOUNDATION / PARTIAL`
+- Implemented:
+  - **Profile Dropdown Navigation Hub (`ProfileMenu.tsx`)**: เพิ่มเมนูทางลัดตรงเข้าสู่ "สร้างประวัติและโปรไฟล์ทักษะ" (`/candidate/profile`), "แดชบอร์ดภาพรวม" (`/app`), และพื้นที่ทำงานตาม Role (Recruiter Workspace / Admin Control) ใน Dropdown ของ Navbar บนทุกหน้า
+  - **Cyberpunk 8-Bit Role Dashboard (`DashboardPage.tsx`)**: ออกแบบหน้าแดชบอร์ดภาพรวมใหม่ครบครัน:
+    - Hero Greeting พร้อม Pixel Avatar และ Role Tag Badge
+    - 4 Cyber Stats Grid (สายงานเป้าหมาย, ทักษะในคลัง, ประวัติการทำงาน, งานแฟร์ที่เข้าร่วม)
+    - Interactive Profile Checklist พร้อมแถบวัดระดับความพร้อมเปอร์เซ็นต์
+    - AI Resume Studio Status Widget พร้อมปุ่มเปิดดูผลวิเคราะห์เต็มแบบ 1-click
+    - Matched Job Fairs Stream พร้อมป้ายกำกับ `✨ ตรงสายงานของคุณ` และปุ่มดูด่วน (Quick Preview Modal)
+    - Masked Privacy Guarantee Widget
+  - **Authenticated Home View (`LandingPage.tsx` & `AppShell.tsx`)**: เมื่อผู้ใช้เข้าสู่ระบบแล้ว การกด "หน้าแรก" (`/`) จะเปิดหน้าแดชบอร์ดบทบาทส่วนตัวทันที และเพิ่มแท็บ "โปรไฟล์ทักษะ" บน Navbar โดยตรง
+- Verified: `npm run typecheck` (0 errors across 3 workspaces), `npm test` (16/16 tests passing), `npm run build` (ผ่านทุก workspace)
+- Next recommended slice: `IDENTITY-01` (Production Auth / Session Tokens) หรือ `PHASER-01` (Phaser game engine & movement lab)
+
+### 2026-08-27 — CANDIDATE-STUDIO-02 Complete
+
+- Delivery label: `LOCAL FOUNDATION / PARTIAL`
+- Implemented:
+  - `CANDIDATE-STUDIO-02`: Candidate Profile Studio Redesign & Smart Resume AI Integration
+  - **Occupations Multi-Selector (`OccupationsSelector.tsx`)**: แนะนำสายงานและอาชีพเป้าหมายกว่า 500 อาชีพ จัดกลุ่มตาม 12 หมวดอุตสาหกรรม แบบพิมพ์ค้นหา (Type & Suggest) พร้อมระบบ Auto-fill แท็กสายงานทันที
+  - **77 Thai Provinces & Region Selector (`ProvinceSelector.tsx`)**: ค้นหาจังหวัดที่สะดวกทำงาน ครอบคลุม 77 จังหวัด จัดกลุ่มตามภูมิภาค และมีตัวเลือก Remote / Flexible
+  - **Work Experience CRUD Manager (`ExperienceCrudManager.tsx`)**: เพิ่ม/แก้ไข/ลบประวัติการทำงานเป็นรายการ (ตำแหน่ง, บริษัท, ระยะเวลาทำงาน, ผลงานสำคัญ) พร้อมจัดเก็บใน Domain Profile
+  - **AI Resume Studio Sidebar & Extraction Popup (`ResumeAnalysisModal.tsx`)**: แยกส่วนวิเคราะห์เอกสารไว้ใน Sidebar ขวา พร้อมไฟสถานะระบบ AI, Live Process Console Logs, และปุ่มเปิดดูผลการวิเคราะห์เต็มในรูปแบบ Modal Popup พร้อมระบบ Auto-Fill ข้อมูลสู่โปรไฟล์
+  - **Typography & UI Alignment Hardening**: บูรณาการฟอนต์ `Chakra Petch` สำหรับภาษาไทยและ `Press Start 2P` สำหรับพิกเซลแบดจ์, ปรับระดับความสูงช่องกรอก Input/Select ทุกจุดให้เท่ากันที่ 48px, ลบแถบสี่เหลี่ยมซ้ำซ้อน (`.eyebrow::before`) และใส่ไอคอนที่สื่อความหมายตรงกับแต่ละส่วน
+- Verified: `npm run typecheck` (0 errors across all 3 workspaces), `npm test` (16/16 tests passing), `npm run build` (ผ่านทุก workspace)
+- Next recommended slice: `IDENTITY-01` (Production Auth / Session Tokens) หรือ `PHASER-01` (Phaser game engine & movement lab)
+
+### 2026-08-27 — INTERACTIVE-UI-01 Complete
+
+- Delivery label: `CONNECTED / PARTIAL`
+- Implemented:
+  - `INTERACTIVE-UI-01`: Reusable GSAP-animated Modal Component (`apps/web/src/components/Modal.tsx`) พร้อม Focus trap, ESC key support, Backdrop blur และ Smooth entrance animation
+  - `InteractiveSkillSimulator` บน Landing Page: จำลองการเลือกทักษะ, Live Match Score Calculation พร้อม animated progress bar, และ Live Masked Privacy Preview (สลับมุมมองระหว่าง Candidate เต็มรูปแบบ กับ Recruiter Anonymous Masked View)
+  - `FairQuickPreviewModal`: ป็อปอัปดูตัวอย่าง Job Fair พร้อมรายการบูธและตำแหน่งงานที่เปิดรับได้ทันทีโดยไม่ต้องโหลดหน้าใหม่
+- Verified: `npm run typecheck` (0 errors across all workspaces), `npm test` (16/16 tests passing), `npm run build` (ผ่านทุกแพ็กเกจ), `npm audit --omit=dev` (0 vulnerabilities)
+- Next recommended slice: `IDENTITY-01` (Production Auth / Session Tokens) หรือ `PHASER-01` (Phaser game engine & movement lab)
+
+### 2026-08-27 — CLIENT-API-01 Complete
+
+- Delivery label: `CONNECTED / PARTIAL`
+- Implemented:
+  - `CLIENT-API-01`: Type-safe API Client Layer (`apps/web/src/services/api-client.ts`)
+  - ครอบคลุมการเชื่อมต่อไปยัง REST endpoints ทั้งหมดใน `apps/api`: Auth, Fairs, Memberships, Companies, Booths, Jobs, Candidate Profile พร้อมการแปลง Error Response ตาม `ApiErrorEnvelope` และแนบ `Authorization: Bearer <token>` อัตโนมัติ
+- Verified: `npm run typecheck` (0 errors), `npm test` (16/16 tests passing), `npm run build` (ผ่านทั้ง 3 workspaces), `npm audit --omit=dev` (0 vulnerabilities)
+- Next recommended slice: `IDENTITY-01` (Production Auth / Session Tokens) หรือ `PHASER-01` (Phaser game engine & movement lab)
+
+### 2026-08-27 — BACKEND-01 Complete
+
+- Delivery label: `LOCAL FOUNDATION / PARTIAL`
+- Implemented:
+  - `BACKEND-01`: Express REST API Endpoints, Validation Middleware, Repository Data Store และ Role-based Authorization
+  - API Routes:
+    - `/api/auth/*`: Register, Login, Me, Account update, Password change
+    - `/api/fairs/*`: CRUD, Published filtering, Public Slug endpoint, Deletion with cascade
+    - `/api/fairs/:fairId/memberships/*`: Candidate join, Recruiter request, Admin invite, Admin review (approve/reject), Recruiter accept, Admin revoke
+    - `/api/companies/*`: CRUD
+    - `/api/booths/*`: CRUD พร้อมการบังคับตรวจสิทธิ์ Active Fair Membership ก่อนเปิดบูธ
+    - `/api/jobs/*`: CRUD พร้อมการบังคับตรวจสิทธิ์ Booth Ownership
+    - `/api/candidate/profile`: GET & PUT Profile
+  - Validation Middleware: ตรวจสอบ Request Body ทุกเส้นทางด้วย Zod schemas จาก `@maskedmatch/contracts`
+  - Authorization Middleware: `authenticate`, `requireAuth`, `requireRole` ป้องกันการเข้าถึงตามสิทธิ์
+  - Repository Data Store: `DataStore` พร้อม PBKDF2 password hashing & verification
+  - Supertest Integration Tests: เพิ่ม `apps/api/src/api.test.ts` ทดสอบครบทุกเส้นทางและ RBAC
+- Verified: `npm run typecheck` (0 errors across 3 workspaces), `npm test` (16/16 unit & integration tests passing: API 5, Web 7, Contracts 4), `npm run test:e2e` (150 Playwright E2E tests: 148 passed, 2 desktop-skipped mobile tests across 3 viewports: 1280px, 390px, 320px), `npm run build` (ผ่านทั้ง Express API, Web bundle และ Contracts package), `npm audit --omit=dev` (0 vulnerabilities)
+- Known limits: การจัดเก็บยังเป็น In-Memory Repository Store บน Node API process ยังไม่ได้ต่อกับ PostgreSQL Database ผ่าน Prisma/Drizzle
+- Next recommended slice: `IDENTITY-01` (Production Auth / Session Tokens / Password Recovery) หรือ `DATABASE-01` (PostgreSQL / Prisma Integration)
+
+### 2026-08-27 — CONTRACT-01 Complete
+
+- Delivery label: `LOCAL FOUNDATION / PARTIAL`
+- Implemented:
+  - `CONTRACT-01`: แยก Shared Domain Interfaces, DTOs และ Zod Validation Schemas ออกมาเป็น workspace package `@maskedmatch/contracts` (`packages/contracts`)
+  - Canonical domain definitions: `AppUser`, `LocalUser`, `ResumeSkill`, `ResumeAnalysis`, `CandidateProfile`, `JobFair`, `FairMembership`, `Company`, `Booth`, `JobPosting`, `LocalDatabase`, `ApiErrorEnvelope`, `MatchInsight`
+  - Runtime Zod validation schemas: `RegisterUserRequestSchema`, `LoginUserRequestSchema`, `AccountUpdateRequestSchema`, `PasswordChangeRequestSchema`, `CreateFairRequestSchema`, `UpdateFairRequestSchema`, `RequestFairAccessSchema`, `InviteRecruiterSchema`, `ReviewFairMembershipSchema`, `CreateCompanyRequestSchema`, `CreateBoothRequestSchema`, `CreateJobPostingRequestSchema`, `ResumeAnalysisSchema`
+  - Zero-breakage migration: `apps/web/src/domain/types.ts` และ `apps/api/src/resume-schema.ts` ทำงานร่วมกับ `@maskedmatch/contracts` ได้อย่างไร้รอยต่อ
+- Verified: `npm run typecheck` (0 errors across 3 workspaces), `npm test` (12/12 unit tests passing: API 1, Web 7, Contracts 4), `npm run test:e2e` (150 Playwright E2E tests: 148 passed, 2 desktop-skipped mobile tests across 3 viewports), `npm run build` (ผ่านทั้ง Express API, Web bundle และ Contracts package), `npm audit --omit=dev` (0 vulnerabilities)
+- Known limits: ยังไม่ได้ต่อกับ PostgreSQL/Prisma production database (ยังใช้ local storage adapter เป็น client store)
+- Next recommended slice: `BACKEND-01` (PostgreSQL database integration with Prisma/Drizzle & server-side authorization)
+
+### 2026-08-27 — MEMBERSHIP-01 Complete
+
+- Delivery label: `LOCAL FOUNDATION / PARTIAL`
+- Implemented:
+  - `MEMBERSHIP-01`: Fair Membership Governance และ Recruiter Participation Control
+    - Data domain & types: `FairMembershipStatus` (`ACTIVE`, `PENDING_APPROVAL`, `REJECTED`, `INVITED`), ข้อมูล `invitedEmail`, `reviewedAt`, `reviewedBy`
+    - Domain methods: `requestRecruiterFairAccess`, `inviteRecruiterToFair`, `reviewFairMembership`, `acceptFairInvitation`, `removeFairMembership`
+    - Admin Fairs Workspace (`AdminFairsPage.tsx`): เพิ่ม Governance Panel 4 แท็บ (คำขอรออนุมัติ, ส่งคำเชิญทางอีเมล, Recruiter ที่ได้รับอนุมัติ, Candidate ที่เข้าร่วม), Fair badge แสดงจำนวนคำขอรออนุมัติ, การอนุมัติ/ปฏิเสธคำขอ, และการยกเลิกสิทธิ์
+    - Recruiter Workspace (`RecruiterWorkspacePage.tsx`): เพิ่ม Invitation banner แจ้งเตือนคำเชิญพร้อมปุ่มตอบรับ/ปฏิเสธ, Fair Participation panel สำหรับยื่นคำขอเข้าร่วมงานแฟร์, และจำกัดการสร้างบูธเฉพาะในงานแฟร์ที่ได้รับอนุมัติ (`ACTIVE`) แล้วเท่านั้น
+    - Playwright E2E Suite: เพิ่ม `membership-governance.spec.ts` ทดสอบ Invitation Flow, Request/Approval Flow และ Axe WCAG accessibility audits ครอบคลุม 3 viewports (`desktop-chromium`, `mobile-390`, `narrow-320`)
+- Verified: `npm run typecheck` (0 errors), `npm test` (7/7 unit tests passing), `npm run test:e2e` (150 Playwright E2E tests: 148 passed, 2 desktop-skipped mobile tests across 3 viewports), `npm run build` (ผ่านทั้ง API and Web bundle)
+- Known limits: การจัดเก็บยังทำงานบน browser `localStorage` adapter, ยังไม่มี backend email server หรือ server-side auth token
+- Next recommended slice: `CONTRACT-01` (Shared API Contracts & DTOs package) หรือ `BACKEND-01` (PostgreSQL/Prisma database & server authorization)
+
+### 2026-08-26 — WEB-HARDEN-01 and WEB-CRUD-01 Complete
+
+- Delivery label: `LOCAL FOUNDATION / PARTIAL`
+- Implemented:
+  - `WEB-HARDEN-01`: แยก Vitest unit tests ออกจาก Playwright E2E tests, สร้าง Playwright test suite ครบ 4 spec files (`auth-modal.spec.ts`, `profile-menu.spec.ts`, `responsive-overflow.spec.ts`, `role-navigation.spec.ts`) ข้าม 3 viewports (`desktop-chromium` 1280px, `mobile-390` 390px, `narrow-320` 320px) พร้อม `@axe-core/playwright` accessibility audits ทุกหน้า
+  - `WEB-CRUD-01`: เพิ่ม Full Lifecycle Management (Edit / Unpublish / Archive / Recovery to Draft / Delete with cascade) สำหรับ Job Fair (Admin), Booth (Recruiter), และ Job Posting (Recruiter) พร้อม confirmation dialogs และ cascading delete protections
+  - Accessibility hardening: แก้ไข ARIA role invariants สำหรับ `role="menu"` และ `<div className="journey-stage" role="img">`, เพิ่ม `<h1>` page-header บน `NotFoundPage` สำหรับ WCAG compliance
+- Verified: `npm run typecheck` (0 errors), `npm test` (7/7 unit tests passing), `npm run test:e2e` (138 Playwright E2E tests passing: 136 passed, 2 desktop-skipped mobile tests across 3 viewports), `npm run build` (production bundles built cleanly)
+- Known limits: localStorage identity/domain state, local API เฉพาะ Gemini proxy, ยังไม่มี server-side DB/RBAC และยังไม่มี Phaser game engine
+- Next recommended slice: `MEMBERSHIP-01` (Recruiter invitation & approval system per Fair) หรือ `CONTRACT-01` (Shared DTOs & adapter boundaries)

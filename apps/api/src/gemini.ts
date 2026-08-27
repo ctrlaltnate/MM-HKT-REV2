@@ -24,33 +24,35 @@ export async function analyzeResumePdf(
   model: string,
 ): Promise<ResumeAnalysis> {
   const ai = new GoogleGenAI({ apiKey });
-  const interaction = await ai.interactions.create({
+  const response = await ai.models.generateContent({
     model,
-    system_instruction: systemInstruction,
-    input: [
+    contents: [
       {
-        type: "text",
-        text: "วิเคราะห์ PDF นี้และคืนข้อมูลตาม JSON schema ที่กำหนด โดยอ้างเฉพาะหลักฐานที่พบในเอกสาร",
-      },
-      {
-        type: "document",
-        data: pdf.toString("base64"),
-        mime_type: "application/pdf",
+        role: "user",
+        parts: [
+          {
+            text: "วิเคราะห์ PDF นี้และคืนข้อมูลตาม JSON schema ที่กำหนด โดยอ้างเฉพาะหลักฐานที่พบในเอกสาร",
+          },
+          {
+            inlineData: {
+              mimeType: "application/pdf",
+              data: pdf.toString("base64"),
+            },
+          },
+        ],
       },
     ],
-    response_format: {
-      type: "text",
-      mime_type: "application/json",
-      schema: resumeAnalysisJsonSchema,
-    },
-    generation_config: {
-      thinking_level: "low",
+    config: {
+      systemInstruction,
+      responseMimeType: "application/json",
+      responseSchema: resumeAnalysisJsonSchema,
     },
   });
 
-  if (!interaction.output_text) {
+  const outputText = response.text;
+  if (!outputText) {
     throw new Error("Gemini returned no text output");
   }
 
-  return parseResumeAnalysis(interaction.output_text);
+  return parseResumeAnalysis(outputText);
 }

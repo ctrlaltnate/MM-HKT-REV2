@@ -1,13 +1,26 @@
-import { CalendarDays, Home, LayoutDashboard, LogIn, Menu, X } from "lucide-react";
+import {
+  Building2,
+  CalendarDays,
+  Home,
+  LayoutDashboard,
+  LogIn,
+  Menu,
+  ShieldCheck,
+  UserCheck,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 
 import { useApp } from "../context/AppContext";
 import { AuthModalContext, type AuthMode } from "../context/AuthModalContext";
+import { useGlobalGsapInteractions } from "../hooks/useGlobalGsapInteractions";
 import { AuthModal } from "./AuthModal";
 import { ProfileMenu } from "./ProfileMenu";
+import { ToastContainer } from "./ToastContainer";
 
 export function AppShell() {
+  useGlobalGsapInteractions();
   const { user, actions } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
@@ -21,14 +34,14 @@ export function AppShell() {
   };
 
   const logout = () => {
-    actions.logout();
     setMenuOpen(false);
-    navigate("/");
+    actions.logout();
+    window.location.href = "/";
   };
 
   const finishAuth = () => {
     setAuthOpen(false);
-    navigate("/app");
+    navigate("/");
   };
 
   return (
@@ -53,26 +66,36 @@ export function AppShell() {
           </button>
 
           <nav className={menuOpen ? "site-nav is-open" : "site-nav"} aria-label="เมนูหลัก">
-            {!user || user.role === "candidate" ? (
-              <>
-                <NavLink to="/" end onClick={() => setMenuOpen(false)}>
-                  <Home aria-hidden="true" /> หน้าแรก
-                </NavLink>
-                <NavLink to="/fairs" onClick={() => setMenuOpen(false)}>
-                  <CalendarDays aria-hidden="true" /> จ็อบแฟร์
-                </NavLink>
-              </>
-            ) : null}
-            {user?.role === "admin" ? (
-              <NavLink to="/admin/fairs" onClick={() => setMenuOpen(false)}>
-                <LayoutDashboard aria-hidden="true" /> แดชบอร์ด
+            {/* Global Home */}
+            <NavLink to="/" end onClick={() => setMenuOpen(false)}>
+              <Home aria-hidden="true" /> {user ? "แดชบอร์ด" : "หน้าแรก"}
+            </NavLink>
+
+            {/* Candidate Nav */}
+            {user?.role === "candidate" && (
+              <NavLink to="/candidate/profile" onClick={() => setMenuOpen(false)}>
+                <UserCheck aria-hidden="true" /> โปรไฟล์ทักษะ
               </NavLink>
-            ) : null}
-            {user?.role === "recruiter" ? (
+            )}
+
+            {/* Recruiter Nav */}
+            {user?.role === "recruiter" && (
               <NavLink to="/recruiter/workspace" onClick={() => setMenuOpen(false)}>
-                <LayoutDashboard aria-hidden="true" /> แดชบอร์ด
+                <Building2 aria-hidden="true" /> Recruiter Studio
               </NavLink>
-            ) : null}
+            )}
+
+            {/* Admin Nav */}
+            {user?.role === "admin" && (
+              <NavLink to="/admin/fairs" onClick={() => setMenuOpen(false)}>
+                <ShieldCheck aria-hidden="true" /> จัดการงานแฟร์
+              </NavLink>
+            )}
+
+            {/* Fairs for everyone */}
+            <NavLink to="/fairs" onClick={() => setMenuOpen(false)}>
+              <CalendarDays aria-hidden="true" /> จ็อบแฟร์
+            </NavLink>
 
             {user ? (
               <ProfileMenu className="profile-menu-mobile" user={user} onLogout={logout} />
@@ -116,6 +139,8 @@ export function AppShell() {
         onClose={() => setAuthOpen(false)}
         onComplete={finishAuth}
       />
+
+      <ToastContainer />
     </AuthModalContext.Provider>
   );
 }

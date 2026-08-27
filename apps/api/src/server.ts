@@ -5,11 +5,16 @@ import express from "express";
 import multer from "multer";
 
 import { analyzeResumePdf } from "./gemini.js";
+import { authenticate } from "./middleware/auth.js";
+import { authRouter } from "./routes/auth.js";
+import { fairsRouter } from "./routes/fairs.js";
+import { membershipsRouter } from "./routes/memberships.js";
+import { boothsAndJobsRouter } from "./routes/booths-and-jobs.js";
 
 dotenv.config({ path: resolve(process.cwd(), "../../.env.local"), quiet: true });
 dotenv.config({ path: resolve(process.cwd(), ".env.local"), quiet: true });
 
-const app = express();
+export const app = express();
 const port = Number(process.env.API_PORT ?? 8787);
 const origin = process.env.APP_ORIGIN ?? "http://127.0.0.1:4173";
 const upload = multer({
@@ -25,19 +30,40 @@ const upload = multer({
 });
 
 app.disable("x-powered-by");
-app.use(cors({ origin }));
+app.use(
+  cors({
+    origin: (reqOrigin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl) or localhost/127.0.0.1
+      if (!reqOrigin || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(reqOrigin) || reqOrigin === origin) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json({ limit: "256kb" }));
+app.use(authenticate);
 
+// Health check
 app.get("/health", (_request, response) => {
   response.json({
     data: {
       status: "ok",
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
-      model: process.env.GEMINI_MODEL ?? "gemini-3.7-flash",
+      model: process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
     },
   });
 });
 
+// REST API Routers
+app.use("/api/auth", authRouter);
+app.use("/api/fairs", fairsRouter);
+app.use("/api/fairs", membershipsRouter);
+app.use("/api", boothsAndJobsRouter);
+
+// Resume Analysis Route
 app.post("/api/resumes/analyze", upload.single("resume"), async (request, response) => {
   const requestId = crypto.randomUUID();
   const apiKey = process.env.GEMINI_API_KEY;
@@ -70,7 +96,7 @@ app.post("/api/resumes/analyze", upload.single("resume"), async (request, respon
     const analysis = await analyzeResumePdf(
       request.file.buffer,
       apiKey,
-      process.env.GEMINI_MODEL ?? "gemini-3.7-flash",
+      process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
     );
     response.json({
       data: analysis,
@@ -82,18 +108,20 @@ app.post("/api/resumes/analyze", upload.single("resume"), async (request, respon
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown Gemini error";
+    console.error("[Gemini Analysis Error]", message);
     response.status(502).json({
       error: {
         code: "RESUME_ANALYSIS_FAILED",
-        message: "ประมวลผล Resume ไม่สำเร็จ กรุณาตรวจไฟล์หรือทดลองใหม่",
+        message: `ประมวลผล Resume ไม่สำเร็จ: ${message}`,
         requestId,
         retryable: true,
-        detail: process.env.APP_ENV === "development" ? message : undefined,
+        detail: message,
       },
     });
   }
 });
 
+// Error handling middleware
 app.use(
   (
     error: Error,
@@ -118,6 +146,8 @@ app.use(
   },
 );
 
-app.listen(port, "127.0.0.1", () => {
-  console.log(`MaskedMatch local API listening on http://127.0.0.1:${port}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, "127.0.0.1", () => {
+    console.log(`MaskedMatch local API listening on http://127.0.0.1:${port}`);
+  });
+}

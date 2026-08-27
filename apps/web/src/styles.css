@@ -1,8 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Press+Start+2P&display=swap");
 
 :root {
   color-scheme: dark;
-  font-family: "Noto Sans Thai", system-ui, sans-serif;
+  font-family: "Chakra Petch", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-thai: "Chakra Petch", sans-serif;
+  --font-pixel: "Press Start 2P", "Chakra Petch", monospace;
   --bg-page: #08141f;
   --bg-app: #0d1830;
   --surface-1: #142f41;
@@ -65,6 +67,45 @@ select {
   font: inherit;
 }
 
+/* Global Soft Slate-Gray Form Inputs Baseline (Comfortable & High Contrast) */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+input[type="month"],
+input[type="date"],
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="file"]),
+textarea,
+select {
+  background-color: #d2dce6 !important;
+  color: #071426 !important;
+  border: 2px solid #1e293b;
+  font-family: "Chakra Petch", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8da0b3 !important;
+  font-weight: 400 !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  background-color: #e2eaf2 !important;
+  border-color: var(--cyan) !important;
+  color: #071426 !important;
+  box-shadow: 0 0 0 3px rgba(120, 219, 230, 0.4), 3px 3px 0 #071426 !important;
+}
+
 a {
   color: inherit;
 }
@@ -93,10 +134,18 @@ p {
 h1,
 h2,
 h3,
+h4 {
+  font-family: "Chakra Petch", system-ui, sans-serif;
+  font-weight: 700;
+}
+
 .brand,
 .eyebrow,
-.pixel-label {
-  font-family: "Chakra Petch", "Noto Sans Thai", sans-serif;
+.pixel-label,
+.badge-role-user,
+.status-pill,
+.user-rank-badge {
+  font-family: var(--font-pixel);
 }
 
 .skip-link {
@@ -242,7 +291,8 @@ h3,
   border: 2px solid var(--line);
 }
 
-.site-nav .mobile-nav-account {
+.site-nav .mobile-nav-account,
+.site-nav .profile-menu-mobile {
   display: none;
 }
 
@@ -270,6 +320,34 @@ h3,
 .profile-trigger:hover,
 .profile-menu.is-open .profile-trigger {
   border-color: var(--cyan);
+}
+
+.profile-role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  line-height: 1.2;
+}
+
+.profile-role-badge.role-badge-candidate {
+  color: var(--cyan);
+  background: rgba(120, 219, 230, 0.14);
+}
+
+.profile-role-badge.role-badge-recruiter {
+  color: var(--violet);
+  background: rgba(154, 114, 255, 0.16);
+}
+
+.profile-role-badge.role-badge-admin {
+  color: var(--mango);
+  background: rgba(252, 163, 17, 0.16);
 }
 
 .profile-trigger > svg:last-child {
@@ -407,20 +485,20 @@ h3,
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   color: var(--cyan);
-  font-size: 0.78rem;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.eyebrow::before {
-  content: "";
-  width: 22px;
-  height: 6px;
-  background: var(--cyan);
-  box-shadow: 6px 6px var(--violet);
+.eyebrow svg {
+  width: 16px;
+  height: 16px;
+  color: var(--cyan);
+  flex: 0 0 auto;
 }
 
 .hero {
@@ -667,11 +745,26 @@ h3,
   padding-top: 12px;
 }
 
-.hero-showcase-footer > div {
+.hero-showcase-footer > div,
+.hero-showcase-footer > .showcase-stat-btn {
   min-width: 0;
   padding: 10px;
   background: rgba(20, 47, 65, 0.68);
   border: 1px solid var(--line);
+  color: var(--text);
+  font-family: inherit;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.hero-showcase-footer > .showcase-stat-btn {
+  cursor: pointer;
+}
+
+.hero-showcase-footer > .showcase-stat-btn:hover {
+  border-color: var(--cyan);
+  background: rgba(120, 219, 230, 0.16);
+  transform: translateY(-2px);
 }
 
 .hero-showcase-footer strong,
@@ -928,33 +1021,46 @@ h3,
   flex-direction: column;
 }
 
+.role-card-media {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  margin-bottom: 20px;
+  background: var(--surface-1);
+}
+
+.role-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.role-card:hover .role-card-media img {
+  transform: scale(1.04);
+}
+
 .role-card > .status-pill {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
-.role-icon {
-  width: 50px;
-  height: 50px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 18px;
-  color: var(--cyan);
-  background: rgba(120, 219, 230, 0.08);
-  border: 1px solid currentColor;
-}
-
-.role-icon svg {
-  width: 28px;
-  height: 28px;
+.role-card h3 {
+  margin-bottom: 10px;
+  font-size: clamp(1.2rem, 1.8vw, 1.45rem);
 }
 
 .role-card > p {
-  margin-bottom: 0;
+  margin-bottom: 16px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--muted);
 }
 
 .role-card > .benefit-list {
   flex: 1;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .role-card > .pixel-button {
@@ -1188,13 +1294,13 @@ input[type="checkbox"] {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 99998;
   display: grid;
   place-items: center;
   padding: 20px;
   overflow-y: auto;
-  background: rgba(2, 7, 12, 0.78);
-  backdrop-filter: blur(10px);
+  background: rgba(2, 7, 12, 0.85);
+  backdrop-filter: blur(12px);
 }
 
 .auth-modal {
@@ -1272,9 +1378,186 @@ input[type="checkbox"] {
   text-overflow: ellipsis;
 }
 
-.account-identity-card .pixel-button {
+.account-identity-card .pixel-button,
+.account-identity-card .pixel-link {
   width: 100%;
-  margin-top: 12px;
+}
+
+.account-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.account-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.edit-pencil-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  color: var(--cyan);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-pencil-btn:hover {
+  border-color: var(--cyan);
+  background: var(--surface-2);
+  transform: translateY(-1px);
+}
+
+.edit-pencil-btn.cancel {
+  color: var(--muted);
+}
+
+.account-view-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+}
+
+.detail-label {
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-family: "Chakra Petch", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-item strong {
+  font-size: 0.96rem;
+  color: var(--text);
+}
+
+.detail-value-role {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detail-value-role small {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.security-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--cyan);
+  font-size: 0.82rem;
+  font-family: "Chakra Petch", monospace;
+}
+
+.role-context-hub {
+  display: flex;
+  flex-direction: column;
+}
+
+.role-hub-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.hub-header h2 {
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.hub-desc {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.hub-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.metric-box {
+  padding: 14px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.metric-num {
+  font-family: "Chakra Petch", monospace;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--mango);
+  line-height: 1.1;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.hub-footer {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.hub-footer .pixel-link {
+  width: 100%;
+}
+
+.confirm-modal-content,
+.password-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.confirm-data-summary {
+  padding: 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.88rem;
+}
+
+.confirm-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 .admin-recruiter-grid {
@@ -1705,8 +1988,16 @@ input[type="checkbox"] {
     gap: 10px;
   }
 
+  .brand {
+    grid-column: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
   .mobile-menu-button {
     grid-column: 2;
+    position: relative;
+    z-index: 10;
   }
 
   .header-account {
@@ -1924,4 +2215,4391 @@ input[type="checkbox"] {
   font-family: "Chakra Petch", "Noto Sans Thai", sans-serif;
   font-size: 0.8rem;
   letter-spacing: 0.04em;
+}
+
+/* ==========================================
+   Interactive Modals & Simulator Styles
+   ========================================== */
+.modal-close-button {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--text);
+  background: var(--surface-1);
+  border: 2px solid var(--line);
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+}
+
+.modal-close-button:hover {
+  border-color: var(--cyan);
+  background: var(--surface-2);
+  transform: scale(1.05);
+}
+
+.interactive-simulator-surface {
+  margin-top: 36px;
+  padding: clamp(24px, 4vw, 40px);
+  background:
+    linear-gradient(rgba(120, 219, 230, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 219, 230, 0.03) 1px, transparent 1px),
+    rgba(13, 24, 48, 0.88);
+  background-size: 16px 16px, 16px 16px, auto;
+  border: 2px solid var(--line-bright);
+}
+
+.simulator-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.simulator-title-group h3 {
+  font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.simulator-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.simulator-subheading {
+  display: block;
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 0.03em;
+  color: var(--cyan);
+  margin-bottom: 14px;
+}
+
+.simulator-chips-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.interactive-skill-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface-1);
+  border: 2px solid var(--line);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.interactive-skill-chip:hover {
+  border-color: var(--cyan);
+  background: var(--surface-2);
+  transform: translateX(4px);
+}
+
+.interactive-skill-chip.is-selected {
+  border-color: var(--cyan);
+  background: rgba(120, 219, 230, 0.12);
+  box-shadow: 3px 3px 0 var(--cyan);
+}
+
+.chip-indicator {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--cyan);
+}
+
+.interactive-skill-chip.is-selected .chip-indicator {
+  background: var(--cyan);
+  color: var(--bg);
+}
+
+.chip-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.chip-level {
+  font-size: 0.72rem;
+  font-family: "Chakra Petch", monospace;
+  color: var(--muted);
+}
+
+.simulator-score-card {
+  padding: 18px 20px;
+  background: var(--surface-1);
+  border: 2px solid var(--line);
+  margin-bottom: 20px;
+}
+
+.score-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.score-label {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+.score-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  padding: 6px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--cyan);
+}
+
+.score-value {
+  font-family: "Chakra Petch", monospace;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--cyan);
+}
+
+.progress-track {
+  width: 100%;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--mango));
+  transition: width 0.4s ease;
+}
+
+.simulator-preview-box {
+  background: var(--surface-1);
+  border: 2px solid var(--line);
+  padding: 18px 20px;
+}
+
+.preview-box-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.masked-identity-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.masked-avatar-box {
+  font-size: 1.8rem;
+  background: var(--surface-2);
+  padding: 8px;
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+}
+
+.masked-location {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.masked-skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.masked-skill-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--line);
+}
+
+.masked-skill-item strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.masked-skill-item span {
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+.preview-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.preview-modal-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.preview-modal-summary {
+  line-height: 1.6;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.preview-booths-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.preview-booth-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+}
+
+.preview-booth-card p {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.booth-jobs-count {
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-bright);
+  color: var(--mango);
+  white-space: nowrap;
+}
+
+.preview-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.fair-card-top-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.fair-card-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.fair-card-actions-row .pixel-button {
+  min-height: 40px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+}
+
+.fair-card-actions-row .pixel-link {
+  min-height: 40px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 768px) {
+  .simulator-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   Global Toast Notification System
+   ========================================== */
+.global-toast-container {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+  width: min(520px, calc(100vw - 32px));
+}
+
+.global-toast-pill {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 18px;
+  background: rgba(7, 16, 26, 0.96);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--line);
+  box-shadow: 6px 6px 0 var(--shadow);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  width: 100%;
+}
+
+.global-toast-pill.toast-success {
+  border-color: var(--cyan);
+  box-shadow: 6px 6px 0 rgba(120, 219, 230, 0.35);
+}
+
+.global-toast-pill.toast-error {
+  border-color: #ff5e78;
+  box-shadow: 6px 6px 0 rgba(255, 94, 120, 0.35);
+}
+
+.global-toast-pill.toast-loading {
+  border-color: var(--mango);
+  box-shadow: 6px 6px 0 rgba(252, 163, 17, 0.35);
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.toast-content span {
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.toast-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.toast-icon.success { color: var(--cyan); }
+.toast-icon.error { color: #ff5e78; }
+.toast-icon.loading { color: var(--mango); }
+.toast-icon.info { color: var(--text); }
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.toast-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+}
+
+.toast-close-btn:hover {
+  color: var(--text);
+}
+
+/* ==========================================
+   Info Tooltip System
+   ========================================== */
+.info-tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+  outline: none;
+}
+
+.tooltip-info-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--cyan);
+  opacity: 0.8;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.info-tooltip-wrapper:hover .tooltip-info-icon,
+.info-tooltip-wrapper:focus .tooltip-info-icon {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.tooltip-bubble {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 260px;
+  padding: 8px 12px;
+  background: rgba(7, 16, 26, 0.98);
+  border: 1px solid var(--cyan);
+  box-shadow: 4px 4px 0 var(--shadow);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.4;
+  z-index: 100;
+  pointer-events: none;
+  text-align: center;
+}
+
+/* ==========================================
+   Skill Tag Input Component
+   ========================================== */
+.skill-tag-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-label-group .field-label {
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tag-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pixel-text-input {
+  flex: 1;
+  min-height: 44px;
+  padding: 8px 14px;
+  background: var(--surface-1);
+  border: 2px solid var(--line);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  transition: border-color 0.2s ease;
+}
+
+.pixel-text-input:focus {
+  outline: none;
+  border-color: var(--cyan);
+}
+
+.active-tag-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.active-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 12px;
+  background: rgba(120, 219, 230, 0.12);
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.chip-remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--cyan);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.chip-remove-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.chip-remove-btn:hover {
+  color: #ff5e78;
+}
+
+.empty-tags-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.suggested-tags-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.suggested-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.suggested-chips-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.quick-suggestion-chip {
+  padding: 4px 8px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-suggestion-chip:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--surface-2);
+}
+
+/* ==========================================
+   Candidate Profile 2-Column Redesign
+   ========================================== */
+.candidate-profile-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(320px, 1.1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.profile-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.surface-heading-group {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.surface-heading-group h2 {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.privacy-checkbox-box {
+  padding: 14px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+}
+
+.checkbox-label {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--cyan);
+  margin-top: 3px;
+  cursor: pointer;
+}
+
+.checkbox-label span strong {
+  display: block;
+  font-size: 0.92rem;
+  margin-bottom: 2px;
+}
+
+.checkbox-label span small {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Extracted Skills Section */
+.candidate-summary-callout {
+  padding: 16px 20px;
+  background: rgba(120, 219, 230, 0.08);
+  border-left: 4px solid var(--cyan);
+  margin-bottom: 24px;
+}
+
+.callout-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--cyan);
+  margin-bottom: 6px;
+}
+
+.candidate-summary-callout p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.skills-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.skill-evidence-card {
+  padding: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skill-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.skill-card-head strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.skill-category {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-family: "Chakra Petch", sans-serif;
+  text-transform: uppercase;
+}
+
+.evidence-bullet-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.suggested-roles-section {
+  padding: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+
+.suggested-roles-section h4 {
+  font-size: 0.86rem;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.suggested-roles-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggested-role-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(252, 163, 17, 0.12);
+  border: 1px solid var(--mango);
+  color: var(--mango);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.redaction-warnings-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 94, 120, 0.1);
+  border: 1px solid #ff5e78;
+  font-size: 0.82rem;
+}
+
+.redaction-warnings-box svg {
+  width: 20px;
+  height: 20px;
+  color: #ff5e78;
+  flex: 0 0 auto;
+}
+
+.empty-analysis-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-analysis-state svg {
+  width: 48px;
+  height: 48px;
+  color: var(--cyan);
+  opacity: 0.6;
+}
+
+.empty-analysis-state h3 {
+  font-size: 1.15rem;
+  color: var(--text);
+  margin: 0;
+}
+
+.empty-analysis-state p {
+  max-width: 420px;
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   Sidebar: AI Resume Studio
+   ========================================== */
+.resume-studio-sidebar-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 96px;
+}
+
+.sidebar-studio-header h2 {
+  margin-top: 4px;
+  margin-bottom: 6px;
+  font-size: 1.4rem;
+}
+
+.sidebar-studio-header p {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.gemini-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: block;
+}
+
+.status-dot.online {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.status-dot.offline {
+  background: #ef4444;
+}
+
+.gemini-status-info strong {
+  display: block;
+  font-size: 0.8rem;
+}
+
+.gemini-status-info span {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-family: monospace;
+}
+
+.pdf-upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px 16px;
+  background: var(--surface-1);
+  border: 2px dashed var(--line);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.pdf-upload-dropzone:hover {
+  border-color: var(--cyan);
+  background: var(--surface-2);
+}
+
+.upload-icon {
+  width: 36px;
+  height: 36px;
+  color: var(--cyan);
+}
+
+.upload-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.upload-hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.selected-file-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(120, 219, 230, 0.08);
+  border: 1px solid var(--cyan);
+}
+
+.selected-file-status-bar svg {
+  width: 20px;
+  height: 20px;
+  color: var(--cyan);
+  flex: 0 0 auto;
+}
+
+.file-meta-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-meta-info strong {
+  display: block;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-meta-info span {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.interactive-status-callout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--mango);
+  font-size: 0.82rem;
+}
+
+.interactive-status-callout svg {
+  width: 20px;
+  height: 20px;
+  color: var(--mango);
+  flex: 0 0 auto;
+}
+
+.interactive-status-callout strong {
+  display: block;
+  color: var(--mango);
+}
+
+.interactive-status-callout span {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.consent-agreement-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+}
+
+.consent-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.consent-checkbox-label input[type="checkbox"] {
+  accent-color: var(--cyan);
+  margin-top: 2px;
+}
+
+.consent-safety-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.sidebar-action-box .pixel-button {
+  width: 100%;
+}
+
+.privacy-guarantee-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--line);
+  font-size: 0.76rem;
+}
+
+.privacy-guarantee-note svg {
+  width: 18px;
+  height: 18px;
+  color: var(--cyan);
+  flex: 0 0 auto;
+}
+
+.privacy-guarantee-note strong {
+  display: block;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.privacy-guarantee-note p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+@media (max-width: 992px) {
+  .candidate-profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .resume-studio-sidebar-card {
+    position: static;
+  }
+}
+
+/* ==========================================
+   Profile View Mode (Read-Only Summary)
+   ========================================== */
+.profile-view-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 8px;
+}
+
+.profile-view-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-view-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .profile-view-row-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.view-section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--cyan);
+  margin: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(120, 219, 230, 0.12);
+}
+
+.view-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.view-text-value {
+  font-size: 0.92rem;
+  color: var(--text);
+  font-weight: 600;
+  margin: 0;
+}
+
+.view-about-text {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.7;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.view-empty-text {
+  font-size: 0.84rem;
+  color: var(--muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.view-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.view-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: rgba(120, 219, 230, 0.12);
+  border: 1px solid rgba(120, 219, 230, 0.3);
+  color: var(--cyan);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.view-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: rgba(255, 184, 77, 0.1);
+  border: 1px solid rgba(255, 184, 77, 0.3);
+  color: var(--mango);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.view-experience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.view-exp-card {
+  padding: 12px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.view-exp-header h4 {
+  margin: 0 0 2px;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.view-exp-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.view-exp-company {
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.view-exp-duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.view-exp-bullets {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 0.84rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.view-exp-bullets li {
+  margin-bottom: 2px;
+}
+
+.view-privacy-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(120, 219, 230, 0.06);
+  border: 1px solid rgba(120, 219, 230, 0.15);
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.privacy-icon {
+  color: var(--cyan);
+}
+
+.form-submit-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+/* ==========================================
+   Occupations Multi-Selector Component
+   ========================================== */
+.occupations-selector-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(7, 16, 26, 0.4);
+  padding: 16px;
+  border: 1px solid var(--line);
+}
+
+.label-icon {
+  width: 15px;
+  height: 15px;
+  color: var(--cyan);
+}
+
+.occupations-category-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.category-pill {
+  padding: 4px 10px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.category-pill:hover {
+  color: var(--text);
+  border-color: var(--line-bright);
+  background: var(--surface-2);
+}
+
+.category-pill.active {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: rgba(120, 219, 230, 0.12);
+  font-weight: 700;
+}
+
+.occupations-input-wrapper {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.occupations-search-box {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.occupations-search-box .search-icon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.occupations-search-box .pixel-text-input {
+  padding-left: 38px;
+  padding-right: 36px;
+  width: 100%;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+}
+
+.search-clear-btn:hover {
+  color: var(--text);
+}
+
+/* Autocomplete Dropdown */
+.occupations-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: rgba(7, 16, 26, 0.98);
+  border: 2px solid var(--cyan);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 4px 4px 0 var(--shadow);
+  z-index: 500;
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.dropdown-esc-hint {
+  font-size: 0.7rem;
+  color: var(--cyan);
+}
+
+.dropdown-items-scroll {
+  overflow-y: auto;
+  max-height: 270px;
+  display: flex;
+  flex-direction: column;
+}
+
+.occupation-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.occupation-dropdown-item:hover {
+  background: rgba(120, 219, 230, 0.12);
+}
+
+.occupation-dropdown-item.selected {
+  background: rgba(120, 219, 230, 0.08);
+  border-left: 3px solid var(--cyan);
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item-title {
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.item-sub {
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+.cat-tag {
+  color: var(--cyan);
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.72rem;
+}
+
+.selected-check-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--cyan);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.add-action-badge {
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 2px 6px;
+  border: 1px dashed var(--line);
+  white-space: nowrap;
+}
+
+.no-matches-row {
+  padding: 20px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.no-matches-row p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+/* Selected Target Role Chips */
+.selected-occupations-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.target-role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(252, 163, 17, 0.14);
+  border: 1px solid var(--mango);
+  color: var(--mango);
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.target-role-chip .chip-remove-btn {
+  color: var(--mango);
+}
+
+.target-role-chip .chip-remove-btn:hover {
+  color: #ff5e78;
+}
+
+.empty-roles-callout {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+  margin: 4px 0 0;
+}
+
+/* Quick Pick */
+.popular-occupations-quickpick {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+
+.quickpick-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.quickpick-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.quickpick-role-btn {
+  padding: 4px 8px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quickpick-role-btn:hover {
+  border-color: var(--mango);
+  color: var(--mango);
+  background: var(--surface-2);
+}
+
+/* ==========================================
+   Job Fair Track Match Warning Banner
+   ========================================== */
+.fair-match-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  border: 2px solid;
+}
+
+.fair-match-banner.match {
+  background: rgba(120, 219, 230, 0.08);
+  border-color: var(--cyan);
+}
+
+.fair-match-banner.warning {
+  background: rgba(252, 163, 17, 0.08);
+  border-color: var(--mango);
+}
+
+.banner-icon-box {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+}
+
+.banner-icon-box svg {
+  width: 24px;
+  height: 24px;
+  color: var(--cyan);
+}
+
+.banner-icon-box.warning svg {
+  color: var(--mango);
+}
+
+.banner-text-box strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.fair-match-banner.match .banner-text-box strong {
+  color: var(--cyan);
+}
+
+.fair-match-banner.warning .banner-text-box strong {
+  color: var(--mango);
+}
+
+.banner-text-box p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.banner-text-box p em {
+  color: var(--text);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ==========================================
+   Province Selector Component
+   ========================================== */
+.province-selector-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.province-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.province-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.province-search-box .pin-icon {
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: var(--cyan);
+  pointer-events: none;
+}
+
+.province-search-box .pixel-text-input {
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  padding-left: 44px;
+  padding-right: 40px;
+  box-sizing: border-box;
+}
+
+.dropdown-arrow-icon {
+  position: absolute;
+  right: 14px;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Dropdown */
+.provinces-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: rgba(7, 16, 26, 0.98);
+  border: 2px solid var(--cyan);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 4px 4px 0 var(--shadow);
+  z-index: 500;
+  max-height: 340px;
+  display: flex;
+  flex-direction: column;
+}
+
+.provinces-dropdown-scroll {
+  overflow-y: auto;
+  max-height: 330px;
+  display: flex;
+  flex-direction: column;
+}
+
+.province-group-section {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--line);
+}
+
+.province-group-heading {
+  padding: 8px 14px;
+  background: var(--surface-2);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.province-dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.province-dropdown-option:hover {
+  background: rgba(120, 219, 230, 0.12);
+}
+
+.province-dropdown-option.selected {
+  background: rgba(120, 219, 230, 0.16);
+  border-left: 3px solid var(--cyan);
+  font-weight: 700;
+}
+
+.prov-th {
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.prov-en {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.no-provinces-row {
+  padding: 18px 14px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.no-provinces-row p {
+  margin: 0 0 4px;
+  font-size: 0.86rem;
+  color: var(--text);
+}
+
+.no-provinces-row small {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+/* Quick Shortcuts */
+.province-quick-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.shortcuts-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.shortcuts-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.shortcut-chip {
+  padding: 3px 8px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.shortcut-chip:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--surface-2);
+}
+
+.shortcut-chip.active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(120, 219, 230, 0.12);
+  font-weight: 700;
+}
+
+/* ==========================================
+   Candidate Profile Studio Layout & Spacing
+   ========================================== */
+.candidate-profile-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.55fr);
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+}
+
+.profile-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.profile-sidebar-column {
+  min-width: 0;
+}
+
+.profile-form-surface {
+  padding: clamp(20px, 3vw, 28px);
+}
+
+.candidate-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.form-section-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-submit-row {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+}
+
+@media (max-width: 1024px) {
+  .candidate-profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .form-row-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   Status Pill Component Styles
+   ========================================== */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+  border: 1px solid var(--line);
+  background: var(--surface-1);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.status-pill.tone-cyan {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(120, 219, 230, 0.12);
+}
+
+.status-pill.tone-mango {
+  border-color: var(--mango);
+  color: var(--mango);
+  background: rgba(255, 216, 77, 0.12);
+}
+
+.status-pill.tone-violet {
+  border-color: var(--violet);
+  color: var(--violet);
+  background: rgba(154, 114, 255, 0.12);
+}
+
+/* ==========================================
+   Global Field & Input Dimension Consistency
+   ========================================== */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  min-height: 26px;
+  margin: 0;
+}
+
+.field-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+}
+
+.label-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--cyan);
+  flex: 0 0 auto;
+}
+
+.field input,
+.field select,
+.pixel-text-input,
+.pixel-category-select {
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  padding: 10px 16px;
+  background: #d2dce6;
+  border: 2px solid #1e293b;
+  color: #071426;
+  font-family: "Chakra Petch", system-ui, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-sizing: border-box;
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.field input::placeholder,
+.pixel-text-input::placeholder,
+.pixel-textarea::placeholder {
+  color: #8da0b3;
+  font-weight: 400;
+}
+
+.field input:focus,
+.field select:focus,
+.pixel-text-input:focus,
+.pixel-category-select:focus,
+.pixel-textarea:focus {
+  outline: none;
+  background: #e2eaf2;
+  border-color: var(--cyan);
+  color: #071426;
+  box-shadow: 0 0 0 3px rgba(120, 219, 230, 0.4), 3px 3px 0 #071426;
+}
+
+.pixel-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: #d2dce6;
+  border: 2px solid #1e293b;
+  color: #071426;
+  font-family: "Chakra Petch", system-ui, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-sizing: border-box;
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.08);
+  resize: vertical;
+  line-height: 1.6;
+  transition: all 0.2s ease;
+}
+
+/* ==========================================
+   Integrated Occupations Selector
+   ========================================== */
+.occupations-integrated-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.occupations-input-bar {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(200px, 1.4fr) auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: #0284c7;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.search-input-wrapper .pixel-text-input {
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  padding-left: 44px;
+  padding-right: 40px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.search-input-wrapper .search-clear-btn,
+.province-search-box .search-clear-btn {
+  position: absolute;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.category-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.select-filter-icon {
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: #0284c7;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pixel-category-select {
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  padding: 8px 16px 8px 44px;
+  background: #d2dce6;
+  border: 2px solid #1e293b;
+  color: #071426;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-sizing: border-box;
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.pixel-category-select:focus {
+  outline: none;
+  background: #e2eaf2;
+  border-color: var(--cyan);
+  color: #071426;
+  box-shadow: 0 0 0 3px rgba(120, 219, 230, 0.4), 3px 3px 0 #071426;
+}
+
+/* Auto-filled tags directly under input */
+.auto-filled-roles-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(7, 16, 26, 0.6);
+  border: 1px solid var(--line);
+  min-height: 44px;
+  align-items: center;
+}
+
+/* Smooth Suggestion Dropdown */
+.smooth-suggest-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(7, 16, 26, 0.98);
+  backdrop-filter: blur(16px);
+  border: 2px solid var(--cyan);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 4px 4px 0 var(--shadow);
+  z-index: 1000;
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+  animation: slideDropdownDown 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideDropdownDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+.dropdown-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.74rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.dropdown-tip {
+  color: var(--cyan);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.72rem;
+}
+
+.dropdown-scrollable-list {
+  overflow-y: auto;
+  max-height: 270px;
+  display: flex;
+  flex-direction: column;
+}
+
+.suggest-option-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.suggest-option-item:hover {
+  background: rgba(120, 219, 230, 0.12);
+  transform: translateX(4px);
+}
+
+.suggest-option-item.selected {
+  background: rgba(120, 219, 230, 0.16);
+  border-left: 3px solid var(--cyan);
+}
+
+.option-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.option-title-en {
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.option-title-th {
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+.cat-badge {
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.option-badge {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 3px 8px;
+}
+
+.option-badge.checked {
+  color: var(--cyan);
+}
+
+.option-badge.add {
+  color: var(--muted);
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+}
+
+.suggest-option-item:hover .option-badge.add {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: rgba(120, 219, 230, 0.16);
+}
+
+.dropdown-empty-row {
+  padding: 18px 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.dropdown-empty-row p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+/* Chip Pop-in Animation */
+.animate-pop {
+  animation: chipPopIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes chipPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .occupations-input-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   Resume AI Analysis Studio Modal
+   ========================================== */
+.resume-analysis-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.progress-spinner-box {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.progress-spinner-box .progress-icon {
+  width: 44px;
+  height: 44px;
+  color: var(--cyan);
+}
+
+.progress-spinner-box h3 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--text);
+}
+
+.progress-spinner-box p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+  max-width: 460px;
+}
+
+.modal-progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.modal-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--mango));
+  transition: width 0.4s ease;
+}
+
+.live-api-logs-console {
+  background: #030a10;
+  border: 1px solid var(--line);
+  padding: 14px 16px;
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.8rem;
+}
+
+.console-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mango);
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+}
+
+.console-log-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.log-item {
+  display: flex;
+  gap: 10px;
+  line-height: 1.4;
+}
+
+.log-time {
+  color: var(--cyan);
+}
+
+.log-text {
+  color: var(--text);
+}
+
+.log-item.status-done .log-text {
+  color: var(--muted);
+}
+
+.log-item.status-active .log-text {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Modal Success View */
+.success-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: rgba(120, 219, 230, 0.12);
+  border: 1px solid var(--cyan);
+  margin-bottom: 18px;
+}
+
+.success-banner .success-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--cyan);
+  flex: 0 0 auto;
+}
+
+.success-banner h3 {
+  margin: 0 0 2px;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.success-banner p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.modal-summary-box {
+  padding: 14px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  margin-bottom: 18px;
+}
+
+.modal-summary-box strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--cyan);
+  font-size: 0.82rem;
+  margin-bottom: 6px;
+}
+
+.modal-summary-box p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.modal-skills-preview-list h4 {
+  font-size: 0.86rem;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.modal-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 18px;
+}
+
+.modal-skill-item {
+  padding: 10px 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.skill-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.skill-item-head strong {
+  font-size: 0.86rem;
+}
+
+.evidence-snippet {
+  font-size: 0.74rem;
+  color: var(--muted);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-suggested-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.modal-suggested-roles strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--mango);
+}
+
+.modal-suggested-roles .roles-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.modal-suggested-roles .role-tag {
+  padding: 4px 10px;
+  background: rgba(252, 163, 17, 0.12);
+  border: 1px solid var(--mango);
+  color: var(--mango);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.import-prompt-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  margin-bottom: 18px;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.import-prompt-box svg {
+  width: 22px;
+  height: 22px;
+  color: var(--mango);
+  flex: 0 0 auto;
+}
+
+.modal-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Existing Resume Card */
+.existing-resume-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+}
+
+.existing-resume-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.file-check-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--cyan);
+  flex: 0 0 auto;
+}
+
+.existing-resume-head strong {
+  display: block;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+.existing-resume-head span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.existing-analysis-summary-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.existing-analysis-summary-box p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.existing-resume-card .pixel-button {
+  width: 100%;
+}
+
+.sidebar-actions-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ==========================================
+   Experience CRUD Manager Component
+   ========================================== */
+.experience-crud-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.crud-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mode-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  padding: 3px;
+}
+
+.mode-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mode-toggle-btn:hover {
+  color: var(--text);
+}
+
+.mode-toggle-btn.active {
+  background: var(--surface-2);
+  color: var(--cyan);
+  border: 1px solid var(--cyan);
+}
+
+.mode-toggle-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Quick Manual Add Form with Calendar Pickers & Details */
+.quick-exp-calendar-card {
+  padding: 16px 18px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.quick-exp-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-sub-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+.quick-exp-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+.quick-field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--cyan);
+  margin-bottom: 4px;
+}
+
+.quick-input-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.quick-input-col.full-width-col {
+  grid-column: 1 / -1;
+}
+
+.quick-input-col.current-checkbox-col {
+  grid-column: 1 / -1;
+  padding-top: 2px;
+}
+
+.calendar-input {
+  cursor: pointer;
+}
+
+.calendar-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) hue-rotate(140deg);
+  cursor: pointer;
+}
+
+.quick-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.quick-exp-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.quick-exp-card-footer .pixel-button {
+  min-height: 44px;
+  padding: 8px 18px;
+  font-size: 0.86rem;
+}
+
+/* ==========================================
+   Month-Year Interactive Calendar Picker Styles
+   ========================================== */
+.month-year-picker-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.picker-field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+.month-year-trigger-btn {
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  padding: 8px 14px;
+  background: #d2dce6;
+  border: 2px solid #1e293b;
+  color: #071426;
+  font-family: "Chakra Petch", system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  box-sizing: border-box;
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.month-year-trigger-btn:hover {
+  border-color: var(--cyan);
+  background: #dbe4ee;
+}
+
+.month-year-trigger-btn.active {
+  border-color: var(--cyan);
+  background: #e2eaf2;
+  box-shadow: 0 0 0 3px rgba(120, 219, 230, 0.4), 3px 3px 0 #071426;
+}
+
+.trigger-text-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.trigger-cal-icon {
+  width: 16px;
+  height: 16px;
+  color: #0284c7;
+  flex: 0 0 auto;
+}
+
+.trigger-value-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #071426;
+}
+
+.month-year-trigger-btn:not(.has-value) .trigger-value-text {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.trigger-chevron {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+  flex: 0 0 auto;
+  transition: transform 0.2s ease;
+}
+
+.trigger-chevron.rotate {
+  transform: rotate(180deg);
+  color: var(--cyan);
+}
+
+/* Disabled state when "Current" is checked */
+.month-year-disabled-box {
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  background: rgba(7, 16, 26, 0.6);
+  border: 2px dashed var(--line);
+  color: var(--cyan);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+/* Popover Card */
+.month-year-popup-card {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1000;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  padding: 16px;
+  background: rgba(7, 16, 26, 0.98);
+  backdrop-filter: blur(16px);
+  border: 2px solid var(--cyan);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 6px 6px 0 rgba(120, 219, 230, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: slideDropdownDown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.popup-year-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.year-nav-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  color: var(--cyan);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.year-nav-btn:hover {
+  background: var(--cyan);
+  color: #071426;
+  border-color: var(--cyan);
+}
+
+.year-display-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.year-display-title strong {
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.year-thai-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* 12 Months Grid */
+.popup-months-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.month-cell-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: "Chakra Petch", sans-serif;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.month-cell-btn .month-short {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.month-cell-btn .month-full {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.month-cell-btn:hover {
+  border-color: var(--cyan);
+  background: var(--surface-2);
+  transform: translateY(-1px);
+}
+
+.month-cell-btn.is-current {
+  border-color: var(--mango);
+}
+
+.month-cell-btn.is-current .month-short {
+  color: var(--mango);
+}
+
+.month-cell-btn.selected {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #071426;
+  box-shadow: 0 0 10px rgba(120, 219, 230, 0.4);
+}
+
+.month-cell-btn.selected .month-full {
+  color: rgba(7, 20, 38, 0.8);
+  font-weight: 600;
+}
+
+.popup-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.popup-quick-btn {
+  background: transparent;
+  border: none;
+  color: var(--mango);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.popup-quick-btn:hover {
+  filter: brightness(1.2);
+}
+
+.popup-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: #ff5e78;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.popup-clear-btn:hover {
+  filter: brightness(1.2);
+}
+
+/* Detailed Editor Calendar Picker Range */
+.date-range-picker-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.date-picker-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-picker-box label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.date-current-checkbox-box {
+  grid-column: 1 / -1;
+  padding-top: 4px;
+}
+
+.checkbox-label-simple {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.raw-text-experience-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.raw-text-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .quick-exp-calendar-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .quick-action-col {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 600px) {
+  .quick-exp-calendar-row {
+    grid-template-columns: 1fr;
+  }
+  .date-range-picker-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   Experience Modal & Preview Card Styles
+   ========================================== */
+.exp-modal-form-body,
+.exp-modal-preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+.exp-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+}
+
+.exp-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.exp-modal-field.full-col {
+  grid-column: 1 / -1;
+}
+
+.exp-modal-field label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+.exp-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+}
+
+.preview-guidance-banner {
+  padding: 12px 16px;
+  background: rgba(120, 219, 230, 0.08);
+  border-left: 4px solid var(--cyan);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preview-guidance-banner strong {
+  color: var(--cyan);
+  font-size: 0.9rem;
+}
+
+.preview-guidance-banner p {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.experience-card-item.preview-mode {
+  border: 2px solid var(--cyan);
+  background: var(--surface-1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 4px 4px 0 rgba(120, 219, 230, 0.2);
+}
+
+.no-achievements-text {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  margin: 4px 0 0;
+}
+
+@media (max-width: 600px) {
+  .exp-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.experience-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cards-sort-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.sort-indicator-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  background: rgba(120, 219, 230, 0.08);
+  border: 1px solid rgba(120, 219, 230, 0.2);
+  color: var(--cyan);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.sort-indicator-pill .sort-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.experience-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.experience-card-item {
+  padding: 14px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.experience-card-item:hover {
+  border-color: rgba(120, 219, 230, 0.4);
+}
+
+.exp-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.exp-role-title {
+  margin: 0 0 2px;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.exp-meta-line {
+  font-size: 0.78rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.exp-company {
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.exp-duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cal-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.exp-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.exp-icon-btn {
+  width: 32px;
+  height: 32px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.exp-icon-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.exp-icon-btn.edit:hover {
+  color: var(--cyan);
+  border-color: var(--cyan);
+}
+
+.exp-icon-btn.delete:hover {
+  color: #ff5a6f;
+  border-color: #ff5a6f;
+}
+
+.exp-achievements-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.empty-experience-box {
+  padding: 18px;
+  text-align: center;
+  background: rgba(7, 16, 26, 0.4);
+  border: 1px dashed var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.empty-experience-box p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.empty-add-btn {
+  background: transparent;
+  border: none;
+  color: var(--cyan);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px 8px;
+}
+
+.empty-add-btn:hover {
+  color: var(--text);
+}
+
+/* Modal Experiences & Education Preview */
+.modal-exp-preview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.modal-exp-preview-section h4 {
+  font-size: 0.86rem;
+  margin: 0;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-exp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.modal-exp-card {
+  padding: 10px 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.modal-exp-card strong {
+  font-size: 0.88rem;
+}
+
+.modal-exp-card .exp-sub {
+  font-size: 0.75rem;
+  color: var(--cyan);
+}
+
+.modal-exp-card .exp-bullet {
+  font-size: 0.74rem;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.modal-edu-lang-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.modal-edu-box,
+.modal-lang-box {
+  padding: 10px 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-edu-box strong,
+.modal-lang-box strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--cyan);
+}
+
+.edu-tag {
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+.lang-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lang-pill {
+  padding: 2px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .editor-grid,
+  .modal-exp-grid,
+  .modal-edu-lang-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   Profile Dropdown Enhanced Icons & Badges
+   ========================================== */
+.menu-action-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.menu-action-icon.cyan {
+  color: var(--cyan);
+}
+
+.menu-action-icon.violet {
+  color: var(--violet);
+}
+
+.menu-action-icon.mango {
+  color: var(--mango);
+}
+
+.menu-action-icon.muted {
+  color: var(--muted);
+}
+
+/* ==========================================
+   Cyberpunk Command Center / Dashboard Styles
+   ========================================== */
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding-bottom: 64px;
+}
+
+.dashboard-hero-card {
+  padding: clamp(28px, 3.5vw, 40px);
+  margin-bottom: 12px;
+  background:
+    linear-gradient(135deg, rgba(120, 219, 230, 0.08) 0%, rgba(154, 114, 255, 0.06) 50%, rgba(7, 16, 26, 0.95) 100%),
+    rgba(13, 24, 48, 0.95);
+  border: 2px solid var(--line-bright);
+  box-shadow: 8px 8px 0 var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.dashboard-content-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+}
+
+.dashboard-hero-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  min-width: 0;
+  flex: 1 1 500px;
+}
+
+.dashboard-avatar-box {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 4px;
+  background: rgba(7, 16, 26, 0.7);
+  border: 2px solid var(--cyan);
+  box-shadow: 4px 4px 0 var(--shadow);
+  display: grid;
+  place-items: center;
+}
+
+.dashboard-welcome-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dashboard-eyebrow-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2px;
+  flex-wrap: wrap;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--cyan);
+  text-transform: uppercase;
+}
+
+.dashboard-main-title {
+  margin: 2px 0 6px;
+  font-size: clamp(1.6rem, 3.5vw, 2.3rem);
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.dashboard-main-title span {
+  color: var(--cyan);
+}
+
+.dashboard-subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.dashboard-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* 3 Cyber Stats Grid */
+.cyber-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 960px) {
+  .cyber-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cyber-stat-card {
+  padding: 22px 24px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  box-shadow: 4px 4px 0 var(--shadow);
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  transition: all 0.2s ease;
+}
+
+.cyber-stat-card:hover {
+  border-color: rgba(120, 219, 230, 0.4);
+  transform: translateY(-2px);
+}
+
+.cyber-stat-card.chip-card {
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.stat-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stat-card-top .stat-icon-badge {
+  width: 36px;
+  height: 36px;
+}
+
+.stat-card-top .stat-icon-badge svg {
+  width: 18px;
+  height: 18px;
+}
+
+.stat-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: 2px;
+  line-height: 1.3;
+}
+
+.stat-chip.cyan {
+  background: rgba(120, 219, 230, 0.12);
+  border: 1px solid rgba(120, 219, 230, 0.35);
+  color: var(--cyan);
+}
+
+.stat-chip.mango {
+  background: rgba(255, 184, 77, 0.12);
+  border: 1px solid rgba(255, 184, 77, 0.35);
+  color: var(--mango);
+}
+
+.stat-chip.more {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.72rem;
+}
+
+.stat-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: rgba(255, 184, 77, 0.18);
+  border: 1px solid var(--mango);
+  color: var(--mango);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s ease;
+}
+
+.stat-more-btn:hover {
+  background: var(--mango);
+  color: #071426;
+  transform: translateY(-1px);
+}
+
+.stat-empty-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.stat-icon-badge {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  flex: 0 0 auto;
+}
+
+.stat-icon-badge svg {
+  width: 24px;
+  height: 24px;
+}
+
+.stat-icon-badge.cyan {
+  color: var(--cyan);
+  background: rgba(120, 219, 230, 0.1);
+}
+
+.stat-icon-badge.mango {
+  color: var(--mango);
+  background: rgba(255, 184, 77, 0.1);
+}
+
+.stat-icon-badge.violet {
+  color: var(--violet);
+  background: rgba(154, 114, 255, 0.1);
+}
+
+.stat-icon-badge.green {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.stat-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.stat-label {
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.stat-number {
+  font-family: "Chakra Petch", monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+  margin: 2px 0 2px;
+}
+
+.stat-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dual Column Layout */
+.dashboard-dual-columns {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 32px;
+}
+
+@media (max-width: 960px) {
+  .dashboard-dual-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-left-col,
+.dashboard-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.dashboard-widget-card {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 8px;
+}
+
+.widget-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.widget-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--cyan);
+  text-transform: uppercase;
+}
+
+.widget-header h3 {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+  color: var(--text);
+}
+
+.pixel-progress-track {
+  width: 100%;
+  height: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  margin: 6px 0 8px;
+}
+
+.pixel-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--mango));
+  transition: width 0.4s ease;
+}
+
+.checklist-items-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.checklist-item-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  color: var(--text);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  min-height: 52px;
+  margin-bottom: 2px;
+}
+
+.checklist-item-row:hover {
+  background: var(--surface-2);
+  border-color: var(--cyan);
+}
+
+.checklist-item-row.done {
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
+.checklist-item-row.done .check-indicator {
+  color: #34d399;
+}
+
+.check-indicator {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.pending-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--muted);
+}
+
+.check-text {
+  flex: 1 1 auto;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.check-arrow {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+}
+
+.widget-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+/* AI Resume Info Box */
+.dashboard-resume-info-box {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 20px;
+  background: rgba(120, 219, 230, 0.05);
+  border: 1px solid rgba(120, 219, 230, 0.2);
+  margin-top: 4px;
+}
+
+.resume-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.file-icon-green {
+  width: 26px;
+  height: 26px;
+  color: #34d399;
+  flex: 0 0 auto;
+}
+
+.resume-meta-row strong {
+  display: block;
+  font-size: 0.94rem;
+  color: var(--text);
+}
+
+.resume-meta-row span {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.resume-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.resume-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.dashboard-resume-empty-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px 20px;
+  background: var(--surface-1);
+  border: 1px dashed var(--line);
+  text-align: center;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.dashboard-resume-empty-box p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.dashboard-resume-empty-box small {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* Fairs Mini-Stream */
+.dashboard-fairs-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.dashboard-fair-item-card {
+  padding: 18px 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.15s ease;
+  margin-bottom: 4px;
+}
+
+.dashboard-fair-item-card:hover {
+  border-color: rgba(120, 219, 230, 0.4);
+}
+
+.fair-badges-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.track-matched-tag {
+  padding: 3px 10px;
+  background: rgba(255, 184, 77, 0.15);
+  border: 1px solid rgba(255, 184, 77, 0.4);
+  color: var(--mango);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.joined-tag {
+  padding: 3px 10px;
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #34d399;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.fair-item-title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.fair-item-desc {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.fair-item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(120, 219, 230, 0.1);
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.fair-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.fair-item-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mini-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.fair-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quick-preview-btn-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--cyan);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-preview-btn-small:hover {
+  background: var(--cyan);
+  color: #071426;
+}
+
+.privacy-card-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.privacy-badge-icon {
+  width: 36px;
+  height: 36px;
+  color: var(--cyan);
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.privacy-card-inner h4 {
+  margin: 0 0 6px;
+  font-size: 0.98rem;
+  color: var(--text);
+}
+
+.privacy-card-inner p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ==========================================
+   Fair Detail Page & Interactive Application Styles
+   ========================================== */
+.fair-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.fair-detail-header {
+  margin-bottom: 8px;
+}
+
+.fair-status-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.fair-dates-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.fair-page-title {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.fair-page-summary {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 800px;
+  margin-bottom: 16px;
+}
+
+.fair-meta-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.84rem;
+  color: var(--muted);
+  padding-top: 8px;
+}
+
+.fair-meta-bar span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fair-participation-card {
+  padding: 24px 28px;
+  border: 1px solid var(--line-bright);
+}
+
+.participation-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.participation-inner h3 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+  color: var(--text);
+}
+
+.participation-inner p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.joined-status-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.joined-status-group small {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.fair-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 12px;
+}
+
+.booth-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.booth-showcase-card {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  transition: all 0.2s ease;
+}
+
+.booth-showcase-card:hover {
+  border-color: rgba(120, 219, 230, 0.4);
+  transform: translateY(-2px);
+}
+
+.booth-showcase-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.booth-jobs-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+.booth-showcase-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--text);
+}
+
+.booth-company-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--cyan);
+  font-size: 0.86rem;
+}
+
+.booth-summary-text {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Job Interactive Stream */
+.jobs-stream-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.job-interactive-card {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  box-shadow: 4px 4px 0 var(--shadow);
+  transition: all 0.2s ease;
+}
+
+.job-interactive-card:hover {
+  border-color: rgba(120, 219, 230, 0.4);
+}
+
+.job-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.job-badges-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.salary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: #34d399;
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.job-card-title {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+  color: var(--text);
+}
+
+.job-company-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.match-score-badge-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 14px;
+  background: rgba(120, 219, 230, 0.08);
+  border: 1px solid var(--cyan);
+  flex: 0 0 auto;
+}
+
+.match-number {
+  font-family: "Chakra Petch", monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cyan);
+  line-height: 1;
+}
+
+.match-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.job-summary-body {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.job-skills-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skills-heading {
+  font-size: 0.8rem;
+  color: var(--cyan);
+  font-family: "Chakra Petch", sans-serif;
+}
+
+.tag.matched {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: #34d399;
+  color: #34d399;
+  font-weight: 700;
+}
+
+.matched-feedback-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(52, 211, 153, 0.08);
+  border-left: 3px solid #34d399;
+  font-size: 0.82rem;
+  color: #34d399;
+}
+
+.matched-feedback-banner strong {
+  color: #f0fdf4;
+}
+
+.job-card-action-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(120, 219, 230, 0.12);
+  flex-wrap: wrap;
+}
+
+.anonymous-safety-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.reveal-request-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reveal-request-alert span {
+  font-size: 0.82rem;
+  color: var(--mango);
+  font-weight: 600;
+}
+
+.interview-scheduled-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.interview-scheduled-badge small {
+  color: var(--cyan);
+  font-size: 0.74rem;
 }

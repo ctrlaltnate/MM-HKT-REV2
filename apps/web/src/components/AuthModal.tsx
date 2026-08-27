@@ -27,7 +27,11 @@ export function AuthModal({
     const firstInput = panel?.querySelector<HTMLInputElement>("input");
     firstInput?.focus();
     if (!reducedMotion && panel) {
-      gsap.fromTo(panel, { y: 28, opacity: 0, scale: 0.97 }, { y: 0, opacity: 1, scale: 1, duration: 0.32, ease: "power3.out" });
+      gsap.fromTo(
+        panel,
+        { y: 28, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.38, ease: "back.out(1.6)" },
+      );
     }
     return () => {
       document.body.style.overflow = previousOverflow;
@@ -55,7 +59,12 @@ export function AuthModal({
   };
 
   return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <div
+      className="modal-backdrop"
+      role="presentation"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+      onClick={(event) => event.target === event.currentTarget && onClose()}
+    >
       <div ref={panelRef} className="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" onKeyDown={handleKeys}>
         <div className="modal-heading">
           <div>

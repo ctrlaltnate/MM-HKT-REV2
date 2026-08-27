@@ -1,5 +1,16 @@
 import gsap from "gsap";
-import { ChevronDown, LogOut, Settings } from "lucide-react";
+import {
+  Briefcase,
+  Building2,
+  CalendarDays,
+  ChevronDown,
+  FileText,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  ShieldCheck,
+  UserCheck,
+} from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -11,6 +22,12 @@ const roleLabels = {
   candidate: "Job Seeker",
   recruiter: "Recruiter",
   admin: "Admin",
+};
+
+const roleBadges: Record<LocalUser["role"], { label: string; tone: "cyan" | "violet" | "mango" }> = {
+  candidate: { label: "SEEKER", tone: "cyan" },
+  recruiter: { label: "RECRUITER", tone: "violet" },
+  admin: { label: "ADMIN", tone: "mango" },
 };
 
 export function ProfileMenu({
@@ -71,22 +88,96 @@ export function ProfileMenu({
       >
         <ProfileAvatar seed={user.id} size={34} />
         <span>Profile</span>
+        <span className={`profile-role-badge role-badge-${user.role}`}>
+          {roleBadges[user.role]?.label || "MEMBER"}
+        </span>
         <ChevronDown aria-hidden="true" />
       </button>
 
       <div ref={menuRef} className="profile-dropdown" role="menu" aria-hidden={!open}>
-        <div className="profile-summary">
-          <ProfileAvatar seed={user.id} size={54} />
-          <div>
+        {/* User Summary Header */}
+        <div className="profile-summary" role="none">
+          <ProfileAvatar seed={user.id} size={54} ariaHidden />
+          <div role="none">
             <strong>{user.displayName}</strong>
             <span>{user.email}</span>
-            <StatusPill tone="violet">{roleLabels[user.role]}</StatusPill>
+            <StatusPill tone={roleBadges[user.role]?.tone || "cyan"}>
+              {roleLabels[user.role]}
+            </StatusPill>
           </div>
         </div>
+
+        {/* Role-Specific Primary Navigation Items */}
+        {user.role === "candidate" && (
+          <>
+            <Link to="/candidate/profile" role="menuitem" onClick={() => setOpen(false)}>
+              <UserCheck aria-hidden="true" className="menu-action-icon cyan" />
+              <span>
+                <strong>ประวัติและโปรไฟล์ทักษะ</strong>
+                <small>สายงานเป้าหมาย ประวัติงาน และ AI Resume</small>
+              </span>
+            </Link>
+
+            <Link to="/" role="menuitem" onClick={() => setOpen(false)}>
+              <LayoutDashboard aria-hidden="true" className="menu-action-icon cyan" />
+              <span>
+                <strong>แดชบอร์ดภาพรวม</strong>
+                <small>ความพร้อมโปรไฟล์และงานแฟร์ที่ตรงสาย</small>
+              </span>
+            </Link>
+          </>
+        )}
+
+        {user.role === "recruiter" && (
+          <>
+            <Link to="/recruiter/workspace" role="menuitem" onClick={() => setOpen(false)}>
+              <Building2 aria-hidden="true" className="menu-action-icon violet" />
+              <span>
+                <strong>Recruiter Workspace</strong>
+                <small>จัดการบริษัท บูธ ตำแหน่งงาน และผู้สมัคร</small>
+              </span>
+            </Link>
+
+            <Link to="/" role="menuitem" onClick={() => setOpen(false)}>
+              <LayoutDashboard aria-hidden="true" className="menu-action-icon violet" />
+              <span>
+                <strong>แดชบอร์ดภาพรวม</strong>
+                <small>สถิติบดและผู้สมัครในระบบ</small>
+              </span>
+            </Link>
+          </>
+        )}
+
+        {user.role === "admin" && (
+          <>
+            <Link to="/admin/fairs" role="menuitem" onClick={() => setOpen(false)}>
+              <ShieldCheck aria-hidden="true" className="menu-action-icon mango" />
+              <span>
+                <strong>ศูนย์จัดการ Job Fair</strong>
+                <small>สร้างงานแฟร์ อนุมัติสมาชิก และรายงาน</small>
+              </span>
+            </Link>
+
+            <Link to="/" role="menuitem" onClick={() => setOpen(false)}>
+              <LayoutDashboard aria-hidden="true" className="menu-action-icon mango" />
+              <span>
+                <strong>แดชบอร์ดภาพรวม</strong>
+                <small>ภาพรวมระบบและสถิติภาพรวม</small>
+              </span>
+            </Link>
+          </>
+        )}
+
+        {/* Global Account Settings */}
         <Link to="/account" role="menuitem" onClick={() => setOpen(false)}>
-          <Settings aria-hidden="true" />
-          <span><strong>แก้ไขข้อมูลส่วนตัว</strong><small>ชื่อ อีเมล และรหัสผ่าน</small></span>
+          <Settings aria-hidden="true" className="menu-action-icon muted" />
+          <span>
+            <strong>ตั้งค่าบัญชีผู้ใช้</strong>
+            <small>ชื่อ อีเมล และรหัสผ่าน</small>
+          </span>
         </Link>
+
+        {/* Logout Button */}
         <button type="button" role="menuitem" className="profile-logout" onClick={onLogout}>
           <LogOut aria-hidden="true" /> ออกจากระบบ
         </button>

@@ -61,10 +61,10 @@ export function AuthForm({
         <button className={mode === "register" ? "auth-tab active" : "auth-tab"} type="button" role="tab" aria-selected={mode === "register"} onClick={() => setMode("register")}>สร้างบัญชี</button>
       </div>
 
-      <form className="form-grid" onSubmit={submit}>
+      <form key={mode} className="form-grid" onSubmit={submit} autoComplete="off">
         {mode === "register" ? (
           <>
-            <Field className="full" label="ชื่อที่ใช้ในระบบ" name="displayName" autoComplete="name" required />
+            <Field className="full" label="ชื่อที่ใช้ในระบบ" name="displayName" autoComplete="off" required />
             <SelectField className="full" label="บทบาทเริ่มต้น" name="role" defaultValue="candidate" required>
               <option value="candidate">ผู้สมัครงาน</option>
               <option value="recruiter">Recruiter / บริษัท</option>
@@ -72,8 +72,22 @@ export function AuthForm({
             </SelectField>
           </>
         ) : null}
-        <Field className="full" label="อีเมล" name="email" type="email" autoComplete="email" required />
-        <Field className="full" label="รหัสผ่าน" name="password" type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={8} required />
+        <Field
+          className="full"
+          label="อีเมล"
+          name="email"
+          type="email"
+          autoComplete={mode === "login" ? "email" : "off"}
+          required
+        />
+        <Field
+          className="full"
+          label="รหัสผ่าน"
+          name="password"
+          type="password"
+          autoComplete={mode === "login" ? "current-password" : "new-password"}
+          required
+        />
         {error ? <p className="form-message error" role="alert">{error}</p> : null}
         <div className="button-row">
           <PixelButton type="submit" tone="mango" disabled={loading}>
