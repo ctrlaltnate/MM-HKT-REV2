@@ -115,7 +115,15 @@ export const UpdateCandidateProfileRequestSchema = z.object({
 // ==========================================
 // Job Fair Schemas
 // ==========================================
-export const FairStatusSchema = z.enum(["DRAFT", "PUBLISHED", "LIVE", "ENDED", "ARCHIVED"]);
+export const FairStatusSchema = z.enum([
+  "DRAFT",
+  "PUBLISHED",
+  "LIVE",
+  "PAUSED",
+  "CANCELLED",
+  "ENDED",
+  "ARCHIVED",
+]);
 
 export const FairMediaLinkSchema = z.object({
   id: z.string(),

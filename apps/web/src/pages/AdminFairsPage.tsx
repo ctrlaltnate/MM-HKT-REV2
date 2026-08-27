@@ -1,12 +1,16 @@
 import {
+  AlertTriangle,
   Archive,
   CalendarDays,
   Clock,
   Edit3,
+  Eye,
   Link2,
+  MapPin,
   Play,
   Plus,
   Radio,
+  Search,
   ShieldCheck,
   Square,
   Store,
@@ -14,138 +18,234 @@ import {
   UsersRound,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import type { FairLifecycleAction } from "@maskedmatch/contracts";
 
 import { AnimatedPage } from "../components/AnimatedPage";
 import { FairMembershipModal } from "../components/FairMembershipModal";
+import { FairQuickPreviewModal } from "../components/FairQuickPreviewModal";
 import { FairStudioModal } from "../components/FairStudioModal";
 import { Modal } from "../components/Modal";
 import {
   EmptyState,
+  Field,
   PixelButton,
+  PixelLink,
   PixelSurface,
+  SelectField,
   StatusPill,
 } from "../components/PixelUI";
 import { useApp } from "../context/AppContext";
 import { useToast } from "../context/ToastContext";
 import type { FairMediaLink, FairStatus, JobFair } from "../domain/types";
 
+type FairCategory = "ACTIVE" | "UPCOMING" | "EXPIRED" | "ALL";
+type FairSort = "START_ASC" | "START_DESC" | "TITLE_ASC";
+
+interface FairFormPayload {
+  title: string;
+  slug: string;
+  summary: string;
+  locationLabel: string;
+  startsAt: string;
+  endsAt: string;
+  timezone: string;
+  logoUrl?: string;
+  coverUrl?: string;
+  autoSchedule: boolean;
+  mediaLinks: FairMediaLink[];
+  tags: string[];
+  status?: FairStatus;
+}
+
+interface TransitionRequest {
+  fair: JobFair;
+  action: FairLifecycleAction;
+}
+
+const actionLabels: Record<FairLifecycleAction, string> = {
+  PUBLISH: "Publish งานแฟร์",
+  START: "เริ่มงาน",
+  PAUSE: "พักงานชั่วคราว",
+  RESUME: "เปิดงานต่อ",
+  END: "สิ้นสุดงาน",
+  CANCEL: "ยกเลิกงาน",
+  ARCHIVE: "เก็บเข้า Archive",
+  RESTORE_DRAFT: "กู้คืนเป็น Draft",
+};
+
+const actionDescriptions: Record<FairLifecycleAction, string> = {
+  PUBLISH: "งานจะปรากฏใน Public Fair Directory แต่ยังไม่เปิด Live Operations",
+  START: "ระบบจะเปิดงานและอนุญาตให้เข้าสู่ศูนย์ควบคุม Live Operations",
+  PAUSE: "การเข้างานและคิวใหม่จะถูกพักตามขอบเขตที่เลือก",
+  RESUME: "การเข้างานและคิวจะกลับมาทำงานต่อจากสถานะเดิม",
+  END: "งานจะหยุดรับผู้เข้าร่วมและคิวใหม่ การกระทำนี้ต้องยืนยันอย่างชัดเจน",
+  CANCEL: "งานที่ Publish แล้วจะถูกยกเลิกพร้อมเหตุผล",
+  ARCHIVE: "งานจะย้ายออกจากรายการที่กำลังดำเนินงาน",
+  RESTORE_DRAFT: "เฉพาะ local preparation: สร้างสถานะ Draft สำหรับทดลองแก้ไขอีกครั้ง",
+};
+
+function primaryActionFor(status: FairStatus): FairLifecycleAction | null {
+  switch (status) {
+    case "DRAFT": return "PUBLISH";
+    case "PUBLISHED": return "START";
+    case "LIVE":
+    case "PAUSED": return "END";
+    case "ENDED":
+    case "CANCELLED": return "ARCHIVE";
+    case "ARCHIVED": return "RESTORE_DRAFT";
+  }
+}
+
+function statusTone(status: FairStatus): "cyan" | "violet" | "mango" | "danger" | "neutral" {
+  if (status === "LIVE") return "cyan";
+  if (status === "PAUSED" || status === "DRAFT") return "mango";
+  if (status === "ENDED" || status === "CANCELLED") return "danger";
+  if (status === "ARCHIVED") return "neutral";
+  return "violet";
+}
+
+function useOnlineStatus(): boolean {
+  const [online, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine);
+  useEffect(() => {
+    const update = () => setOnline(navigator.onLine);
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }, []);
+  return online;
+}
+
 export function AdminFairsPage() {
   const { user, database, actions } = useApp();
   const { toast } = useToast();
-
+  const online = useOnlineStatus();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editingFair, setEditingFair] = useState<JobFair | null>(null);
+  const [previewFair, setPreviewFair] = useState<JobFair | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-
-  // Membership governance modal state
+  const [transitionRequest, setTransitionRequest] = useState<TransitionRequest | null>(null);
+  const [pendingFairId, setPendingFairId] = useState<string | null>(null);
   const [membershipModalOpen, setMembershipModalOpen] = useState(false);
-  const [membershipModalFairId, setMembershipModalFairId] = useState<string>("");
+  const [membershipModalFairId, setMembershipModalFairId] = useState("");
+  const [fairCategory, setFairCategory] = useState<FairCategory>("ACTIVE");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<FairSort>("START_ASC");
+  const [feedback, setFeedback] = useState<{ tone: "success" | "error"; message: string } | null>(null);
 
-  // Fair category filter state (Default to ACTIVE: กำลังดำเนินงาน)
-  const [fairCategory, setFairCategory] = useState<"ACTIVE" | "UPCOMING" | "EXPIRED" | "ALL">("ACTIVE");
-
-  if (!user) return null;
-  const fairs = database.fairs.filter((fair) => fair.ownerId === user.id);
+  const fairs = useMemo(
+    () => (user ? database.fairs.filter((fair) => fair.ownerId === user.id) : []),
+    [database.fairs, user],
+  );
   const fairIds = new Set(fairs.map((fair) => fair.id));
-
-  const activeFairs = fairs.filter((f) => f.status === "LIVE" || (f.status === "PUBLISHED" && new Date(f.startsAt) <= new Date() && new Date(f.endsAt) >= new Date()));
-  const upcomingFairs = fairs.filter((f) => f.status === "DRAFT" || (f.status === "PUBLISHED" && new Date(f.startsAt) > new Date()));
-  const expiredFairs = fairs.filter((f) => f.status === "ENDED" || f.status === "ARCHIVED" || (f.endsAt && new Date(f.endsAt) < new Date() && f.status !== "DRAFT"));
-
-  const displayedFairs = fairs.filter((fair) => {
-    if (fairCategory === "ACTIVE") return fair.status === "LIVE" || (fair.status === "PUBLISHED" && new Date(fair.startsAt) <= new Date() && new Date(fair.endsAt) >= new Date());
-    if (fairCategory === "UPCOMING") return fair.status === "DRAFT" || (fair.status === "PUBLISHED" && new Date(fair.startsAt) > new Date());
-    if (fairCategory === "EXPIRED") return fair.status === "ENDED" || fair.status === "ARCHIVED" || (fair.endsAt && new Date(fair.endsAt) < new Date() && fair.status !== "DRAFT");
-    return true;
-  });
-
-  const allPendingApprovals = database.memberships.filter(
-    (m) => fairIds.has(m.fairId) && m.role === "RECRUITER" && m.status === "PENDING_APPROVAL",
-  ).length;
-
-  const handleCreateFair = (payload: {
-    title: string;
-    slug: string;
-    summary: string;
-    locationLabel: string;
-    startsAt: string;
-    endsAt: string;
-    timezone: string;
-    logoUrl?: string;
-    coverUrl?: string;
-    autoSchedule: boolean;
-    mediaLinks: FairMediaLink[];
-    tags: string[];
-    status?: FairStatus;
-  }) => {
-    const newFair = actions.createFair(user.id, {
-      ...payload,
-      status: "DRAFT",
+  const { activeFairs, upcomingFairs, expiredFairs, displayedFairs } = useMemo(() => {
+    const now = Date.now();
+    const isActive = (fair: JobFair) =>
+      fair.status === "LIVE" || fair.status === "PAUSED" ||
+      (fair.status === "PUBLISHED" && new Date(fair.startsAt).getTime() <= now && new Date(fair.endsAt).getTime() >= now);
+    const isUpcoming = (fair: JobFair) =>
+      fair.status === "DRAFT" || (fair.status === "PUBLISHED" && new Date(fair.startsAt).getTime() > now);
+    const isExpired = (fair: JobFair) =>
+      fair.status === "ENDED" || fair.status === "CANCELLED" || fair.status === "ARCHIVED" ||
+      (new Date(fair.endsAt).getTime() < now && fair.status !== "DRAFT");
+    const active = fairs.filter(isActive);
+    const upcoming = fairs.filter(isUpcoming);
+    const expired = fairs.filter(isExpired);
+    const normalizedQuery = query.trim().toLocaleLowerCase("th");
+    const result = fairs.filter((fair) => {
+      const categoryMatch = fairCategory === "ALL" ||
+        (fairCategory === "ACTIVE" && isActive(fair)) ||
+        (fairCategory === "UPCOMING" && isUpcoming(fair)) ||
+        (fairCategory === "EXPIRED" && isExpired(fair));
+      if (!categoryMatch) return false;
+      if (!normalizedQuery) return true;
+      return [fair.title, fair.slug, fair.locationLabel, ...(fair.tags ?? [])]
+        .join(" ").toLocaleLowerCase("th").includes(normalizedQuery);
     });
-    setCreateModalOpen(false);
-    toast.success(`สร้างงานแฟร์ "${payload.title}" เรียบร้อยแล้ว!`);
-  };
+    const displayed = result.sort((left, right) => {
+      if (sort === "TITLE_ASC") return left.title.localeCompare(right.title, "th");
+      const delta = new Date(left.startsAt).getTime() - new Date(right.startsAt).getTime();
+      return sort === "START_ASC" ? delta : -delta;
+    });
+    return { activeFairs: active, upcomingFairs: upcoming, expiredFairs: expired, displayedFairs: displayed };
+  }, [fairCategory, fairs, query, sort]);
 
-  const handleUpdateFair = (payload: {
-    title: string;
-    slug: string;
-    summary: string;
-    locationLabel: string;
-    startsAt: string;
-    endsAt: string;
-    timezone: string;
-    logoUrl?: string;
-    coverUrl?: string;
-    autoSchedule: boolean;
-    mediaLinks: FairMediaLink[];
-    tags: string[];
-    status?: FairStatus;
-  }) => {
+  const allPendingApprovals = database.memberships.filter((membership) =>
+    fairIds.has(membership.fairId) && membership.role === "RECRUITER" && membership.status === "PENDING_APPROVAL",
+  ).length;
+  if (!user) return null;
+  const reportSuccess = (message: string) => {
+    setFeedback({ tone: "success", message });
+    toast.success(message);
+  };
+  const reportError = (error: unknown) => {
+    const message = error instanceof Error ? error.message : "ไม่สามารถดำเนินการได้ กรุณาลองอีกครั้ง";
+    setFeedback({ tone: "error", message });
+    toast.error(message);
+  };
+  const handleCreateFair = (payload: FairFormPayload) => {
+    try {
+      actions.createFair(user.id, { ...payload, status: "DRAFT" });
+      setCreateModalOpen(false);
+      reportSuccess(`สร้างงานแฟร์ “${payload.title}” เป็น Draft เรียบร้อยแล้ว`);
+    } catch (error) { reportError(error); }
+  };
+  const handleUpdateFair = (payload: FairFormPayload) => {
     if (!editingFair) return;
-    actions.updateFair(editingFair.id, payload);
-    setEditingFair(null);
-    toast.success(`บันทึกการแก้ไขงานแฟร์ "${payload.title}" เรียบร้อยแล้ว!`);
+    try {
+      const { status: _ignoredStatus, ...metadata } = payload;
+      actions.updateFair(editingFair.id, metadata);
+      setEditingFair(null);
+      reportSuccess(`บันทึกข้อมูลงานแฟร์ “${payload.title}” เรียบร้อยแล้ว`);
+    } catch (error) { reportError(error); }
   };
-
-  const transition = (fair: JobFair) => {
-    const next: Record<JobFair["status"], JobFair["status"]> = {
-      DRAFT: "PUBLISHED",
-      PUBLISHED: "LIVE",
-      LIVE: "ENDED",
-      ENDED: "ARCHIVED",
-      ARCHIVED: "DRAFT",
-    };
-    actions.setFairStatus(fair.id, next[fair.status]);
+  const confirmTransition = async () => {
+    if (!transitionRequest || pendingFairId) return;
+    setPendingFairId(transitionRequest.fair.id);
+    setFeedback(null);
+    try {
+      const updated = actions.transitionFairStatus(transitionRequest.fair.id, transitionRequest.action);
+      reportSuccess(`เปลี่ยนสถานะ “${updated.title}” เป็น ${updated.status} แล้ว`);
+      setTransitionRequest(null);
+    } catch (error) { reportError(error); }
+    finally { setPendingFairId(null); }
   };
-
-  const confirmDelete = (fairId: string) => {
-    actions.deleteFair(fairId);
-    setDeleteTargetId(null);
-    toast.info("ลบงานแฟร์เรียบร้อยแล้ว");
+  const confirmDelete = async () => {
+    if (!deleteTargetId || pendingFairId) return;
+    setPendingFairId(deleteTargetId);
+    setFeedback(null);
+    try {
+      actions.deleteFair(deleteTargetId);
+      setDeleteTargetId(null);
+      reportSuccess("ลบงานแฟร์และข้อมูลที่เกี่ยวข้องออกจาก local browser แล้ว");
+    } catch (error) { reportError(error); }
+    finally { setPendingFairId(null); }
   };
-
   const openMembershipGovernance = (fairId = "") => {
     setMembershipModalFairId(fairId);
     setMembershipModalOpen(true);
   };
+  const clearFilters = () => {
+    setFairCategory("ALL");
+    setQuery("");
+    setSort("START_ASC");
+  };
 
   return (
-    <AnimatedPage className="page-shell">
-      {/* Header Banner */}
-      <div className="page-header" data-reveal style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20, flexWrap: "wrap" }}>
+    <AnimatedPage className="page-shell admin-fairs-page">
+      <div className="page-header admin-page-header" data-reveal>
         <div>
           <span className="eyebrow"><ShieldCheck aria-hidden="true" /> Admin Governance Hub</span>
           <h1>ศูนย์จัดการ Job Fair</h1>
-          <p>สร้างและแก้ไขกำหนดการงานแฟร์ อนุมัติสิทธิ์บูธบริษัท และติดตามสถานะความปลอดภัยของระบบ</p>
+          <p>เตรียมงาน กำหนด lifecycle อนุมัติสิทธิ์บูธ และเปิดศูนย์ควบคุมเมื่อเริ่มงาน</p>
+          <StatusPill tone="mango">LOCAL FAIR PREPARATION</StatusPill>
         </div>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <PixelButton
-            type="button"
-            tone="cyan"
-            onClick={() => openMembershipGovernance("")}
-          >
-            <UsersRound aria-hidden="true" /> จัดการสมาชิก & คำขอทั้งหมด {allPendingApprovals > 0 ? `(${allPendingApprovals})` : ""}
+        <div className="admin-header-actions">
+          <PixelButton type="button" tone="cyan" onClick={() => openMembershipGovernance("")}>
+            <UsersRound aria-hidden="true" /> จัดการสมาชิกและคำขอทั้งหมด{allPendingApprovals > 0 ? ` (${allPendingApprovals})` : ""}
           </PixelButton>
           <PixelButton type="button" tone="mango" onClick={() => setCreateModalOpen(true)}>
             <Plus aria-hidden="true" /> สร้าง Job Fair ใหม่
@@ -153,390 +253,107 @@ export function AdminFairsPage() {
         </div>
       </div>
 
-      {/* 4 Cyber Stat Cards */}
-      <div className="cyber-stats-grid cols-4" data-reveal style={{ marginTop: 24, marginBottom: 32 }}>
-        <div
-          className="cyber-stat-card"
-          onClick={() => setFairCategory("ALL")}
-          style={{ cursor: "pointer", transition: "all 0.15s ease" }}
-          title="คลิกเพื่อดูงานแฟร์ทั้งหมด"
-        >
-          <div className="stat-icon-badge mango">
-            <CalendarDays aria-hidden="true" />
-          </div>
-          <div className="stat-meta">
-            <span className="stat-label">งานแฟร์ที่คุณดูแล</span>
-            <strong className="stat-number">{fairs.length}</strong>
-          </div>
+      {!online ? (
+        <div className="admin-state-banner tone-warning" role="status" data-testid="offline-banner">
+          <AlertTriangle aria-hidden="true" /><div><strong>เบราว์เซอร์ออฟไลน์</strong><span>งาน local ยังบันทึกในเครื่องนี้ได้ แต่บริการ Supabase/Realtime ในอนาคตจะยังใช้ไม่ได้</span></div>
         </div>
+      ) : null}
+      {feedback ? (
+        <div className={`admin-state-banner tone-${feedback.tone}`} role={feedback.tone === "error" ? "alert" : "status"}>
+          {feedback.tone === "error" ? <AlertTriangle aria-hidden="true" /> : <ShieldCheck aria-hidden="true" />}
+          <span>{feedback.message}</span>
+          <button type="button" className="admin-banner-dismiss" onClick={() => setFeedback(null)}>ปิดข้อความ</button>
+        </div>
+      ) : null}
 
-        <div
-          className="cyber-stat-card"
-          onClick={() => setFairCategory("ACTIVE")}
-          style={{ cursor: "pointer", transition: "all 0.15s ease" }}
-          title="คลิกเพื่อกรองงานที่กำลังดำเนินงาน (LIVE & PUBLISHED)"
-        >
-          <div className="stat-icon-badge cyan">
-            <Radio aria-hidden="true" />
-          </div>
-          <div className="stat-meta">
-            <span className="stat-label">กำลังดำเนินงาน</span>
-            <strong className="stat-number">{activeFairs.length}</strong>
-          </div>
-        </div>
-
-        <div
-          className="cyber-stat-card"
-          onClick={() => setFairCategory("EXPIRED")}
-          style={{ cursor: "pointer", transition: "all 0.15s ease" }}
-          title="คลิกเพื่อกรองจ็อบแฟร์ที่หมดอายุ / สิ้นสุดแล้ว"
-        >
-          <div className="stat-icon-badge violet">
-            <Archive aria-hidden="true" />
-          </div>
-          <div className="stat-meta">
-            <span className="stat-label">จ็อบแฟร์ที่หมดอายุ</span>
-            <strong className="stat-number">{expiredFairs.length}</strong>
-          </div>
-        </div>
-
-        <div
-          className="cyber-stat-card"
-          onClick={() => openMembershipGovernance("")}
-          style={{ cursor: "pointer", transition: "all 0.15s ease" }}
-          title="คลิกเพื่อเปิดศูนย์จัดการคำขอรออนุมัติทั้งหมด"
-        >
-          <div className="stat-icon-badge green">
-            <Clock aria-hidden="true" />
-          </div>
-          <div className="stat-meta">
-            <span className="stat-label">คำขอรออนุมัติ</span>
-            <strong className="stat-number" style={{ color: allPendingApprovals > 0 ? "var(--mango)" : "inherit" }}>
-              {allPendingApprovals}
-            </strong>
-          </div>
-        </div>
+      <div className="cyber-stats-grid cols-4 admin-stat-grid" data-reveal>
+        <StatFilter selected={fairCategory === "ALL"} onClick={() => setFairCategory("ALL")} tone="mango" icon={<CalendarDays aria-hidden="true" />} label="งานแฟร์ที่คุณดูแล" value={fairs.length} />
+        <StatFilter selected={fairCategory === "ACTIVE"} onClick={() => setFairCategory("ACTIVE")} tone="cyan" icon={<Radio aria-hidden="true" />} label="กำลังดำเนินงาน" value={activeFairs.length} />
+        <StatFilter selected={fairCategory === "EXPIRED"} onClick={() => setFairCategory("EXPIRED")} tone="violet" icon={<Archive aria-hidden="true" />} label="หมดอายุหรือจบงาน" value={expiredFairs.length} />
+        <StatFilter selected={false} onClick={() => openMembershipGovernance("")} tone="green" icon={<Clock aria-hidden="true" />} label="คำขอรออนุมัติ" value={allPendingApprovals} pressedState={false} />
       </div>
 
-      {/* Fair Studio Modal (Create) */}
-      <FairStudioModal
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onSubmit={handleCreateFair}
-      />
+      <FairStudioModal open={createModalOpen} onClose={() => setCreateModalOpen(false)} onSubmit={handleCreateFair} />
+      <FairStudioModal open={Boolean(editingFair)} initialFair={editingFair} onClose={() => setEditingFair(null)} onSubmit={handleUpdateFair} />
+      <FairMembershipModal open={membershipModalOpen} onClose={() => setMembershipModalOpen(false)} initialFairId={membershipModalFairId} />
+      <FairQuickPreviewModal fair={previewFair} booths={database.booths} jobs={database.jobs} open={Boolean(previewFair)} onClose={() => setPreviewFair(null)} showPublicLink={false} />
 
-      {/* Fair Studio Modal (Edit) */}
-      <FairStudioModal
-        open={Boolean(editingFair)}
-        initialFair={editingFair}
-        onClose={() => setEditingFair(null)}
-        onSubmit={handleUpdateFair}
-      />
-
-      {/* Fair Membership & Approval Governance Modal */}
-      <FairMembershipModal
-        open={membershipModalOpen}
-        onClose={() => setMembershipModalOpen(false)}
-        initialFairId={membershipModalFairId}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <Modal
-        open={Boolean(deleteTargetId)}
-        onClose={() => setDeleteTargetId(null)}
-        title="ยืนยันการลบ Job Fair"
-        subtitle="การลบงานแฟร์จะไม่สามารถกู้คืนได้"
-        maxWidth="480px"
-      >
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <p style={{ margin: 0, color: "#f87171", fontSize: "0.92rem", lineHeight: 1.6 }}>
-            ⚠️ <strong>คำเตือน:</strong> การลบงานแฟร์นี้จะลบบูธบริษัท ประกาศตำแหน่งงาน และข้อมูลสมาชิกทั้งหมดที่สังกัดอยู่ในงานนี้ทันที
-          </p>
-          <div className="button-row" style={{ display: "flex", gap: 12, justifyContent: "flex-end", paddingTop: 12, borderTop: "1px solid var(--line)" }}>
-            <PixelButton type="button" tone="neutral" onClick={() => setDeleteTargetId(null)}>
-              ยกเลิก
-            </PixelButton>
-            <PixelButton type="button" tone="danger" onClick={() => deleteTargetId && confirmDelete(deleteTargetId)}>
-              <Trash2 aria-hidden="true" /> ยืนยันลบงานแฟร์นี้
-            </PixelButton>
+      <Modal open={Boolean(transitionRequest)} onClose={() => !pendingFairId && setTransitionRequest(null)} title={transitionRequest ? `ยืนยัน: ${actionLabels[transitionRequest.action]}` : "ยืนยันการเปลี่ยนสถานะ"} subtitle={transitionRequest?.fair.title} maxWidth="520px">
+        <div className="admin-confirm-content" aria-busy={Boolean(pendingFairId)}>
+          <AlertTriangle aria-hidden="true" /><p>{transitionRequest ? actionDescriptions[transitionRequest.action] : ""}</p>
+          <div className="admin-confirm-actions">
+            <PixelButton type="button" tone="neutral" onClick={() => setTransitionRequest(null)} disabled={Boolean(pendingFairId)}>ย้อนกลับ</PixelButton>
+            <PixelButton type="button" tone={transitionRequest?.action === "END" ? "danger" : "mango"} onClick={() => void confirmTransition()} disabled={Boolean(pendingFairId)} data-autofocus>{pendingFairId ? "กำลังบันทึก…" : "ยืนยันการเปลี่ยนสถานะ"}</PixelButton>
+          </div>
+        </div>
+      </Modal>
+      <Modal open={Boolean(deleteTargetId)} onClose={() => !pendingFairId && setDeleteTargetId(null)} title="ยืนยันการลบ Job Fair" subtitle="การลบจะไม่สามารถกู้คืนจาก local browser ได้" maxWidth="480px">
+        <div className="admin-confirm-content" aria-busy={Boolean(pendingFairId)}>
+          <AlertTriangle aria-hidden="true" /><p>งานแฟร์ บูธ ตำแหน่งงาน และข้อมูลสมาชิกที่สังกัดงานนี้จะถูกลบจากเครื่องนี้ทันที</p>
+          <div className="admin-confirm-actions">
+            <PixelButton type="button" tone="neutral" onClick={() => setDeleteTargetId(null)} disabled={Boolean(pendingFairId)}>ยกเลิก</PixelButton>
+            <PixelButton type="button" tone="danger" onClick={() => void confirmDelete()} disabled={Boolean(pendingFairId)} data-autofocus><Trash2 aria-hidden="true" /> {pendingFairId ? "กำลังลบ…" : "ยืนยันลบงานแฟร์"}</PixelButton>
           </div>
         </div>
       </Modal>
 
-      {/* All Fairs Section */}
-      <section style={{ marginTop: 36 }}>
-        <div className="section-heading" data-reveal style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
-          <div>
-            <h2>งานแฟร์ทั้งหมด ({displayedFairs.length}/{fairs.length})</h2>
-            <p>จัดการข้อมูล เปลี่ยนสถานะ ปรับแต่งแบรนดิ้ง หรือดูสถิติสมาชิกในแต่ละงาน</p>
+      <section className="admin-fairs-section">
+        <div className="section-heading admin-fairs-heading" data-reveal>
+          <div><h2>รายการงานแฟร์</h2><p aria-live="polite">แสดง {displayedFairs.length} จาก {fairs.length} งาน</p></div>
+          <div className="admin-fair-filters" role="group" aria-label="ค้นหาและเรียงงานแฟร์">
+            <Field label="ค้นหางานแฟร์" name="fairSearch" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ชื่อ, slug, สถานที่ หรือแท็ก" />
+            <SelectField label="เรียงตาม" name="fairSort" value={sort} onChange={(event) => setSort(event.target.value as FairSort)}>
+              <option value="START_ASC">วันเริ่ม: เร็วไปช้า</option><option value="START_DESC">วันเริ่ม: ช้าไปเร็ว</option><option value="TITLE_ASC">ชื่อ: ก–ฮ / A–Z</option>
+            </SelectField>
           </div>
-
-          {/* Category Filter Tabs */}
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            <PixelButton
-              type="button"
-              tone={fairCategory === "ACTIVE" ? "cyan" : "neutral"}
-              onClick={() => setFairCategory("ACTIVE")}
-            >
-              <Radio size={14} aria-hidden="true" /> กำลังดำเนินงาน ({activeFairs.length})
-            </PixelButton>
-            <PixelButton
-              type="button"
-              tone={fairCategory === "UPCOMING" ? "mango" : "neutral"}
-              onClick={() => setFairCategory("UPCOMING")}
-            >
-              <CalendarDays size={14} aria-hidden="true" /> งานแฟร์ที่กำลังจะมาถึง ({upcomingFairs.length})
-            </PixelButton>
-            <PixelButton
-              type="button"
-              tone={fairCategory === "EXPIRED" ? "danger" : "neutral"}
-              onClick={() => setFairCategory("EXPIRED")}
-            >
-              <Archive size={14} aria-hidden="true" /> หมดอายุ / จบงาน ({expiredFairs.length})
-            </PixelButton>
-            <PixelButton
-              type="button"
-              tone={fairCategory === "ALL" ? "mango" : "neutral"}
-              onClick={() => setFairCategory("ALL")}
-            >
-              ทั้งหมด ({fairs.length})
-            </PixelButton>
-          </div>
+        </div>
+        <div className="admin-category-tabs" role="group" aria-label="หมวดหมู่งานแฟร์">
+          {([ ["ACTIVE", `กำลังดำเนินงาน (${activeFairs.length})`], ["UPCOMING", `กำลังจะมาถึง (${upcomingFairs.length})`], ["EXPIRED", `หมดอายุหรือจบงาน (${expiredFairs.length})`], ["ALL", `ทั้งหมด (${fairs.length})`] ] as Array<[FairCategory, string]>).map(([value, label]) => (
+            <PixelButton key={value} type="button" tone={fairCategory === value ? (value === "EXPIRED" ? "danger" : value === "UPCOMING" ? "mango" : "cyan") : "neutral"} onClick={() => setFairCategory(value)} aria-pressed={fairCategory === value}>{label}</PixelButton>
+          ))}
         </div>
 
         {displayedFairs.length === 0 ? (
-          <EmptyState
-            title={
-              fairCategory === "ACTIVE"
-                ? "ไม่มีงานแฟร์ที่กำลังดำเนินงานในขณะนี้"
-                : fairCategory === "UPCOMING"
-                ? "ไม่มีงานแฟร์ที่กำลังจะมาถึง"
-                : fairCategory === "EXPIRED"
-                ? "ไม่มีจ็อบแฟร์ที่หมดอายุ"
-                : "ยังไม่มีงานแฟร์ในระบบ"
-            }
-            body={fairCategory === "ALL" ? "กดปุ่ม 'สร้าง Job Fair ใหม่' ด้านบน เพื่อเริ่มต้นเปิดงานแฟร์และกำหนดวันเวลาจัดงาน" : "เลือกหมวดหมู่อื่นเพื่อดูรายการงานแฟร์"}
-          />
+          <EmptyState title={fairs.length === 0 ? "ยังไม่มีงานแฟร์ในระบบ" : "ไม่พบงานแฟร์ที่ตรงกับตัวกรอง"} body={fairs.length === 0 ? "สร้าง Draft แรกเพื่อกำหนดข้อมูล แบรนดิ้ง และช่วงเวลาจัดงาน" : "ลองเปลี่ยนคำค้นหา หมวดหมู่ หรือล้างตัวกรองทั้งหมด"} action={fairs.length === 0 ? <PixelButton type="button" tone="mango" onClick={() => setCreateModalOpen(true)}><Plus aria-hidden="true" /> สร้าง Job Fair ใหม่</PixelButton> : <PixelButton type="button" tone="neutral" onClick={clearFilters}><Search aria-hidden="true" /> ล้างตัวกรอง</PixelButton>} />
         ) : (
-          <div className="card-grid">
+          <div className="card-grid admin-fairs-card-grid">
             {displayedFairs.map((fair) => {
               const boothCount = database.booths.filter((booth) => booth.fairId === fair.id).length;
               const memberCount = database.memberships.filter((member) => member.fairId === fair.id).length;
-              const pendingCount = database.memberships.filter(
-                (m) => m.fairId === fair.id && m.role === "RECRUITER" && m.status === "PENDING_APPROVAL",
-              ).length;
-
+              const pendingCount = database.memberships.filter((membership) => membership.fairId === fair.id && membership.role === "RECRUITER" && membership.status === "PENDING_APPROVAL").length;
+              const action = primaryActionFor(fair.status);
+              const isPending = pendingFairId === fair.id;
               return (
-                <PixelSurface
-                  className="admin-fair-card"
-                  data-reveal
-                  key={fair.id}
-                >
-                  {/* Top Bar: Badges on left, Quick Actions on right */}
+                <PixelSurface className="admin-fair-card" data-reveal key={fair.id} aria-busy={isPending}>
                   <div className="admin-fair-card-header">
                     <div className="admin-fair-badges">
-                      <StatusPill
-                        tone={
-                          fair.status === "LIVE"
-                            ? "cyan"
-                            : fair.status === "DRAFT"
-                            ? "mango"
-                            : fair.status === "ARCHIVED"
-                            ? "neutral"
-                            : fair.status === "ENDED"
-                            ? "danger"
-                            : "violet"
-                        }
-                      >
-                        {fair.status}
-                      </StatusPill>
-
-                      {fair.autoSchedule && (
-                        <span
-                          style={{
-                            background: "rgba(120, 219, 230, 0.12)",
-                            border: "1px solid var(--cyan)",
-                            color: "var(--cyan)",
-                            padding: "2px 6px",
-                            fontSize: "0.72rem",
-                            fontWeight: 700,
-                            borderRadius: 2,
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 3,
-                          }}
-                        >
-                          <Zap size={11} aria-hidden="true" /> Auto
-                        </span>
-                      )}
-
-                      {pendingCount > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => openMembershipGovernance(fair.id)}
-                          style={{
-                            background: "rgba(255, 216, 77, 0.18)",
-                            border: "1px solid var(--mango)",
-                            color: "var(--mango)",
-                            padding: "2px 8px",
-                            borderRadius: 3,
-                            fontSize: "0.74rem",
-                            fontWeight: 700,
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 4,
-                            cursor: "pointer",
-                          }}
-                        >
-                          <Clock size={12} aria-hidden="true" /> {pendingCount} รออนุมัติ
-                        </button>
-                      )}
+                      <StatusPill tone={statusTone(fair.status)}>{fair.status}</StatusPill>
+                      {fair.autoSchedule ? <span className="admin-auto-badge"><Zap aria-hidden="true" /> Auto schedule</span> : null}
+                      {pendingCount > 0 ? <button type="button" className="admin-pending-badge" onClick={() => openMembershipGovernance(fair.id)}><Clock aria-hidden="true" /> {pendingCount} รออนุมัติ</button> : null}
                     </div>
-
                     <div className="admin-fair-actions-top">
-                      <button
-                        type="button"
-                        className="edit-button-sm"
-                        onClick={() => setEditingFair(fair)}
-                        title="แก้ไขข้อมูลงานแฟร์ & กำหนดการ"
-                        aria-label={`แก้ไข ${fair.title}`}
-                        style={{
-                          background: "rgba(255,255,255,0.06)",
-                          border: "1px solid rgba(255,255,255,0.18)",
-                          borderRadius: 4,
-                          color: "#f0f6fc",
-                          cursor: "pointer",
-                          padding: "4px 8px",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 4,
-                          fontSize: "0.78rem",
-                          fontWeight: 600,
-                          transition: "all 0.15s ease",
-                        }}
-                      >
-                        <Edit3 size={13} aria-hidden="true" /> แก้ไขข้อมูลงาน
-                      </button>
-                      <button
-                        type="button"
-                        className="delete-button-sm"
-                        onClick={() => setDeleteTargetId(fair.id)}
-                        title="ลบงานแฟร์"
-                        aria-label={`ลบ ${fair.title}`}
-                        style={{
-                          background: "rgba(239,68,68,0.1)",
-                          border: "1px solid rgba(239,68,68,0.3)",
-                          borderRadius: 4,
-                          color: "#f87171",
-                          cursor: "pointer",
-                          padding: "4px 8px",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 4,
-                          fontSize: "0.78rem",
-                        }}
-                      >
-                        <Trash2 size={13} aria-hidden="true" />
-                      </button>
+                      <button type="button" className="admin-icon-text-button" onClick={() => setPreviewFair(fair)} aria-label={`ดูตัวอย่าง ${fair.title}`}><Eye aria-hidden="true" /> ตัวอย่าง</button>
+                      <button type="button" className="admin-icon-text-button" onClick={() => setEditingFair(fair)} aria-label={`แก้ไข ${fair.title}`}><Edit3 aria-hidden="true" /> แก้ไข</button>
+                      <button type="button" className="admin-icon-button danger" onClick={() => setDeleteTargetId(fair.id)} aria-label={`ลบ ${fair.title}`}><Trash2 aria-hidden="true" /></button>
                     </div>
                   </div>
-
-                  {/* Title & Slug Row */}
                   <div className="admin-fair-title-row">
-                    {fair.logoUrl && (
-                      <img
-                        src={fair.logoUrl}
-                        alt=""
-                        style={{ width: 32, height: 32, borderRadius: 4, objectFit: "cover", border: "1px solid var(--line)", flexShrink: 0 }}
-                      />
-                    )}
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <h3 className="admin-fair-title">{fair.title}</h3>
-                      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 2, fontSize: "0.76rem", color: "var(--muted)" }}>
-                        <span>📍 {fair.locationLabel || "Online Fair"}</span>
-                        <span className="admin-fair-slug-badge">/{fair.slug}</span>
-                      </div>
-                    </div>
+                    {fair.logoUrl ? <img src={fair.logoUrl} alt="" className="admin-fair-logo" /> : null}
+                    <div className="admin-fair-title-copy"><h3 className="admin-fair-title">{fair.title}</h3><div className="admin-fair-subline"><span><MapPin aria-hidden="true" /> {fair.locationLabel || "Online Fair"}</span><span className="admin-fair-slug-badge">/{fair.slug}</span></div></div>
                   </div>
-
-                  {/* Summary */}
-                  {fair.summary && (
-                    <p className="admin-fair-summary">{fair.summary}</p>
-                  )}
-
-                  {/* Structured High-Clarity Info Grid */}
+                  {fair.summary ? <p className="admin-fair-summary">{fair.summary}</p> : null}
                   <div className="admin-fair-info-grid">
-                    <div className="admin-fair-info-item">
-                      <Store size={14} aria-hidden="true" />
-                      <span><strong>{boothCount}</strong> บูธบริษัท</span>
-                    </div>
-
-                    <div className="admin-fair-info-item">
-                      <UsersRound size={14} aria-hidden="true" />
-                      <span><strong>{memberCount}</strong> สมาชิก</span>
-                    </div>
-
-                    <div className="admin-fair-info-item full-width">
-                      <CalendarDays size={13} style={{ color: "var(--mango)" }} aria-hidden="true" />
-                      <span>
-                        {new Date(fair.startsAt).toLocaleDateString("th-TH")} – {new Date(fair.endsAt).toLocaleDateString("th-TH")}
-                        {fair.timezone && ` (${fair.timezone})`}
-                      </span>
-                    </div>
+                    <div className="admin-fair-info-item"><Store aria-hidden="true" /><span><strong>{boothCount}</strong> บูธบริษัท</span></div>
+                    <div className="admin-fair-info-item"><UsersRound aria-hidden="true" /><span><strong>{memberCount}</strong> สมาชิก</span></div>
+                    <div className="admin-fair-info-item full-width"><CalendarDays aria-hidden="true" /><span>{new Date(fair.startsAt).toLocaleString("th-TH")} – {new Date(fair.endsAt).toLocaleString("th-TH")} {fair.timezone ? `(${fair.timezone})` : ""}</span></div>
                   </div>
-
-                  {/* Tags & Media links pill (if any) */}
-                  {((fair.tags && fair.tags.length > 0) || (fair.mediaLinks && fair.mediaLinks.length > 0)) && (
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                      {fair.mediaLinks && fair.mediaLinks.length > 0 && (
-                        <span style={{ fontSize: "0.72rem", color: "var(--cyan)", display: "inline-flex", alignItems: "center", gap: 3 }}>
-                          <Link2 size={11} /> {fair.mediaLinks.length} มีเดีย
-                        </span>
-                      )}
-                      {fair.tags?.map((t) => (
-                        <span key={t} className="stat-chip" style={{ fontSize: "0.7rem", padding: "1px 6px" }}>
-                          #{t}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Bottom Action Footer */}
+                  {((fair.tags?.length ?? 0) > 0 || (fair.mediaLinks?.length ?? 0) > 0) ? <div className="admin-fair-tags">{(fair.mediaLinks?.length ?? 0) > 0 ? <span className="admin-media-count"><Link2 aria-hidden="true" /> {fair.mediaLinks?.length} มีเดีย</span> : null}{fair.tags?.map((tag) => <span key={tag} className="stat-chip">#{tag}</span>)}</div> : null}
                   <div className="admin-fair-card-footer">
-                    {fair.status !== "ARCHIVED" ? (
-                      <PixelButton
-                        tone={fair.status === "LIVE" ? "danger" : fair.status === "DRAFT" ? "mango" : "cyan"}
-                        onClick={() => transition(fair)}
-                      >
-                        {fair.status === "DRAFT" ? (
-                          <Radio aria-hidden="true" />
-                        ) : fair.status === "PUBLISHED" ? (
-                          <Play aria-hidden="true" />
-                        ) : fair.status === "LIVE" ? (
-                          <Square aria-hidden="true" />
-                        ) : (
-                          <Archive aria-hidden="true" />
-                        )}
-                        {fair.status === "DRAFT"
-                          ? "Publish"
-                          : fair.status === "PUBLISHED"
-                          ? "เริ่มงาน"
-                          : fair.status === "LIVE"
-                          ? "ปิดงาน"
-                          : "Archive"}
-                      </PixelButton>
-                    ) : (
-                      <PixelButton tone="neutral" onClick={() => actions.setFairStatus(fair.id, "DRAFT")}>
-                        <Radio aria-hidden="true" /> กู้คืน Draft
-                      </PixelButton>
-                    )}
-
-                    <PixelButton
-                      tone="neutral"
-                      onClick={() => openMembershipGovernance(fair.id)}
-                    >
-                      <UsersRound aria-hidden="true" /> สมาชิก & คำขอ {pendingCount > 0 ? `(${pendingCount})` : ""}
-                    </PixelButton>
+                    <div className="admin-card-primary-actions">
+                      {action ? <PixelButton type="button" tone={action === "END" ? "danger" : action === "PUBLISH" || action === "RESTORE_DRAFT" ? "mango" : "cyan"} onClick={() => setTransitionRequest({ fair, action })} disabled={isPending}>{action === "PUBLISH" ? <Radio aria-hidden="true" /> : action === "START" ? <Play aria-hidden="true" /> : action === "END" ? <Square aria-hidden="true" /> : <Archive aria-hidden="true" />}{actionLabels[action]}</PixelButton> : null}
+                      {(fair.status === "LIVE" || fair.status === "PAUSED") ? <PixelLink tone="mango" to={`/ops/events/${fair.id}/live`}><Radio aria-hidden="true" /> Live Operations</PixelLink> : null}
+                    </div>
+                    <PixelButton type="button" tone="neutral" onClick={() => openMembershipGovernance(fair.id)}><UsersRound aria-hidden="true" /> สมาชิกและคำขอ{pendingCount > 0 ? ` (${pendingCount})` : ""}</PixelButton>
                   </div>
                 </PixelSurface>
               );
@@ -545,5 +362,13 @@ export function AdminFairsPage() {
         )}
       </section>
     </AnimatedPage>
+  );
+}
+
+function StatFilter({ selected, onClick, tone, icon, label, value, pressedState = true }: { selected: boolean; onClick: () => void; tone: "mango" | "cyan" | "violet" | "green"; icon: ReactNode; label: string; value: number; pressedState?: boolean }) {
+  return (
+    <button type="button" className={`cyber-stat-card admin-stat-filter ${selected ? "is-selected" : ""}`} onClick={onClick} {...(pressedState ? { "aria-pressed": selected } : {})}>
+      <span className={`stat-icon-badge ${tone}`}>{icon}</span><span className="stat-meta"><span className="stat-label">{label}</span><strong className="stat-number">{value}</strong></span>
+    </button>
   );
 }

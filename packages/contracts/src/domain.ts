@@ -96,7 +96,14 @@ export interface CandidateProfile {
   updatedAt: string;
 }
 
-export type FairStatus = "DRAFT" | "PUBLISHED" | "LIVE" | "ENDED" | "ARCHIVED";
+export type FairStatus =
+  | "DRAFT"
+  | "PUBLISHED"
+  | "LIVE"
+  | "PAUSED"
+  | "CANCELLED"
+  | "ENDED"
+  | "ARCHIVED";
 
 export interface FairMediaLink {
   id: string;
@@ -122,6 +129,71 @@ export interface JobFair {
   tags?: string[];
   status: FairStatus;
   createdAt: string;
+}
+
+export type OperationsScope = "ENTRY_AND_QUEUES" | "ENTRY_ONLY" | "QUEUES_ONLY";
+export type IntegrationHealthStatus = "OPERATIONAL" | "DEGRADED" | "UNAVAILABLE";
+export type IntegrationHealthService =
+  | "AUTH"
+  | "PROFILE_WORKER"
+  | "OBJECT_STORAGE"
+  | "REALTIME"
+  | "MEDIA"
+  | "NOTIFICATION"
+  | "AUDIT";
+
+/**
+ * Aggregate-only operations data. This contract intentionally excludes participant
+ * identity, private decisions, reveal values, credentials, and provider secrets.
+ */
+export interface OperationsMetrics {
+  concurrentUsers: number;
+  instanceCapacity: number;
+  queueDepth: number;
+  availableRecruiters: number;
+  liveInterviews: number;
+  callHealthPercent: number | null;
+  mutualMatches: number;
+  openIncidents: number;
+}
+
+export interface IntegrationHealthItem {
+  service: IntegrationHealthService;
+  status: IntegrationHealthStatus;
+  summary: string;
+  checkedAt: string;
+  recoveryAction: string;
+}
+
+export interface OperationsBroadcast {
+  id: string;
+  message: string;
+  createdAt: string;
+  deliveryMode: "LOCAL_SIMULATION" | "CONNECTED";
+}
+
+export interface OperationsAuditEvent {
+  id: string;
+  eventId: string;
+  action: "PAUSE" | "RESUME" | "BROADCAST" | "INTEGRATION_RECHECK";
+  reason: string;
+  scope?: OperationsScope;
+  createdAt: string;
+  actorLabel: string;
+}
+
+export interface EventOperationsSnapshot {
+  eventId: string;
+  eventState: Extract<FairStatus, "LIVE" | "PAUSED" | "ENDED">;
+  version: number;
+  updatedAt: string;
+  mode: "LOCAL_SIMULATION" | "CONNECTED";
+  pauseScope?: OperationsScope;
+  pauseReason?: string;
+  metrics: OperationsMetrics;
+  integrations: IntegrationHealthItem[];
+  broadcasts: OperationsBroadcast[];
+  auditTrail: OperationsAuditEvent[];
 }
 
 export type FairMembershipStatus = "ACTIVE" | "PENDING_APPROVAL" | "REJECTED" | "INVITED";

@@ -53,7 +53,9 @@ export function RecruiterWorkspacePage() {
 
   const company = database.companies.find((item) => item.ownerId === user.id);
   const booths = database.booths.filter((item) => item.ownerId === user.id);
-  const fairs = database.fairs.filter((fair) => fair.status === "PUBLISHED" || fair.status === "LIVE");
+  const fairs = database.fairs.filter(
+    (fair) => fair.status === "PUBLISHED" || fair.status === "LIVE" || fair.status === "PAUSED",
+  );
   const boothFairIds = new Set(booths.map((booth) => booth.fairId));
   const companyJobs = database.jobs.filter((job) => job.companyId === company?.id);
   const publishedCompanyJobs = companyJobs.filter((job) => job.status === "PUBLISHED");

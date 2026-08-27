@@ -60,14 +60,14 @@ export function FairMembershipModal({
 
   // Active vs Expired Fairs classification
   const activeAndUpcomingFairs = adminFairs.filter(
-    (f) => f.status === "LIVE" || f.status === "PUBLISHED" || f.status === "DRAFT",
+    (f) => f.status === "LIVE" || f.status === "PAUSED" || f.status === "PUBLISHED" || f.status === "DRAFT",
   );
   const expiredFairs = adminFairs.filter(
-    (f) => f.status === "ENDED" || f.status === "ARCHIVED",
+    (f) => f.status === "ENDED" || f.status === "CANCELLED" || f.status === "ARCHIVED",
   );
 
   const isCurrentSelectionExpired = Boolean(
-    !isAllFairs && activeFair && (activeFair.status === "ENDED" || activeFair.status === "ARCHIVED"),
+    !isAllFairs && activeFair && (activeFair.status === "ENDED" || activeFair.status === "CANCELLED" || activeFair.status === "ARCHIVED"),
   );
 
   // Filter memberships
@@ -105,7 +105,7 @@ export function FairMembershipModal({
     }
 
     const fairObj = adminFairs.find((f) => f.id === targetFair);
-    if (fairObj && (fairObj.status === "ENDED" || fairObj.status === "ARCHIVED")) {
+    if (fairObj && (fairObj.status === "ENDED" || fairObj.status === "CANCELLED" || fairObj.status === "ARCHIVED")) {
       setInviteError("ไม่สามารถส่งคำเชิญเข้าร่วมงานที่หมดอายุหรือสิ้นสุดแล้วได้");
       return;
     }
@@ -214,7 +214,7 @@ export function FairMembershipModal({
                 onChange={(e) => setSelectedFairId(e.target.value === "ALL" ? "" : e.target.value)}
                 style={{ minWidth: 280, flex: "1 1 auto" }}
               >
-                <option value="ALL">🌟 รวมทุกงานแฟร์ ({totalPendingAcrossAll} คำขอรออนุมัติ)</option>
+                <option value="ALL">รวมทุกงานแฟร์ ({totalPendingAcrossAll} คำขอรออนุมัติ)</option>
 
                 {activeAndUpcomingFairs.length > 0 && (
                   <optgroup label="── งานที่กำลังเปิด / ยังไม่เริ่ม ──">
@@ -224,8 +224,7 @@ export function FairMembershipModal({
                       ).length;
                       return (
                         <option key={fair.id} value={fair.id}>
-                          {fair.status === "LIVE" ? "🟢 " : fair.status === "PUBLISHED" ? "🚀 " : "🟡 "}
-                          {fair.title} [{fair.status}] {fairPending > 0 ? `(${fairPending} รออนุมัติ)` : ""}
+                          {fair.status} — {fair.title} {fairPending > 0 ? `(${fairPending} รออนุมัติ)` : ""}
                         </option>
                       );
                     })}
@@ -236,7 +235,7 @@ export function FairMembershipModal({
                   <optgroup label="── งานที่หมดอายุ / สิ้นสุดแล้ว ──">
                     {expiredFairs.map((fair) => (
                       <option key={fair.id} value={fair.id}>
-                        🔴 {fair.title} (หมดอายุ / สิ้นสุดแล้ว)
+                        {fair.status} — {fair.title} (หมดอายุ / สิ้นสุดแล้ว)
                       </option>
                     ))}
                   </optgroup>
@@ -390,7 +389,7 @@ export function FairMembershipModal({
           <div style={{ display: "flex", flexDirection: "column", gap: 14, minHeight: 220 }}>
             {isCurrentSelectionExpired ? (
               <div style={{ padding: "20px 0", textAlign: "center", color: "var(--muted)" }}>
-                <p style={{ margin: 0, fontSize: "0.9rem" }}>⚠️ งานแฟร์นี้หมดอายุ/สิ้นสุดแล้ว จึงไม่สามารถส่งคำเชิญไปยัง Recruiter ใหม่ได้</p>
+                <p style={{ margin: 0, fontSize: "0.9rem", display: "flex", gap: 8, alignItems: "center" }}><AlertTriangle size={16} aria-hidden="true" /> งานแฟร์นี้หมดอายุ/สิ้นสุดแล้ว จึงไม่สามารถส่งคำเชิญไปยัง Recruiter ใหม่ได้</p>
               </div>
             ) : (
               <>
@@ -431,7 +430,7 @@ export function FairMembershipModal({
                   </PixelButton>
                 </form>
 
-                {inviteSuccess && <p style={{ color: "var(--cyan)", fontSize: "0.85rem", margin: 0 }}>✓ {inviteSuccess}</p>}
+                {inviteSuccess && <p style={{ color: "var(--cyan)", fontSize: "0.85rem", margin: 0, display: "flex", gap: 8, alignItems: "center" }}><CheckCircle2 size={16} aria-hidden="true" /> {inviteSuccess}</p>}
                 {inviteError && <p style={{ color: "#f87171", fontSize: "0.85rem", margin: 0 }}>✗ {inviteError}</p>}
               </>
             )}

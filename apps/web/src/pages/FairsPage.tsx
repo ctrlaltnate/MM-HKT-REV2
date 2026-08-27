@@ -15,7 +15,9 @@ export function FairsPage() {
   const [previewFair, setPreviewFair] = useState<JobFair | null>(null);
   const [publicCategory, setPublicCategory] = useState<"ACTIVE" | "ENDED">("ACTIVE");
 
-  const activeFairs = database.fairs.filter((fair) => fair.status === "PUBLISHED" || fair.status === "LIVE");
+  const activeFairs = database.fairs.filter(
+    (fair) => fair.status === "PUBLISHED" || fair.status === "LIVE" || fair.status === "PAUSED",
+  );
   const endedFairs = database.fairs.filter((fair) => fair.status === "ENDED" || fair.status === "ARCHIVED");
   const displayedFairs = publicCategory === "ACTIVE" ? activeFairs : endedFairs;
 

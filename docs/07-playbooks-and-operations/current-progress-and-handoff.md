@@ -36,3 +36,39 @@
 - **Recruiter Workspace**: จัดการข้อมูลบริษัท, อัปโหลดสไลด์/วิดีโอแนะนำบูธ, สร้างประกาศรับสมัครงาน, ตรวจสอบผู้สมัครและสถานะการสัมภาษณ์
 - **Candidate Workspace**: สร้างโปรไฟล์แบบปิดบังตัวตน (Masked), วิเคราะห์เรซูเม่ด้วย AI, บันทึกทักษะและผลงาน, เข้าร่วมงานแฟร์และสมัครงาน
 - **Public Fair Directory**: ค้นหางานแฟร์ คัดกรองงานที่เปิดรับ vs งานที่สิ้นสุดแล้ว ดูรายชื่อบูธและตำแหน่งงานที่เปิดรับ
+
+## 4. Active implementation checkpoint — Admin Live Operations
+
+> **สถานะ ณ 27 August 2026:** `IN PROGRESS · LOCAL · UNVERIFIED FINAL GATE`  
+> บันทึก checkpoint นี้ก่อน compact context ตามคำขอผู้ใช้ ห้ามตีความหัวข้อนี้ว่า production-ready หรือเสร็จสมบูรณ์จนกว่าจะผ่าน verification ในรายการด้านล่าง
+
+สิ่งที่ implement อยู่ใน working tree:
+
+- เพิ่ม canonical route `/ops/events/:eventId/live` สำหรับ Admin พร้อมหน้า `AdminOperationsPage`
+- เพิ่ม `OperationsGateway` port, `LocalOperationsGateway`, `OperationsProvider` และ local persistence/cross-tab notification เพื่อให้เปลี่ยน adapter เป็น Supabase/Postgres ภายหลังโดยไม่ผูก UI กับ provider
+- เพิ่ม aggregate-only operations snapshot, Pause/Resume พร้อม reason/scope, local broadcast log, sanitized integration health, booth overview และ local audit trail
+- เพิ่ม `PAUSED`/`CANCELLED` ใน shared Fair contract และ pure lifecycle guard; Admin Fair actions ใช้ confirmation และ guard แทนการวนสถานะโดยตรง
+- เพิ่ม local auto-schedule evaluator ขณะเว็บเปิดอยู่ และปรับ public/recruiter filters ให้มองเห็นงาน `PAUSED`
+- ปรับ `/admin/fairs`: search, sort, filter pressed state, preview, persistent feedback, offline state, touch target/responsive CSS และลิงก์เข้า Live Operations
+- ปรับ shared Modal ให้ initial focus, focus trap และ focus restoration; ปรับ Fair Studio tabs/switch/labels ให้ semantic keyboard controls
+- เพิ่ม unit tests สำหรับ fair lifecycle และ local operations gateway
+
+ข้อจำกัดที่ต้องแสดงตามจริง:
+
+- Metrics ที่ยังไม่มี queue/interview/media/match service แสดง `0` หรือ `N/A`; ไม่มีการสร้างตัวเลข realtime ปลอม
+- Broadcast, audit, auth และ sync เป็น local browser simulation เท่านั้น; ไม่มี server delivery, durable audit หรือ tenant authorization ฝั่ง server
+- Auto schedule ทำงานเมื่อแอปเปิด/กลับมา visible เท่านั้น ยังไม่มี background scheduler
+- Supabase/Postgres ยังไม่ได้ติดตั้งหรือเชื่อมต่อใน slice นี้
+
+Verification ที่ทำแล้วใน checkpoint นี้:
+
+- `npm.cmd --workspace @maskedmatch/web run typecheck` — ผ่านหลังรวม route/page/domain/CSS ล่าสุด
+- Operations gateway tests — agent ย่อยรายงานผ่าน 7/7 ก่อน checkpoint; agent หลักยังต้อง rerun ใน final gate
+
+งานที่ต้องทำต่อทันทีหลัง compact:
+
+1. ตรวจและแก้ responsive/visual ของ `/admin/fairs` และ `/ops/events/:eventId/live` ที่ 320, 390, 768 และ 1440 px
+2. เพิ่ม/ปรับ Playwright flow สำหรับ create → Publish → Start → Live Operations → Pause/Resume → Broadcast รวม keyboard, focus restoration, Axe และ overflow
+3. แก้ E2E membership tests เก่าที่ไม่ได้เปิด create/membership modal ก่อนหา field
+4. ตรวจ partial-commit/idempotent replay behavior ของ local gateway และบันทึก limitation หรือแก้ให้ atomic เท่าที่ local adapterทำได้
+5. รัน final gate: `npm run typecheck`, `npm test`, `npm run build` และ `npm run test:e2e`; อัปเดต Verified checkpoint/What works now หลังผลผ่านจริง

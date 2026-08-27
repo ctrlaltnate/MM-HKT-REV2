@@ -1,27 +1,37 @@
 import {
   CalendarDays,
   Check,
-  Clock,
-  ExternalLink,
   FileText,
   Globe,
   Image as ImageIcon,
-  Layers,
   Link2,
   Plus,
   Radio,
-  Sparkles,
-  Tag,
   Trash2,
   Video,
   X,
   Zap,
 } from "lucide-react";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, type KeyboardEvent, useEffect, useId, useState } from "react";
 
 import type { FairMediaLink, FairStatus, JobFair } from "../domain/types";
 import { Modal } from "./Modal";
-import { Field, PixelButton, StatusPill, TextAreaField } from "./PixelUI";
+import { PixelButton, StatusPill } from "./PixelUI";
+
+const FAIR_STUDIO_TABS = ["schedule", "branding", "media"] as const;
+type FairStudioTab = (typeof FAIR_STUDIO_TABS)[number];
+
+const VISUALLY_HIDDEN_STYLE = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  border: 0,
+} as const;
 
 const TIMEZONES = [
   { label: "Asia/Bangkok (UTC+7 / THA)", value: "Asia/Bangkok (UTC+7)" },
@@ -76,8 +86,29 @@ export function FairStudioModal({
   onSubmit,
 }: FairStudioModalProps) {
   const isEditing = Boolean(initialFair);
+  const formId = useId();
+  const fieldIds = {
+    title: `${formId}-title`,
+    slug: `${formId}-slug`,
+    location: `${formId}-location`,
+    timezone: `${formId}-timezone`,
+    startsAt: `${formId}-starts-at`,
+    endsAt: `${formId}-ends-at`,
+    autoSchedule: `${formId}-auto-schedule`,
+    autoScheduleTitle: `${formId}-auto-schedule-title`,
+    autoScheduleDescription: `${formId}-auto-schedule-description`,
+    status: `${formId}-status`,
+    summary: `${formId}-summary`,
+    logoUrl: `${formId}-logo-url`,
+    coverUrl: `${formId}-cover-url`,
+    mediaType: `${formId}-media-type`,
+    mediaTitle: `${formId}-media-title`,
+    mediaUrl: `${formId}-media-url`,
+    tagsHeading: `${formId}-tags-heading`,
+    tagInput: `${formId}-tag-input`,
+  };
 
-  const [activeTab, setActiveTab] = useState<"schedule" | "branding" | "media">("schedule");
+  const [activeTab, setActiveTab] = useState<FairStudioTab>("schedule");
   const [error, setError] = useState("");
 
   // Form states
@@ -208,6 +239,26 @@ export function FairStudioModal({
     }
   };
 
+  const getTabId = (tab: FairStudioTab) => `${formId}-${tab}-tab`;
+  const getTabPanelId = (tab: FairStudioTab) => `${formId}-${tab}-panel`;
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, currentTab: FairStudioTab) => {
+    const currentIndex = FAIR_STUDIO_TABS.indexOf(currentTab);
+    let nextIndex: number | null = null;
+
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % FAIR_STUDIO_TABS.length;
+    if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + FAIR_STUDIO_TABS.length) % FAIR_STUDIO_TABS.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = FAIR_STUDIO_TABS.length - 1;
+    if (nextIndex === null) return;
+
+    event.preventDefault();
+    const nextTab = FAIR_STUDIO_TABS[nextIndex];
+    if (!nextTab) return;
+    setActiveTab(nextTab);
+    window.requestAnimationFrame(() => document.getElementById(getTabId(nextTab))?.focus());
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
@@ -264,27 +315,45 @@ export function FairStudioModal({
     >
       <form onSubmit={handleSubmit} className="fair-studio-form">
         {/* Navigation Tabs */}
-        <div className="fair-studio-tabs" role="tablist">
+        <div className="fair-studio-tabs" role="tablist" aria-label="ขั้นตอนการตั้งค่า Job Fair">
           <button
             type="button"
+            id={getTabId("schedule")}
+            role="tab"
+            aria-selected={activeTab === "schedule"}
+            aria-controls={getTabPanelId("schedule")}
+            tabIndex={activeTab === "schedule" ? 0 : -1}
             className={activeTab === "schedule" ? "active" : ""}
             onClick={() => setActiveTab("schedule")}
+            onKeyDown={(event) => handleTabKeyDown(event, "schedule")}
           >
-            <CalendarDays size={15} /> 1. กำหนดการ & ไทม์โซน
+            <CalendarDays size={15} aria-hidden="true" /> 1. กำหนดการ & ไทม์โซน
           </button>
           <button
             type="button"
+            id={getTabId("branding")}
+            role="tab"
+            aria-selected={activeTab === "branding"}
+            aria-controls={getTabPanelId("branding")}
+            tabIndex={activeTab === "branding" ? 0 : -1}
             className={activeTab === "branding" ? "active" : ""}
             onClick={() => setActiveTab("branding")}
+            onKeyDown={(event) => handleTabKeyDown(event, "branding")}
           >
-            <ImageIcon size={15} /> 2. โลโก้ & ภาพ Cover
+            <ImageIcon size={15} aria-hidden="true" /> 2. โลโก้ & ภาพ Cover
           </button>
           <button
             type="button"
+            id={getTabId("media")}
+            role="tab"
+            aria-selected={activeTab === "media"}
+            aria-controls={getTabPanelId("media")}
+            tabIndex={activeTab === "media" ? 0 : -1}
             className={activeTab === "media" ? "active" : ""}
             onClick={() => setActiveTab("media")}
+            onKeyDown={(event) => handleTabKeyDown(event, "media")}
           >
-            <Link2 size={15} /> 3. ลิงก์มีเดีย & แท็ก
+            <Link2 size={15} aria-hidden="true" /> 3. ลิงก์มีเดีย & แท็ก
           </button>
         </div>
 
@@ -292,11 +361,18 @@ export function FairStudioModal({
             TAB 1: SCHEDULE & BASICS
            ======================================================== */}
         {activeTab === "schedule" && (
-          <div className="fair-tab-content">
+          <div
+            className="fair-tab-content"
+            id={getTabPanelId("schedule")}
+            role="tabpanel"
+            aria-labelledby={getTabId("schedule")}
+          >
             <div className="form-row-2col">
               <div className="field-group">
-                <label className="pixel-label">ชื่องาน Job Fair <span style={{ color: "var(--mango)" }}>*</span></label>
+                <label className="pixel-label" htmlFor={fieldIds.title}>ชื่องาน Job Fair <span style={{ color: "var(--mango)" }}>*</span></label>
                 <input
+                  id={fieldIds.title}
+                  name="title"
                   type="text"
                   className="pixel-input"
                   value={title}
@@ -306,8 +382,10 @@ export function FairStudioModal({
                 />
               </div>
               <div className="field-group">
-                <label className="pixel-label">Slug ภาษาอังกฤษ (URL) <span style={{ color: "var(--mango)" }}>*</span></label>
+                <label className="pixel-label" htmlFor={fieldIds.slug}>Slug ภาษาอังกฤษ (URL) <span style={{ color: "var(--mango)" }}>*</span></label>
                 <input
+                  id={fieldIds.slug}
+                  name="slug"
                   type="text"
                   className="pixel-input"
                   value={slug}
@@ -321,8 +399,10 @@ export function FairStudioModal({
 
             <div className="form-row-2col">
               <div className="field-group">
-                <label className="pixel-label">สถานที่ / รูปแบบงาน</label>
+                <label className="pixel-label" htmlFor={fieldIds.location}>สถานที่ / รูปแบบงาน</label>
                 <input
+                  id={fieldIds.location}
+                  name="locationLabel"
                   type="text"
                   className="pixel-input"
                   value={locationLabel}
@@ -333,8 +413,10 @@ export function FairStudioModal({
               </div>
 
               <div className="field-group">
-                <label className="pixel-label">ไทม์โซน (Timezone)</label>
+                <label className="pixel-label" htmlFor={fieldIds.timezone}>ไทม์โซน (Timezone)</label>
                 <select
+                  id={fieldIds.timezone}
+                  name="timezone"
                   className="pixel-input"
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
@@ -350,8 +432,10 @@ export function FairStudioModal({
 
             <div className="form-row-2col">
               <div className="field-group">
-                <label className="pixel-label">เวลาเริ่มงาน (Starts At) <span style={{ color: "var(--mango)" }}>*</span></label>
+                <label className="pixel-label" htmlFor={fieldIds.startsAt}>เวลาเริ่มงาน (Starts At) <span style={{ color: "var(--mango)" }}>*</span></label>
                 <input
+                  id={fieldIds.startsAt}
+                  name="startsAt"
                   type="datetime-local"
                   className="pixel-input"
                   value={startsAt}
@@ -360,8 +444,10 @@ export function FairStudioModal({
                 />
               </div>
               <div className="field-group">
-                <label className="pixel-label">เวลาสิ้นสุด (Ends At) <span style={{ color: "var(--mango)" }}>*</span></label>
+                <label className="pixel-label" htmlFor={fieldIds.endsAt}>เวลาสิ้นสุด (Ends At) <span style={{ color: "var(--mango)" }}>*</span></label>
                 <input
+                  id={fieldIds.endsAt}
+                  name="endsAt"
                   type="datetime-local"
                   className="pixel-input"
                   value={endsAt}
@@ -372,55 +458,48 @@ export function FairStudioModal({
             </div>
 
             {/* Cyberpunk Auto Schedule Toggle Switch */}
-            <div
+            <button
+              id={fieldIds.autoSchedule}
+              type="button"
               className={`fair-autoschedule-box ${autoSchedule ? "active" : ""}`}
               onClick={() => setAutoSchedule(!autoSchedule)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === " " || e.key === "Enter") {
-                  e.preventDefault();
-                  setAutoSchedule(!autoSchedule);
-                }
-              }}
-              style={{ cursor: "pointer" }}
+              role="switch"
+              aria-checked={autoSchedule}
+              aria-labelledby={fieldIds.autoScheduleTitle}
+              aria-describedby={fieldIds.autoScheduleDescription}
+              style={{ cursor: "pointer", width: "100%", color: "inherit", font: "inherit", textAlign: "left" }}
             >
-              <div className="cyber-toggle-label">
-                <div className="cyber-toggle-info">
-                  <span className="cyber-toggle-title">
+              <span className="cyber-toggle-label">
+                <span className="cyber-toggle-info">
+                  <span className="cyber-toggle-title" id={fieldIds.autoScheduleTitle}>
                     <Zap size={16} aria-hidden="true" />
                     เปิดระบบเปิด-ปิดงานอัตโนมัติ (Auto-Lifecycle Transition)
                   </span>
-                  <p className="cyber-toggle-desc">
+                  <span className="cyber-toggle-desc" id={fieldIds.autoScheduleDescription}>
                     ระบบจะปรับสถานะเป็น LIVE เมื่อถึงเวลาเริ่มงาน และปรับเป็น ENDED อัตโนมัติเมื่อหมดเวลา
-                  </p>
-                </div>
-                <div className={`cyber-toggle-switch ${autoSchedule ? "active" : ""}`} aria-hidden="true">
-                  <div className="cyber-toggle-knob" />
-                </div>
-              </div>
-            </div>
+                  </span>
+                </span>
+                <span className={`cyber-toggle-switch ${autoSchedule ? "active" : ""}`} aria-hidden="true">
+                  <span className="cyber-toggle-knob" />
+                </span>
+              </span>
+            </button>
 
             {isEditing && (
-              <div className="field-group" style={{ marginTop: 8 }}>
-                <label className="pixel-label">สถานะงานแฟร์ปัจจุบัน</label>
-                <select
-                  className="pixel-input"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as FairStatus)}
-                >
-                  <option value="DRAFT">DRAFT (ฉบับร่าง)</option>
-                  <option value="PUBLISHED">PUBLISHED (เปิดให้ดูบูธ)</option>
-                  <option value="LIVE">LIVE (กำลังจัดงาน)</option>
-                  <option value="ENDED">ENDED (จบงาน)</option>
-                  <option value="ARCHIVED">ARCHIVED (เก็บถาวร)</option>
-                </select>
+              <div className="fair-status-readonly" role="status" style={{ marginTop: 8 }}>
+                <span className="pixel-label">สถานะงานแฟร์ปัจจุบัน</span>
+                <StatusPill tone={status === "LIVE" ? "cyan" : status === "PAUSED" ? "mango" : status === "ENDED" || status === "CANCELLED" ? "danger" : "neutral"}>
+                  {status}
+                </StatusPill>
+                <span className="field-help">เปลี่ยนสถานะผ่าน lifecycle controls บนการ์ดงาน เพื่อให้ตรวจ guard และยืนยันทุกครั้ง</span>
               </div>
             )}
 
             <div className="field-group" style={{ marginTop: 8 }}>
-              <label className="pixel-label">รายละเอียดและไฮไลต์งานแฟร์</label>
+              <label className="pixel-label" htmlFor={fieldIds.summary}>รายละเอียดและไฮไลต์งานแฟร์</label>
               <textarea
+                id={fieldIds.summary}
+                name="summary"
                 className="pixel-input"
                 rows={3}
                 value={summary}
@@ -436,13 +515,20 @@ export function FairStudioModal({
             TAB 2: LOGO & COVER BANNER BRANDING
            ======================================================== */}
         {activeTab === "branding" && (
-          <div className="fair-tab-content">
+          <div
+            className="fair-tab-content"
+            id={getTabPanelId("branding")}
+            role="tabpanel"
+            aria-labelledby={getTabId("branding")}
+          >
             {/* Logo Section */}
             <div className="branding-section-block">
-              <h4>โลโก้งานแฟร์ (Fair Logo Image)</h4>
+              <h4><label htmlFor={fieldIds.logoUrl}>โลโก้งานแฟร์ (Fair Logo Image)</label></h4>
               <div className="branding-input-row">
                 <div style={{ flex: 1 }}>
                   <input
+                    id={fieldIds.logoUrl}
+                    name="logoUrl"
                     type="url"
                     className="pixel-input"
                     value={logoUrl}
@@ -471,9 +557,9 @@ export function FairStudioModal({
 
                 <div className="logo-preview-box">
                   {logoUrl ? (
-                    <img src={logoUrl} alt="Logo Preview" onError={(e) => (e.currentTarget.style.display = "none")} />
+                    <img src={logoUrl} alt={`ตัวอย่างโลโก้งาน ${title || "Job Fair"}`} onError={(e) => (e.currentTarget.style.display = "none")} />
                   ) : (
-                    <div className="logo-placeholder"><ImageIcon size={24} /><span>ไม่มีโลโก้</span></div>
+                    <div className="logo-placeholder"><ImageIcon size={24} aria-hidden="true" /><span>ไม่มีโลโก้</span></div>
                   )}
                 </div>
               </div>
@@ -481,8 +567,10 @@ export function FairStudioModal({
 
             {/* Cover Banner Section */}
             <div className="branding-section-block" style={{ marginTop: 18 }}>
-              <h4>ภาพหน้าปก / แบนเนอร์งาน (Cover Banner Image)</h4>
+              <h4><label htmlFor={fieldIds.coverUrl}>ภาพหน้าปก / แบนเนอร์งาน (Cover Banner Image)</label></h4>
               <input
+                id={fieldIds.coverUrl}
+                name="coverUrl"
                 type="url"
                 className="pixel-input"
                 value={coverUrl}
@@ -511,10 +599,10 @@ export function FairStudioModal({
               {/* Cover Banner Preview */}
               <div className="cover-preview-box">
                 {coverUrl ? (
-                  <img src={coverUrl} alt="Cover Preview" onError={(e) => (e.currentTarget.style.display = "none")} />
+                  <img src={coverUrl} alt={`ตัวอย่างภาพหน้าปกงาน ${title || "Job Fair"}`} onError={(e) => (e.currentTarget.style.display = "none")} />
                 ) : (
                   <div className="cover-placeholder">
-                    <ImageIcon size={32} />
+                    <ImageIcon size={32} aria-hidden="true" />
                     <span>มุมมองแบนเนอร์กว้าง (Default Cyberpunk Grid)</span>
                   </div>
                 )}
@@ -527,7 +615,12 @@ export function FairStudioModal({
             TAB 3: MEDIA LINKS & TAGS
            ======================================================== */}
         {activeTab === "media" && (
-          <div className="fair-tab-content">
+          <div
+            className="fair-tab-content"
+            id={getTabPanelId("media")}
+            role="tabpanel"
+            aria-labelledby={getTabId("media")}
+          >
             <h4>ลิงก์มีเดียและเอกสารประกอบงาน (Flexible Media & Resources)</h4>
             <p style={{ color: "var(--muted)", fontSize: "0.82rem", margin: "0 0 12px" }}>
               สามารถใส่ลิงก์วิดีโอแนะนำงาน สไลด์ Keynote โบรชัวร์ PDF หรือช่องทาง Livestream ได้ไม่จำกัด
@@ -535,21 +628,27 @@ export function FairStudioModal({
 
             {/* Add New Link Bar */}
             <div className="add-media-link-bar">
+              <label htmlFor={fieldIds.mediaType} style={VISUALLY_HIDDEN_STYLE}>ประเภทลิงก์มีเดีย</label>
               <select
+                id={fieldIds.mediaType}
+                name="mediaType"
                 className="pixel-input"
                 style={{ maxWidth: 140 }}
                 value={newLinkType}
                 onChange={(e) => setNewLinkType(e.target.value as FairMediaLink["type"])}
               >
-                <option value="video">🎬 วิดีโอ</option>
-                <option value="deck">📑 สไลด์/เอกสาร</option>
-                <option value="website">🌐 เว็บไซต์</option>
-                <option value="livestream">🔴 ไลฟ์สตรีม</option>
-                <option value="social">💬 โซเชียล</option>
-                <option value="other">📎 ลิงก์ทั่วไป</option>
+                <option value="video">วิดีโอ</option>
+                <option value="deck">สไลด์/เอกสาร</option>
+                <option value="website">เว็บไซต์</option>
+                <option value="livestream">ไลฟ์สตรีม</option>
+                <option value="social">โซเชียล</option>
+                <option value="other">ลิงก์ทั่วไป</option>
               </select>
 
+              <label htmlFor={fieldIds.mediaTitle} style={VISUALLY_HIDDEN_STYLE}>ชื่อลิงก์มีเดีย</label>
               <input
+                id={fieldIds.mediaTitle}
+                name="mediaTitle"
                 type="text"
                 className="pixel-input"
                 placeholder="ชื่อลิงก์ (เช่น แนะนำงานแฟร์บน YouTube)"
@@ -558,7 +657,10 @@ export function FairStudioModal({
                 style={{ flex: 1 }}
               />
 
+              <label htmlFor={fieldIds.mediaUrl} style={VISUALLY_HIDDEN_STYLE}>URL ของลิงก์มีเดีย</label>
               <input
+                id={fieldIds.mediaUrl}
+                name="mediaUrl"
                 type="url"
                 className="pixel-input"
                 placeholder="https://youtube.com/watch?v=..."
@@ -568,7 +670,7 @@ export function FairStudioModal({
               />
 
               <PixelButton type="button" tone="cyan" onClick={handleAddMediaLink}>
-                <Plus size={16} /> เพิ่ม
+                <Plus size={16} aria-hidden="true" /> เพิ่ม
               </PixelButton>
             </div>
 
@@ -581,12 +683,12 @@ export function FairStudioModal({
                   <div key={link.id} className="media-link-row">
                     <div className="media-link-info">
                       <span className="media-type-badge">
-                        {link.type === "video" && "🎬 Video"}
-                        {link.type === "deck" && "📑 Slides"}
-                        {link.type === "website" && "🌐 Web"}
-                        {link.type === "livestream" && "🔴 Stream"}
-                        {link.type === "social" && "💬 Social"}
-                        {(!link.type || link.type === "other") && "📎 Link"}
+                        {link.type === "video" && <><Video size={12} aria-hidden="true" /> Video</>}
+                        {link.type === "deck" && <><FileText size={12} aria-hidden="true" /> Slides</>}
+                        {link.type === "website" && <><Globe size={12} aria-hidden="true" /> Web</>}
+                        {link.type === "livestream" && <><Radio size={12} aria-hidden="true" /> Stream</>}
+                        {link.type === "social" && <><Link2 size={12} aria-hidden="true" /> Social</>}
+                        {(!link.type || link.type === "other") && <><Link2 size={12} aria-hidden="true" /> Link</>}
                       </span>
                       <strong>{link.title}</strong>
                       <span className="media-url">{link.url}</span>
@@ -596,8 +698,9 @@ export function FairStudioModal({
                       className="delete-link-btn"
                       onClick={() => handleRemoveMediaLink(link.id)}
                       title="ลบลิงก์นี้"
+                      aria-label={`ลบลิงก์ ${link.title}`}
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={14} aria-hidden="true" />
                     </button>
                   </div>
                 ))
@@ -607,7 +710,7 @@ export function FairStudioModal({
             {/* Interactive Tags & Categories */}
             <div style={{ marginTop: 22 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, flexWrap: "wrap", gap: 6 }}>
-                <h4 style={{ margin: 0 }}>แท็กและหมวดหมู่งานแฟร์ (Tags & Categories)</h4>
+                <h4 id={fieldIds.tagsHeading} style={{ margin: 0 }}>แท็กและหมวดหมู่งานแฟร์ (Tags & Categories)</h4>
                 <span style={{ fontSize: "0.76rem", color: "var(--muted)" }}>
                   กด <kbd style={{ background: "var(--surface-2)", border: "1px solid var(--line)", padding: "1px 5px", borderRadius: 3 }}>Enter</kbd> หรือ <kbd style={{ background: "var(--surface-2)", border: "1px solid var(--line)", padding: "1px 5px", borderRadius: 3 }}>,</kbd> เพื่อเพิ่มแท็ก
                 </span>
@@ -616,7 +719,7 @@ export function FairStudioModal({
               <div
                 className="cyber-tag-input-container"
                 onClick={() => {
-                  document.getElementById("fair-tag-input")?.focus();
+                  document.getElementById(fieldIds.tagInput)?.focus();
                 }}
               >
                 {tags.map((tag) => (
@@ -638,9 +741,11 @@ export function FairStudioModal({
                 ))}
 
                 <input
-                  id="fair-tag-input"
+                  id={fieldIds.tagInput}
+                  name="tags"
                   type="text"
                   className="cyber-tag-field"
+                  aria-labelledby={fieldIds.tagsHeading}
                   value={currentTagInput}
                   onChange={(e) => setCurrentTagInput(e.target.value)}
                   onKeyDown={handleTagKeyDown}
@@ -660,9 +765,10 @@ export function FairStudioModal({
                       type="button"
                       className={`preset-btn ${isSelected ? "clear" : ""}`}
                       onClick={() => (isSelected ? handleRemoveTag(preset) : handleAddTag(preset))}
+                      aria-pressed={isSelected}
                       style={{ fontSize: "0.72rem", padding: "2px 7px" }}
                     >
-                      {isSelected ? `✓ #${preset}` : `+ ${preset}`}
+                      #{preset}
                     </button>
                   );
                 })}

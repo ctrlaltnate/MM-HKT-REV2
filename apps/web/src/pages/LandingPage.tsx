@@ -32,7 +32,9 @@ export function LandingPage() {
     return <DashboardPage />;
   }
 
-  const publicFairs = database.fairs.filter((fair) => fair.status === "PUBLISHED" || fair.status === "LIVE");
+  const publicFairs = database.fairs.filter(
+    (fair) => fair.status === "PUBLISHED" || fair.status === "LIVE" || fair.status === "PAUSED",
+  );
   const publicFairIds = new Set(publicFairs.map((fair) => fair.id));
   const publicBooths = database.booths.filter((booth) => booth.status === "PUBLISHED" && publicFairIds.has(booth.fairId));
   const publicBoothIds = new Set(publicBooths.map((booth) => booth.id));

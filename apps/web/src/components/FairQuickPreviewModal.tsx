@@ -22,6 +22,7 @@ interface FairQuickPreviewModalProps {
   jobs: JobPosting[];
   open: boolean;
   onClose: () => void;
+  showPublicLink?: boolean;
 }
 
 export function FairQuickPreviewModal({
@@ -30,6 +31,7 @@ export function FairQuickPreviewModal({
   jobs,
   open,
   onClose,
+  showPublicLink = true,
 }: FairQuickPreviewModalProps) {
   if (!fair) return null;
 
@@ -144,9 +146,11 @@ export function FairQuickPreviewModal({
           <PixelButton type="button" tone="neutral" onClick={onClose}>
             ปิดหน้าต่าง
           </PixelButton>
-          <PixelLink to={`/fairs/${fair.slug || fair.id}`} tone="mango">
-            เข้าสู่หน้ารายละเอียดงานแฟร์ <ExternalLink aria-hidden="true" />
-          </PixelLink>
+          {showPublicLink && (fair.status === "PUBLISHED" || fair.status === "LIVE" || fair.status === "PAUSED") ? (
+            <PixelLink to={`/fairs/${fair.slug || fair.id}`} tone="mango">
+              เข้าสู่หน้ารายละเอียดงานแฟร์ <ExternalLink aria-hidden="true" />
+            </PixelLink>
+          ) : null}
         </div>
       </div>
     </Modal>

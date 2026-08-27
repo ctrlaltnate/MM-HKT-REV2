@@ -11,6 +11,7 @@ import type {
   LocalUser,
   UserRole,
 } from "./types";
+import { resolveFairTransition, type FairLifecycleAction } from "@maskedmatch/contracts";
 
 const STORAGE_KEY = "maskedmatch.local.database.v1";
 const listeners = new Set<() => void>();
@@ -235,10 +236,53 @@ export function deleteFair(fairId: string): void {
 }
 
 export function setFairStatus(fairId: string, status: JobFair["status"]): void {
+  const existing = database.fairs.find((fair) => fair.id === fairId);
+  if (!existing) throw new Error("FAIR_NOT_FOUND");
   commit({
     ...database,
     fairs: database.fairs.map((fair) => (fair.id === fairId ? { ...fair, status } : fair)),
   });
+}
+
+export function transitionFairStatus(
+  fairId: string,
+  action: FairLifecycleAction,
+  now = new Date(),
+): JobFair {
+  const existing = database.fairs.find((fair) => fair.id === fairId);
+  if (!existing) throw new Error("FAIR_NOT_FOUND");
+  const status = resolveFairTransition(existing, action, now);
+  const updated = { ...existing, status };
+  commit({
+    ...database,
+    fairs: database.fairs.map((fair) => (fair.id === fairId ? updated : fair)),
+  });
+  return updated;
+}
+
+export function applyAutoScheduleTransitions(now = new Date()): number {
+  let changed = 0;
+  const nowMs = now.getTime();
+  const fairs = database.fairs.map((fair) => {
+    if (!fair.autoSchedule) return fair;
+    const startsAt = new Date(fair.startsAt).getTime();
+    const endsAt = new Date(fair.endsAt).getTime();
+    if (Number.isNaN(startsAt) || Number.isNaN(endsAt) || endsAt <= startsAt) return fair;
+    if (
+      (fair.status === "PUBLISHED" || fair.status === "LIVE" || fair.status === "PAUSED") &&
+      nowMs >= endsAt
+    ) {
+      changed += 1;
+      return { ...fair, status: "ENDED" as const };
+    }
+    if (fair.status === "PUBLISHED" && nowMs >= startsAt && nowMs < endsAt) {
+      changed += 1;
+      return { ...fair, status: "LIVE" as const };
+    }
+    return fair;
+  });
+  if (changed > 0) commit({ ...database, fairs });
+  return changed;
 }
 
 export function joinFair(

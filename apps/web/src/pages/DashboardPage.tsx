@@ -60,7 +60,9 @@ export function DashboardPage() {
   const company = database.companies.find((item) => item.ownerId === user.id);
   const ownedBooths = database.booths.filter((item) => item.ownerId === user.id);
   const ownedFairs = database.fairs.filter((item) => item.ownerId === user.id);
-  const publicFairs = database.fairs.filter((fair) => fair.status === "PUBLISHED" || fair.status === "LIVE");
+  const publicFairs = database.fairs.filter(
+    (fair) => fair.status === "PUBLISHED" || fair.status === "LIVE" || fair.status === "PAUSED",
+  );
   const myApplications = (database.applications || []).filter((a) => a.candidateUserId === user.id);
   const receivedApplications = (database.applications || []).filter((a) =>
     database.jobs.some((j) => j.id === a.jobId && ownedBooths.some((b) => b.id === j.boothId)),

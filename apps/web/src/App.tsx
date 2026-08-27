@@ -5,6 +5,7 @@ import { AppShell } from "./components/AppShell";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const AdminFairsPage = lazy(() => import("./pages/AdminFairsPage").then((module) => ({ default: module.AdminFairsPage })));
+const AdminOperationsPage = lazy(() => import("./pages/AdminOperationsPage").then((module) => ({ default: module.AdminOperationsPage })));
 const AccountSettingsPage = lazy(() => import("./pages/AccountSettingsPage").then((module) => ({ default: module.AccountSettingsPage })));
 const AuthPage = lazy(() => import("./pages/AuthPage").then((module) => ({ default: module.AuthPage })));
 const CandidateProfilePage = lazy(() => import("./pages/CandidateProfilePage").then((module) => ({ default: module.CandidateProfilePage })));
@@ -41,6 +42,10 @@ export function App() {
           <Route
             path="admin/fairs"
             element={<ProtectedRoute role="admin"><AdminFairsPage /></ProtectedRoute>}
+          />
+          <Route
+            path="ops/events/:eventId/live"
+            element={<ProtectedRoute role="admin"><AdminOperationsPage /></ProtectedRoute>}
           />
           <Route path="home" element={<Navigate to="/" replace />} />
           <Route path="*" element={<NotFoundPage />} />

@@ -2,12 +2,14 @@ import {
   createContext,
   type PropsWithChildren,
   useContext,
+  useEffect,
   useMemo,
   useSyncExternalStore,
 } from "react";
 
 import {
   createBooth,
+  applyAutoScheduleTransitions,
   updateBooth,
   setBoothStatus,
   deleteBooth,
@@ -37,6 +39,7 @@ import {
   saveCandidateProfile,
   saveCompany,
   setFairStatus,
+  transitionFairStatus,
   subscribeDatabase,
   updateLocalUser,
   updateUserAvatar,
@@ -56,6 +59,7 @@ interface AppContextValue {
     updateFair: typeof updateFair;
     deleteFair: typeof deleteFair;
     setFairStatus: typeof setFairStatus;
+    transitionFairStatus: typeof transitionFairStatus;
     joinFair: typeof joinFair;
     requestRecruiterFairAccess: typeof requestRecruiterFairAccess;
     inviteRecruiterToFair: typeof inviteRecruiterToFair;
@@ -86,6 +90,16 @@ const AppContext = createContext<AppContextValue | null>(null);
 export function AppProvider({ children }: PropsWithChildren) {
   const database = useSyncExternalStore(subscribeDatabase, getDatabaseSnapshot, getDatabaseSnapshot);
   const user = database.users.find((candidate) => candidate.id === database.sessionUserId) ?? null;
+  useEffect(() => {
+    const evaluate = () => applyAutoScheduleTransitions();
+    evaluate();
+    const timer = window.setInterval(evaluate, 30_000);
+    document.addEventListener("visibilitychange", evaluate);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", evaluate);
+    };
+  }, []);
   const value = useMemo<AppContextValue>(
     () => ({
       database,
@@ -100,6 +114,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         updateFair,
         deleteFair,
         setFairStatus,
+        transitionFairStatus,
         joinFair,
         requestRecruiterFairAccess,
         inviteRecruiterToFair,
