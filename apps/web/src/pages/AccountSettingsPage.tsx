@@ -6,6 +6,7 @@ import {
   FileText,
   KeyRound,
   Lock,
+  Palette,
   Save,
   ShieldCheck,
   Store,
@@ -16,6 +17,7 @@ import {
 import { type FormEvent, useState } from "react";
 
 import { AnimatedPage } from "../components/AnimatedPage";
+import { AvatarCustomizerModal } from "../components/AvatarCustomizerModal";
 import { Modal } from "../components/Modal";
 import { Field, PixelButton, PixelLink, PixelSurface, StatusPill } from "../components/PixelUI";
 import { ProfileAvatar } from "../components/ProfileAvatar";
@@ -29,6 +31,9 @@ export function AccountSettingsPage() {
   const [pendingProfileData, setPendingProfileData] = useState<{ displayName: string; email: string } | null>(null);
   const [showProfileConfirm, setShowProfileConfirm] = useState(false);
   const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Avatar customizer state
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
   // Password modal state
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
@@ -134,7 +139,32 @@ export function AccountSettingsPage() {
       <div className="account-settings-grid">
         {/* 1. Profile Summary Card */}
         <PixelSurface className="account-identity-card" data-reveal>
-          <ProfileAvatar seed={user.id} size={76} />
+          <div
+            style={{ position: "relative", cursor: "pointer" }}
+            onClick={() => setAvatarModalOpen(true)}
+            title="คลิกเพื่อปรับแต่ง Avatar เสมือนของคุณ"
+          >
+            <ProfileAvatar seed={user.id} config={user.avatarConfig} size={84} />
+            <span
+              style={{
+                position: "absolute",
+                bottom: -8,
+                left: "50%",
+                transform: "translateX(-50%)",
+                background: "var(--surface-2)",
+                border: "1px solid var(--cyan)",
+                color: "var(--cyan)",
+                fontSize: "0.65rem",
+                padding: "2px 8px",
+                fontFamily: "'Chakra Petch', sans-serif",
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+                borderRadius: 2,
+              }}
+            >
+              ✏️ แต่ง Avatar
+            </span>
+          </div>
           <StatusPill tone={user.role === "admin" ? "mango" : user.role === "recruiter" ? "violet" : "cyan"}>
             {roleLabels[user.role]}
           </StatusPill>
@@ -142,6 +172,14 @@ export function AccountSettingsPage() {
           <p>{user.email}</p>
 
           <div className="account-quick-actions">
+            <PixelButton
+              type="button"
+              tone="cyan"
+              onClick={() => setAvatarModalOpen(true)}
+            >
+              <Palette aria-hidden="true" /> ปรับแต่ง Avatar
+            </PixelButton>
+
             <PixelButton
               type="button"
               tone="mango"
@@ -444,6 +482,12 @@ export function AccountSettingsPage() {
           )}
         </div>
       </Modal>
+
+      {/* Modal: Avatar Customizer */}
+      <AvatarCustomizerModal
+        open={avatarModalOpen}
+        onClose={() => setAvatarModalOpen(false)}
+      />
     </AnimatedPage>
   );
 }

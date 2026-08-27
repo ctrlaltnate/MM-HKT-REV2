@@ -1,4 +1,5 @@
 import type {
+  AvatarConfig,
   Booth,
   CandidateProfile,
   Company,
@@ -576,4 +577,18 @@ export function withdrawApplication(applicationId: string): void {
     ...database,
     applications: currentApps.filter((app) => app.id !== applicationId),
   });
+}
+
+export function updateUserAvatar(userId: string, avatarConfig: AvatarConfig): LocalUser {
+  const user = database.users.find((item) => item.id === userId);
+  if (!user) throw new Error("USER_NOT_FOUND");
+  const updatedUser: LocalUser = {
+    ...user,
+    avatarConfig,
+  };
+  commit({
+    ...database,
+    users: database.users.map((item) => (item.id === userId ? updatedUser : item)),
+  });
+  return updatedUser;
 }

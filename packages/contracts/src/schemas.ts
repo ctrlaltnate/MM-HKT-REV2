@@ -117,6 +117,13 @@ export const UpdateCandidateProfileRequestSchema = z.object({
 // ==========================================
 export const FairStatusSchema = z.enum(["DRAFT", "PUBLISHED", "LIVE", "ENDED", "ARCHIVED"]);
 
+export const FairMediaLinkSchema = z.object({
+  id: z.string(),
+  title: z.string().trim().min(1, "กรุณากรอกชื่อสื่อ/ลิงก์").max(100),
+  url: z.string().trim().min(1, "กรุณากรอก URL"),
+  type: z.enum(["video", "website", "deck", "livestream", "social", "other"]).optional(),
+});
+
 export const CreateFairRequestSchema = z.object({
   title: z.string().trim().min(1, "กรุณากรอกชื่องานแฟร์").max(150),
   slug: z.string().trim().min(1, "กรุณากรอก slug").regex(/^[a-z0-9-]+$/, "Slug ต้องเป็นตัวพิมพ์เล็ก ตัวเลข หรือขีดกลางเท่านั้น").max(100),
@@ -124,6 +131,12 @@ export const CreateFairRequestSchema = z.object({
   locationLabel: z.string().trim().min(1, "กรุณากรอกสถานที่หรือรูปแบบงาน").max(100),
   startsAt: z.string().min(1, "กรุณาระบุเวลาเริ่ม"),
   endsAt: z.string().min(1, "กรุณาระบุเวลาสิ้นสุด"),
+  timezone: z.string().trim().max(100).optional(),
+  logoUrl: z.string().trim().optional(),
+  coverUrl: z.string().trim().optional(),
+  autoSchedule: z.boolean().optional(),
+  mediaLinks: z.array(FairMediaLinkSchema).max(20).optional(),
+  tags: z.array(z.string().trim()).max(20).optional(),
 });
 
 export const UpdateFairRequestSchema = CreateFairRequestSchema.partial().extend({

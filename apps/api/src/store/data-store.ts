@@ -198,6 +198,12 @@ export class DataStore {
       locationLabel: input.locationLabel,
       startsAt: input.startsAt,
       endsAt: input.endsAt,
+      timezone: input.timezone || "Asia/Bangkok (UTC+7)",
+      logoUrl: input.logoUrl,
+      coverUrl: input.coverUrl,
+      autoSchedule: input.autoSchedule ?? false,
+      mediaLinks: input.mediaLinks || [],
+      tags: input.tags || [],
       status: "DRAFT",
       createdAt: new Date().toISOString(),
     };

@@ -8,14 +8,22 @@ import {
   Check,
   CheckCircle2,
   Clock,
+  ExternalLink,
+  FileText,
+  Globe,
+  Link2,
   LogIn,
   MapPin,
+  Radio,
   Send,
   ShieldCheck,
   Sparkles,
   Store,
+  Tag,
   UserCheck,
   UsersRound,
+  Video,
+  Zap,
 } from "lucide-react";
 import { Navigate, useParams } from "react-router-dom";
 
@@ -34,7 +42,7 @@ export function FairDetailPage() {
   const { openAuthModal } = useAuthModal();
   const { toast } = useToast();
 
-  const fair = database.fairs.find((item) => item.id === fairId);
+  const fair = database.fairs.find((item) => item.id === fairId || item.slug === fairId);
   if (!fair) return <Navigate to="/fairs" replace />;
 
   const booths = database.booths.filter((booth) => booth.fairId === fair.id && booth.status === "PUBLISHED");
@@ -75,23 +83,115 @@ export function FairDetailPage() {
 
   return (
     <AnimatedPage className="page-shell fair-detail-page">
+      {/* Fair Cover Banner (if set) */}
+      {fair.coverUrl && (
+        <div
+          data-reveal
+          style={{
+            width: "100%",
+            height: "220px",
+            background: `url(${fair.coverUrl}) center/cover no-repeat`,
+            border: "1px solid var(--line)",
+            marginBottom: 24,
+            position: "relative",
+            boxShadow: "0 0 20px rgba(0,0,0,0.5)",
+          }}
+        >
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(7,16,26,0.9))" }} />
+        </div>
+      )}
+
       {/* Fair Header */}
       <div className="page-header fair-detail-header" data-reveal>
-        <div className="fair-status-row">
+        <div className="fair-status-row" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <StatusPill tone={fair.status === "LIVE" ? "cyan" : "violet"}>
             {fair.status === "LIVE" ? "● LIVE NOW" : fair.status}
           </StatusPill>
           <span className="fair-dates-pill">
             <CalendarDays aria-hidden="true" /> {new Date(fair.startsAt).toLocaleDateString("th-TH")} – {new Date(fair.endsAt).toLocaleDateString("th-TH")}
           </span>
+          {fair.timezone && (
+            <span style={{ fontSize: "0.8rem", color: "var(--cyan)", background: "rgba(120,219,230,0.1)", border: "1px solid rgba(120,219,230,0.25)", padding: "2px 8px", borderRadius: 2 }}>
+              <Clock size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />
+              {fair.timezone}
+            </span>
+          )}
+          {fair.autoSchedule && (
+            <span style={{ fontSize: "0.75rem", color: "var(--mango)", background: "rgba(255,216,77,0.1)", border: "1px solid rgba(255,216,77,0.3)", padding: "2px 8px", borderRadius: 2 }}>
+              <Zap size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: 3 }} /> Auto-Schedule
+            </span>
+          )}
         </div>
-        <h1 className="fair-page-title">{fair.title}</h1>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 12 }}>
+          {fair.logoUrl && (
+            <img
+              src={fair.logoUrl}
+              alt=""
+              style={{ width: 48, height: 48, borderRadius: 6, objectFit: "cover", border: "2px solid var(--cyan)", flexShrink: 0 }}
+            />
+          )}
+          <h1 className="fair-page-title" style={{ margin: 0 }}>{fair.title}</h1>
+        </div>
+
         <p className="fair-page-summary">{fair.summary}</p>
+
+        {/* Tags */}
+        {fair.tags && fair.tags.length > 0 && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "10px 0" }}>
+            {fair.tags.map((t) => (
+              <span key={t} className="stat-chip" style={{ fontSize: "0.78rem" }}>
+                #{t}
+              </span>
+            ))}
+          </div>
+        )}
+
         <div className="fair-meta-bar">
           <span><MapPin className="mini-icon" aria-hidden="true" /> {fair.locationLabel}</span>
           <span><Store className="mini-icon" aria-hidden="true" /> {booths.length} บูธบริษัท</span>
           <span><UsersRound className="mini-icon" aria-hidden="true" /> {database.memberships.filter((m) => m.fairId === fair.id && m.status === "ACTIVE").length} ผู้เข้าร่วม</span>
         </div>
+
+        {/* Media & Resource Links */}
+        {fair.mediaLinks && fair.mediaLinks.length > 0 && (
+          <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid rgba(120,219,230,0.15)" }}>
+            <span style={{ fontSize: "0.82rem", color: "var(--muted)", display: "block", marginBottom: 8 }}>
+              เอกสารและสื่อประกอบงานแฟร์:
+            </span>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              {fair.mediaLinks.map((l) => (
+                <a
+                  key={l.id}
+                  href={l.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "6px 12px",
+                    background: "var(--surface-1)",
+                    border: "1px solid var(--cyan)",
+                    color: "var(--text)",
+                    fontSize: "0.82rem",
+                    textDecoration: "none",
+                    borderRadius: 2,
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {l.type === "video" && <Video size={14} style={{ color: "#ff5470" }} />}
+                  {l.type === "deck" && <FileText size={14} style={{ color: "var(--mango)" }} />}
+                  {l.type === "website" && <Globe size={14} style={{ color: "var(--cyan)" }} />}
+                  {l.type === "livestream" && <Radio size={14} style={{ color: "#ef4444" }} />}
+                  {(!l.type || l.type === "social" || l.type === "other") && <Link2 size={14} style={{ color: "var(--cyan)" }} />}
+                  <strong>{l.title}</strong>
+                  <ExternalLink size={12} style={{ color: "var(--muted)" }} />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Target Track Match Banner */}

@@ -1,11 +1,26 @@
 export type UserRole = "candidate" | "recruiter" | "admin";
 
+export interface AvatarConfig {
+  skinTone: string;
+  hairStyle: string;
+  hairColor: string;
+  eyeStyle: string;
+  eyeColor: string;
+  mouthStyle: string;
+  accessory: string;
+  shirtStyle?: string;
+  shirtColor: string;
+  shirtSecondaryColor?: string;
+  backgroundTone?: string;
+}
+
 export interface AppUser {
   id: string;
   email: string;
   displayName: string;
   role: UserRole;
   createdAt: string;
+  avatarConfig?: AvatarConfig;
 }
 
 export interface LocalUser extends AppUser {
@@ -83,6 +98,13 @@ export interface CandidateProfile {
 
 export type FairStatus = "DRAFT" | "PUBLISHED" | "LIVE" | "ENDED" | "ARCHIVED";
 
+export interface FairMediaLink {
+  id: string;
+  title: string;
+  url: string;
+  type?: "video" | "website" | "deck" | "livestream" | "social" | "other";
+}
+
 export interface JobFair {
   id: string;
   ownerId: string;
@@ -92,6 +114,12 @@ export interface JobFair {
   locationLabel: string;
   startsAt: string;
   endsAt: string;
+  timezone?: string;
+  logoUrl?: string;
+  coverUrl?: string;
+  autoSchedule?: boolean;
+  mediaLinks?: FairMediaLink[];
+  tags?: string[];
   status: FairStatus;
   createdAt: string;
 }

@@ -39,8 +39,9 @@ import {
   setFairStatus,
   subscribeDatabase,
   updateLocalUser,
+  updateUserAvatar,
 } from "../domain/local-database";
-import type { LocalDatabase, LocalUser } from "../domain/types";
+import type { AvatarConfig, LocalDatabase, LocalUser } from "../domain/types";
 
 interface AppContextValue {
   database: LocalDatabase;
@@ -75,6 +76,7 @@ interface AppContextValue {
     setJobStatus: typeof setJobStatus;
     deleteJob: typeof deleteJob;
     updateUser: typeof updateLocalUser;
+    updateUserAvatar: typeof updateUserAvatar;
     changePassword: typeof changeLocalPassword;
   };
 }
@@ -118,6 +120,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         setJobStatus,
         deleteJob,
         updateUser: updateLocalUser,
+        updateUserAvatar,
         changePassword: changeLocalPassword,
       },
     }),

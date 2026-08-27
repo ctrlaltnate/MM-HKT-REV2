@@ -27,12 +27,14 @@ import {
   TrendingUp,
   UserCheck,
   UsersRound,
+  XCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { JobFair } from "@maskedmatch/contracts";
 
 import { AnimatedPage } from "../components/AnimatedPage";
+import { AvatarCustomizerModal } from "../components/AvatarCustomizerModal";
 import { FairQuickPreviewModal } from "../components/FairQuickPreviewModal";
 import { InfoTooltip } from "../components/InfoTooltip";
 import { Modal } from "../components/Modal";
@@ -48,6 +50,7 @@ export function DashboardPage() {
   const [previewFair, setPreviewFair] = useState<JobFair | null>(null);
   const [analysisModalOpen, setAnalysisModalOpen] = useState(false);
   const [skillsModalOpen, setSkillsModalOpen] = useState(false);
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
   if (!user) return null;
 
@@ -92,8 +95,32 @@ export function DashboardPage() {
          ======================================================== */}
       <div className="dashboard-hero-card" data-reveal>
         <div className="dashboard-hero-info">
-          <div className="dashboard-avatar-box">
-            <ProfileAvatar seed={user.id} size={64} />
+          <div
+            className="dashboard-avatar-box"
+            style={{ cursor: "pointer" }}
+            onClick={() => setAvatarModalOpen(true)}
+            title="คลิกเพื่อปรับแต่ง Avatar ตัวละครของคุณ"
+          >
+            <ProfileAvatar seed={user.id} config={user.avatarConfig} size={64} />
+            <span
+              style={{
+                position: "absolute",
+                bottom: -8,
+                left: "50%",
+                transform: "translateX(-50%)",
+                background: "var(--surface-2)",
+                border: "1px solid var(--cyan)",
+                color: "var(--cyan)",
+                fontSize: "0.62rem",
+                padding: "1px 6px",
+                fontFamily: "'Chakra Petch', sans-serif",
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+                borderRadius: 2,
+              }}
+            >
+              ✏️ แต่ง Avatar
+            </span>
           </div>
 
           <div className="dashboard-welcome-copy">
@@ -200,7 +227,6 @@ export function DashboardPage() {
               <div className="stat-meta">
                 <span className="stat-label">ใบสมัครของฉัน</span>
                 <strong className="stat-number">{myApplications.length}</strong>
-                <span className="stat-sub">{activeMemberships.length} งานแฟร์ที่เข้าร่วม</span>
               </div>
             </div>
           </div>
@@ -463,7 +489,7 @@ export function DashboardPage() {
          ======================================================== */}
       {user.role === "recruiter" && (
         <div className="dashboard-content-layout">
-          <div className="cyber-stats-grid" data-reveal>
+          <div className="cyber-stats-grid cols-4" data-reveal>
             <div className="cyber-stat-card">
               <div className="stat-icon-badge violet">
                 <Building2 aria-hidden="true" />
@@ -471,7 +497,6 @@ export function DashboardPage() {
               <div className="stat-meta">
                 <span className="stat-label">บริษัทของคุณ</span>
                 <strong className="stat-number">{company ? "1" : "0"}</strong>
-                <span className="stat-sub">{company?.name ?? "ยังไม่ได้สร้าง"}</span>
               </div>
             </div>
 
@@ -482,7 +507,6 @@ export function DashboardPage() {
               <div className="stat-meta">
                 <span className="stat-label">บูธในงานแฟร์</span>
                 <strong className="stat-number">{ownedBooths.length}</strong>
-                <span className="stat-sub">บูธที่เปิดใช้งาน</span>
               </div>
             </div>
 
@@ -495,7 +519,6 @@ export function DashboardPage() {
                 <strong className="stat-number">
                   {database.jobs.filter((j) => ownedBooths.some((b) => b.id === j.boothId)).length}
                 </strong>
-                <span className="stat-sub">ตำแหน่งงานทั้งหมด</span>
               </div>
             </div>
 
@@ -506,7 +529,6 @@ export function DashboardPage() {
               <div className="stat-meta">
                 <span className="stat-label">ใบสมัครที่ได้รับ</span>
                 <strong className="stat-number">{receivedApplications.length}</strong>
-                <span className="stat-sub">Applications Pipeline</span>
               </div>
             </div>
           </div>
@@ -550,7 +572,7 @@ export function DashboardPage() {
          ======================================================== */}
       {user.role === "admin" && (
         <div className="dashboard-content-layout">
-          <div className="cyber-stats-grid" data-reveal>
+          <div className="cyber-stats-grid cols-4" data-reveal>
             <div className="cyber-stat-card">
               <div className="stat-icon-badge mango">
                 <CalendarDays aria-hidden="true" />
@@ -558,7 +580,6 @@ export function DashboardPage() {
               <div className="stat-meta">
                 <span className="stat-label">งานแฟร์ทั้งหมด</span>
                 <strong className="stat-number">{database.fairs.length}</strong>
-                <span className="stat-sub">{publicFairs.length} งานที่เปิดเผยแพร่</span>
               </div>
             </div>
 
@@ -569,7 +590,6 @@ export function DashboardPage() {
               <div className="stat-meta">
                 <span className="stat-label">บูธทั้งหมดในระบบ</span>
                 <strong className="stat-number">{database.booths.length}</strong>
-                <span className="stat-sub">จาก {database.companies.length} บริษัท</span>
               </div>
             </div>
 
@@ -580,7 +600,6 @@ export function DashboardPage() {
               <div className="stat-meta">
                 <span className="stat-label">ผู้ใช้งานในระบบ</span>
                 <strong className="stat-number">{database.users.length}</strong>
-                <span className="stat-sub">{database.candidateProfiles.length} Candidate Profiles</span>
               </div>
             </div>
 
@@ -593,38 +612,136 @@ export function DashboardPage() {
                 <strong className="stat-number">
                   {database.memberships.filter((m) => m.status === "PENDING_APPROVAL").length}
                 </strong>
-                <span className="stat-sub">คำขอเข้าร่วม Fair จาก Recruiter</span>
               </div>
             </div>
           </div>
 
           <div className="dashboard-dual-columns">
+            {/* WIDGET 1: PENDING APPROVALS QUEUE */}
             <PixelSurface data-reveal className="dashboard-widget-card">
               <div className="widget-header">
                 <div>
-                  <span className="widget-eyebrow"><ShieldCheck aria-hidden="true" /> Fair Lifecycle Control</span>
-                  <h3>ศูนย์ควบคุมและจัดการ Job Fair</h3>
+                  <span className="widget-eyebrow" style={{ color: "var(--mango)" }}>
+                    <Clock aria-hidden="true" /> Approval Queue
+                  </span>
+                  <h3>คำขอเข้าร่วมงานที่รอการอนุมัติ ({database.memberships.filter((m) => m.status === "PENDING_APPROVAL").length})</h3>
                 </div>
               </div>
-              <p>สร้างงานแฟร์ใหม่ ปรับสถานะ DRAFT → PUBLISHED → LIVE → ENDED และจัดการสิทธิ์สมาชิก</p>
-              <div className="widget-footer">
+
+              {database.memberships.filter((m) => m.status === "PENDING_APPROVAL").length === 0 ? (
+                <div style={{ padding: "24px 0", textAlign: "center", color: "var(--muted)" }}>
+                  <CheckCircle2 size={36} style={{ color: "var(--cyan)", margin: "0 auto 12px" }} aria-hidden="true" />
+                  <p style={{ margin: 0, fontWeight: 600, color: "var(--text)" }}>ไม่มีคำขอรออนุมัติในระบบ</p>
+                  <small style={{ color: "var(--muted)" }}>คำขอเปิดบูธและเข้าร่วมงานจาก Recruiter ทั้งหมดได้รับการอนุมัติเรียบร้อยแล้ว</small>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 8 }}>
+                  {database.memberships
+                    .filter((m) => m.status === "PENDING_APPROVAL")
+                    .map((req) => {
+                      const reqUser = database.users.find((u) => u.id === req.userId);
+                      const reqCompany = database.companies.find((c) => c.ownerId === req.userId);
+                      const reqFair = database.fairs.find((f) => f.id === req.fairId);
+                      return (
+                        <div
+                          key={req.id}
+                          style={{
+                            background: "rgba(255, 216, 77, 0.05)",
+                            border: "1px solid rgba(255, 216, 77, 0.25)",
+                            padding: "12px 14px",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: 10,
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                              <strong style={{ color: "var(--text)", fontSize: "0.95rem" }}>
+                                {reqUser?.displayName ?? "Recruiter"}
+                              </strong>
+                              <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>({reqUser?.email})</span>
+                            </div>
+                            <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--muted)" }}>
+                              บริษัท: <strong style={{ color: "var(--text)" }}>{reqCompany?.name ?? "ยังไม่ได้กรอกข้อมูล"}</strong> · ขอเข้างาน: <span style={{ color: "var(--cyan)" }}>{reqFair?.title ?? req.fairId}</span>
+                            </p>
+                          </div>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <PixelButton
+                              tone="cyan"
+                              onClick={() => {
+                                actions.reviewFairMembership(req.id, "ACTIVE", user.id);
+                                toast.success(`อนุมัติคำขอของ ${reqUser?.displayName ?? "Recruiter"} เรียบร้อยแล้ว!`);
+                              }}
+                            >
+                              <Check aria-hidden="true" /> อนุมัติ
+                            </PixelButton>
+                            <PixelButton
+                              tone="danger"
+                              onClick={() => {
+                                actions.reviewFairMembership(req.id, "REJECTED", user.id);
+                                toast.info("ปฏิเสธคำขอเข้าร่วมงาน");
+                              }}
+                            >
+                              <XCircle aria-hidden="true" /> ปฏิเสธ
+                            </PixelButton>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+
+              <div className="widget-footer" style={{ borderTop: "1px solid var(--line)", paddingTop: 12, marginTop: 16 }}>
                 <PixelLink to="/admin/fairs" tone="mango">
-                  <ShieldCheck aria-hidden="true" /> เปิดศูนย์จัดการ Job Fair
+                  <ShieldCheck aria-hidden="true" /> เปิดศูนย์จัดการ Job Fair และสมาชิกเต็มรูปแบบ
                 </PixelLink>
               </div>
             </PixelSurface>
 
+            {/* WIDGET 2: PLATFORM SECURITY & PRIVACY GOVERNANCE */}
             <PixelSurface data-reveal className="dashboard-widget-card">
               <div className="widget-header">
                 <div>
-                  <span className="widget-eyebrow"><CalendarDays aria-hidden="true" /> Public Directory</span>
-                  <h3>งานแฟร์ที่กำลังจัดอยู่</h3>
+                  <span className="widget-eyebrow" style={{ color: "var(--cyan)" }}>
+                    <ShieldCheck aria-hidden="true" /> System & Privacy Governance
+                  </span>
+                  <h3>ความพร้อมและระบบความปลอดภัยแพลตฟอร์ม</h3>
                 </div>
               </div>
-              <p>ตรวจสอบมุมมองของประชาชนและผู้สมัครในแต่ละงานแฟร์</p>
-              <div className="widget-footer">
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "var(--surface-1)", border: "1px solid var(--line)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Lock size={16} style={{ color: "var(--cyan)" }} />
+                    <span style={{ fontSize: "0.86rem", color: "var(--text)" }}>Masked Privacy Protocol</span>
+                  </div>
+                  <StatusPill tone="cyan">100% Zero PII Leak</StatusPill>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "var(--surface-1)", border: "1px solid var(--line)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <BrainCircuit size={16} style={{ color: "var(--mango)" }} />
+                    <span style={{ fontSize: "0.86rem", color: "var(--text)" }}>AI Resume Extraction Engine</span>
+                  </div>
+                  <StatusPill tone="mango">พร้อมใช้งาน</StatusPill>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "var(--surface-1)", border: "1px solid var(--line)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Building2 size={16} style={{ color: "var(--violet)" }} />
+                    <span style={{ fontSize: "0.86rem", color: "var(--text)" }}>สถานะงาน Job Fair</span>
+                  </div>
+                  <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>
+                    {database.fairs.filter((f) => f.status === "LIVE").length} LIVE · {database.fairs.filter((f) => f.status === "PUBLISHED").length} PUBLISHED · {database.fairs.filter((f) => f.status === "DRAFT").length} DRAFT
+                  </span>
+                </div>
+              </div>
+
+              <div className="widget-footer" style={{ borderTop: "1px solid var(--line)", paddingTop: 12, marginTop: 16 }}>
                 <PixelLink to="/fairs" tone="neutral">
-                  <Eye aria-hidden="true" /> ส่องงานแฟร์ทั้งหมด
+                  <Eye aria-hidden="true" /> ตรวจสอบมุมมองจ็อบแฟร์สาธารณะ
                 </PixelLink>
               </div>
             </PixelSurface>
@@ -710,6 +827,12 @@ export function DashboardPage() {
           onImport={() => setAnalysisModalOpen(false)}
         />
       )}
+
+      {/* Modal: Avatar Customizer */}
+      <AvatarCustomizerModal
+        open={avatarModalOpen}
+        onClose={() => setAvatarModalOpen(false)}
+      />
     </AnimatedPage>
   );
 }
