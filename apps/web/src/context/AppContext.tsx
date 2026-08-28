@@ -11,6 +11,7 @@ import {
   createBooth,
   applyAutoScheduleTransitions,
   updateBooth,
+  setBoothAssignedJobs,
   setBoothStatus,
   deleteBooth,
   changeLocalPassword,
@@ -73,6 +74,7 @@ interface AppContextValue {
     saveCompany: typeof saveCompany;
     createBooth: typeof createBooth;
     updateBooth: typeof updateBooth;
+    setBoothAssignedJobs: typeof setBoothAssignedJobs;
     setBoothStatus: typeof setBoothStatus;
     deleteBooth: typeof deleteBooth;
     createJob: typeof createJob;
@@ -128,6 +130,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         saveCompany,
         createBooth,
         updateBooth,
+        setBoothAssignedJobs,
         setBoothStatus,
         deleteBooth,
         createJob,

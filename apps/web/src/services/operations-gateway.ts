@@ -11,6 +11,7 @@ import type {
 
 import {
   getDatabaseSnapshot,
+  setFairStatus,
   subscribeDatabase,
   transitionFairStatus,
 } from "../domain/local-database";
@@ -350,7 +351,7 @@ export class LocalOperationsGateway implements OperationsGateway {
     update: (record: StoredOperationsRecord, now: string) => StoredOperationsRecord,
     scope?: OperationsScope,
   ): Promise<EventOperationsSnapshot> {
-    getOwnedFair(input.eventId, input.actorId);
+    const fairBeforeMutation = getOwnedFair(input.eventId, input.actorId);
     const store = loadStore();
     const current = store.events[input.eventId] ?? createRecord(input.eventId);
     if (current.processedCommands[input.idempotencyKey]) {
@@ -392,6 +393,16 @@ export class LocalOperationsGateway implements OperationsGateway {
     try {
       window.localStorage.setItem(OPERATIONS_STORAGE_KEY, JSON.stringify(nextStore));
     } catch {
+      const fairAfterFailure = getDatabaseSnapshot().fairs.find(
+        (fair) => fair.id === input.eventId,
+      );
+      if (fairAfterFailure && fairAfterFailure.status !== fairBeforeMutation.status) {
+        try {
+          setFairStatus(input.eventId, fairBeforeMutation.status);
+        } catch {
+          // localStorage has no cross-key transaction; recovery can only be best effort.
+        }
+      }
       throw new OperationsGatewayError(
         "STORAGE_UNAVAILABLE",
         "บันทึกสถานะ local ไม่สำเร็จ กรุณาตรวจพื้นที่จัดเก็บของเบราว์เซอร์",

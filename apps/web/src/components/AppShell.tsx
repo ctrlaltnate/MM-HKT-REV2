@@ -41,7 +41,7 @@ export function AppShell() {
 
   const finishAuth = () => {
     setAuthOpen(false);
-    navigate("/");
+    navigate("/app");
   };
 
   return (

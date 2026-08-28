@@ -8,8 +8,10 @@ import {
   Check,
   CheckCircle2,
   Clock,
+  Compass,
   ExternalLink,
   FileText,
+  Gamepad2,
   Globe,
   Link2,
   LogIn,
@@ -25,6 +27,7 @@ import {
   Video,
   Zap,
 } from "lucide-react";
+import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 
 import { AnimatedPage } from "../components/AnimatedPage";
@@ -35,12 +38,14 @@ import { useAuthModal } from "../context/AuthModalContext";
 import { useToast } from "../context/ToastContext";
 import { calculateLocalMatch } from "../domain/matching";
 import type { JobPosting } from "../domain/types";
+import { PhaserGameHost } from "../game/PhaserGameHost";
 
 export function FairDetailPage() {
   const { fairId } = useParams();
   const { user, database, actions } = useApp();
   const { openAuthModal } = useAuthModal();
   const { toast } = useToast();
+  const [viewMode, setViewMode] = useState<"2d_game" | "list">("2d_game");
 
   const fair = database.fairs.find((item) => item.id === fairId || item.slug === fairId);
   if (!fair) return <Navigate to="/fairs" replace />;
@@ -79,6 +84,14 @@ export function FairDetailPage() {
   const handleAllowReveal = (applicationId: string) => {
     actions.toggleApplicationRevealConsent(applicationId, true);
     toast.success("ยินยอมเปิดเผยข้อมูลติดต่อให้บริษัทเรียบร้อยแล้ว!");
+  };
+
+  const getBoothJobs = (b: typeof booths[number]) => {
+    return database.jobs.filter(
+      (job) =>
+        (b.assignedJobIds?.includes(job.id) || job.boothId === b.id) &&
+        job.status === "PUBLISHED",
+    );
   };
 
   return (
@@ -231,20 +244,110 @@ export function FairDetailPage() {
         </div>
       </PixelSurface>
 
-      {/* Booths Section */}
-      <section className="fair-detail-section">
-        <div className="section-heading" data-reveal>
-          <div>
-            <span className="eyebrow"><Store aria-hidden="true" /> Virtual Career Booths</span>
-            <h2>บริษัทและบูธที่เปิดรับ ({booths.length})</h2>
-          </div>
-          <p>เลือกสำรวจบูธเพื่อดูข้อมูลบริษัท เทคโนโลยีที่ใช้ และตำแหน่งงานที่เปิดรับ</p>
+      {/* View Mode Toggle: 2D Virtual Expo vs List Mode */}
+      <div
+        data-reveal
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          margin: "24px 0 16px",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            background: "rgba(10, 20, 35, 0.8)",
+            padding: 4,
+            borderRadius: 8,
+            border: "1px solid var(--line)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setViewMode("2d_game")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 16px",
+              background: viewMode === "2d_game" ? "var(--cyan)" : "transparent",
+              color: viewMode === "2d_game" ? "#07101a" : "var(--muted)",
+              fontWeight: 700,
+              fontSize: "0.88rem",
+              border: "none",
+              borderRadius: 6,
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <Gamepad2 size={16} /> 🎮 2D Virtual Expo Hall
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("list")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 16px",
+              background: viewMode === "list" ? "var(--cyan)" : "transparent",
+              color: viewMode === "list" ? "#07101a" : "var(--muted)",
+              fontWeight: 700,
+              fontSize: "0.88rem",
+              border: "none",
+              borderRadius: 6,
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <Compass size={16} /> 📋 รายการบูธ (List View)
+          </button>
         </div>
+
+        <span style={{ fontSize: "0.84rem", color: "var(--muted)" }}>
+          {viewMode === "2d_game"
+            ? "🎮 ใช้ปุ่ม WASD, ลูกศร หรือคลิกเพื่อเดินสำรวจบูธและยื่นสมัครงาน"
+            : `📋 แสดงรายการบูธทั้งหมด ${booths.length} บูธ`}
+        </span>
+      </div>
+
+      {viewMode === "2d_game" ? (
+        <div data-reveal style={{ marginBottom: 32 }}>
+          <PhaserGameHost
+            fairId={fair.id}
+            fairTitle={fair.title}
+            booths={booths}
+            companies={database.companies}
+            jobs={database.jobs}
+            user={user ?? undefined}
+            profile={profile}
+            applications={applications}
+            onApply={handleApply}
+            onSwitchToListMode={() => setViewMode("list")}
+          />
+        </div>
+      ) : null}
+
+      {/* Booths Section (Always accessible in List Mode or below) */}
+      {viewMode === "list" && (
+        <>
+          <section className="fair-detail-section">
+            <div className="section-heading" data-reveal>
+              <div>
+                <span className="eyebrow"><Store aria-hidden="true" /> Virtual Career Booths</span>
+                <h2>บริษัทและบูธที่เปิดรับ ({booths.length})</h2>
+              </div>
+              <p>เลือกสำรวจบูธเพื่อดูข้อมูลบริษัท เทคโนโลยีที่ใช้ และตำแหน่งงานที่เปิดรับ</p>
+            </div>
 
         <div className="booth-card-grid">
           {booths.map((booth) => {
             const company = database.companies.find((item) => item.id === booth.companyId);
-            const jobs = database.jobs.filter((job) => job.boothId === booth.id && job.status === "PUBLISHED");
+            const jobs = getBoothJobs(booth);
             return (
               <PixelSurface className="booth-showcase-card" data-reveal key={booth.id}>
                 <div className="booth-showcase-head">
@@ -277,8 +380,7 @@ export function FairDetailPage() {
 
         <div className="jobs-stream-grid">
           {booths.flatMap((booth) =>
-            database.jobs
-              .filter((job) => job.boothId === booth.id && job.status === "PUBLISHED")
+            getBoothJobs(booth)
               .map((job) => {
                 const company = database.companies.find((item) => item.id === job.companyId);
                 const match = calculateLocalMatch(profile, job);
@@ -411,6 +513,8 @@ export function FairDetailPage() {
           )}
         </div>
       </section>
+        </>
+      )}
     </AnimatedPage>
   );
 }

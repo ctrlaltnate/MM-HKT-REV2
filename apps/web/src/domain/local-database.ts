@@ -223,15 +223,11 @@ export function updateFair(
 }
 
 export function deleteFair(fairId: string): void {
-  const boothIdsToDelete = new Set(
-    database.booths.filter((b) => b.fairId === fairId).map((b) => b.id),
-  );
   commit({
     ...database,
     fairs: database.fairs.filter((fair) => fair.id !== fairId),
     memberships: database.memberships.filter((m) => m.fairId !== fairId),
     booths: database.booths.filter((b) => b.fairId !== fairId),
-    jobs: database.jobs.filter((j) => !boothIdsToDelete.has(j.boothId)),
   });
 }
 
@@ -465,7 +461,16 @@ export function createBooth(
   ownerId: string,
   input: Omit<Booth, "id" | "ownerId" | "createdAt">,
 ): Booth {
-  const booth: Booth = { ...input, id: createId("booth"), ownerId, createdAt: new Date().toISOString() };
+  if (database.booths.some((booth) => booth.companyId === input.companyId && booth.fairId === input.fairId)) {
+    throw new Error("COMPANY_BOOTH_EXISTS");
+  }
+  const booth: Booth = {
+    ...input,
+    assignedJobIds: input.assignedJobIds ?? [],
+    id: createId("booth"),
+    ownerId,
+    createdAt: new Date().toISOString(),
+  };
   commit({ ...database, booths: [...database.booths, booth] });
   return booth;
 }
@@ -484,6 +489,17 @@ export function updateBooth(
   return updated;
 }
 
+export function setBoothAssignedJobs(boothId: string, assignedJobIds: string[]): Booth {
+  const existing = database.booths.find((booth) => booth.id === boothId);
+  if (!existing) throw new Error("BOOTH_NOT_FOUND");
+  const updated: Booth = { ...existing, assignedJobIds };
+  commit({
+    ...database,
+    booths: database.booths.map((booth) => (booth.id === boothId ? updated : booth)),
+  });
+  return updated;
+}
+
 export function setBoothStatus(boothId: string, status: Booth["status"]): void {
   commit({
     ...database,
@@ -495,7 +511,6 @@ export function deleteBooth(boothId: string): void {
   commit({
     ...database,
     booths: database.booths.filter((booth) => booth.id !== boothId),
-    jobs: database.jobs.filter((job) => job.boothId !== boothId),
   });
 }
 
@@ -530,6 +545,10 @@ export function deleteJob(jobId: string): void {
   commit({
     ...database,
     jobs: database.jobs.filter((job) => job.id !== jobId),
+    booths: database.booths.map((booth) => ({
+      ...booth,
+      assignedJobIds: (booth.assignedJobIds || []).filter((id: string) => id !== jobId),
+    })),
     applications: (database.applications || []).filter((app) => app.jobId !== jobId),
   });
 }

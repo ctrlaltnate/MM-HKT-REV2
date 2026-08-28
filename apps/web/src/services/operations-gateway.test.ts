@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   applyToJob,
@@ -38,6 +38,7 @@ describe("LocalOperationsGateway", () => {
 
   afterEach(() => {
     gateway.dispose();
+    vi.restoreAllMocks();
   });
 
   it("allows only the fair owner to read or operate an event", async () => {
@@ -233,6 +234,30 @@ describe("LocalOperationsGateway", () => {
       "BROADCAST",
       "PAUSE",
     ]);
+  });
+
+  it("rolls back a lifecycle transition when the operations record cannot be stored", async () => {
+    const fair = createLiveFair();
+    const originalSetItem = window.localStorage.setItem.bind(window.localStorage);
+    vi.spyOn(window.localStorage, "setItem").mockImplementation((key, value) => {
+      if (key === "maskedmatch.local.operations.v1") {
+        throw new DOMException("Synthetic quota failure", "QuotaExceededError");
+      }
+      return originalSetItem(key, value);
+    });
+
+    await expect(
+      gateway.pauseEvent({
+        eventId: fair.id,
+        actorId: OWNER_ID,
+        expectedVersion: 1,
+        idempotencyKey: "storage-failure-pause",
+        reason: "ทดสอบ rollback เมื่อพื้นที่จัดเก็บไม่พร้อม",
+        scope: "ENTRY_AND_QUEUES",
+      }),
+    ).rejects.toMatchObject({ code: "STORAGE_UNAVAILABLE", retryable: true });
+
+    expect(getDatabaseSnapshot().fairs.find((item) => item.id === fair.id)?.status).toBe("LIVE");
   });
 
   it("normalizes broadcast text and enforces the 1–280 character boundary", async () => {

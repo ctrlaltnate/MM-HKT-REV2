@@ -38,7 +38,12 @@ export function LandingPage() {
   const publicFairIds = new Set(publicFairs.map((fair) => fair.id));
   const publicBooths = database.booths.filter((booth) => booth.status === "PUBLISHED" && publicFairIds.has(booth.fairId));
   const publicBoothIds = new Set(publicBooths.map((booth) => booth.id));
-  const publicJobs = database.jobs.filter((job) => job.status === "PUBLISHED" && publicBoothIds.has(job.boothId));
+  const publicJobs = database.jobs.filter(
+    (job) =>
+      job.status === "PUBLISHED" &&
+      ((job.boothId && publicBoothIds.has(job.boothId)) ||
+        publicBooths.some((b) => b.assignedJobIds?.includes(job.id))),
+  );
 
   return (
     <AnimatedPage>

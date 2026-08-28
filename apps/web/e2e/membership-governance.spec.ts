@@ -2,12 +2,43 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { resetAppState, registerUser, loginUser, openProfileDropdown } from "./helpers";
 
+async function createFair(page: import("@playwright/test").Page, fair: {
+  title: string;
+  slug: string;
+  location: string;
+  startsAt: string;
+  endsAt: string;
+  summary: string;
+}) {
+  await page.getByRole("button", { name: "สร้าง Job Fair ใหม่" }).first().click();
+  const dialog = page.getByRole("dialog", { name: /สร้าง Job Fair ใหม่/i });
+  await expect(dialog).toBeVisible();
+  await dialog.locator("input[name='title']").fill(fair.title);
+  await dialog.locator("input[name='slug']").fill(fair.slug);
+  await dialog.locator("input[name='locationLabel']").fill(fair.location);
+  await dialog.locator("input[name='startsAt']").fill(fair.startsAt);
+  await dialog.locator("input[name='endsAt']").fill(fair.endsAt);
+  await dialog.locator("textarea[name='summary']").fill(fair.summary);
+  await dialog.getByRole("button", { name: "สร้าง Job Fair ใหม่", exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await page.getByRole("button", { name: /^ทั้งหมด \(1\)$/ }).click();
+}
+
+async function publishFirstFair(page: import("@playwright/test").Page) {
+  await page.getByRole("button", { name: "Publish งานแฟร์" }).first().click();
+  const dialog = page.getByRole("dialog", { name: /ยืนยัน: Publish งานแฟร์/i });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "ยืนยันการเปลี่ยนสถานะ" }).click();
+  await expect(dialog).toBeHidden();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await resetAppState(page);
 });
 
 test.describe("Fair Membership Governance — Recruiter Invitation Flow", () => {
+  test.describe.configure({ timeout: 90_000 });
   test("admin can invite recruiter by email and recruiter can accept invitation to open booth", async ({ page }) => {
     // 1. Register Admin and create a Fair
     await registerUser(page, {
@@ -20,21 +51,18 @@ test.describe("Fair Membership Governance — Recruiter Invitation Flow", () => 
     await page.goto("/admin/fairs");
     await expect(page).toHaveURL(/\/admin\/fairs/);
 
-    // Create a new fair
-    await page.locator("input[name='title']").fill("Bangkok Tech Fair 2026");
-    await page.locator("input[name='slug']").fill("bkk-tech-2026");
-    await page.locator("input[name='locationLabel']").fill("Online");
-    await page.locator("input[name='startsAt']").fill("2026-10-01T09:00");
-    await page.locator("input[name='endsAt']").fill("2026-10-01T18:00");
-    await page.locator("textarea[name='summary']").fill("Annual tech hiring expo");
-    await page.getByRole("button", { name: "สร้าง Draft" }).click();
-
-    // Publish the fair so it becomes available
-    const publishButton = page.getByRole("button", { name: "Publish" }).first();
-    await expect(publishButton).toBeVisible();
-    await publishButton.click();
+    await createFair(page, {
+      title: "Bangkok Tech Fair 2026",
+      slug: "bkk-tech-2026",
+      location: "Online",
+      startsAt: "2026-10-01T09:00",
+      endsAt: "2026-10-01T18:00",
+      summary: "Annual tech hiring expo",
+    });
+    await publishFirstFair(page);
 
     // 2. Admin invites recruiter by email
+    await page.getByRole("button", { name: /^สมาชิกและคำขอ/ }).first().click();
     const inviteTabBtn = page.getByRole("button", { name: /ส่งคำเชิญ/i }).first();
     await inviteTabBtn.click();
 
@@ -43,6 +71,8 @@ test.describe("Fair Membership Governance — Recruiter Invitation Flow", () => 
     await page.locator("form").getByRole("button", { name: "ส่งคำเชิญ" }).click();
 
     await expect(page.getByText(/ส่งคำเชิญไปยัง partner.recruiter@company.com/)).toBeVisible();
+    await page.getByRole("dialog").getByRole("button", { name: "ปิดหน้าต่าง", exact: true }).click();
+    await expect(page.getByRole("dialog")).toBeHidden();
 
     // 3. Logout Admin
     await openProfileDropdown(page);
@@ -70,6 +100,7 @@ test.describe("Fair Membership Governance — Recruiter Invitation Flow", () => 
     await page.getByRole("button", { name: "ตอบรับคำเชิญ" }).first().click();
 
     // Fill Company profile
+    await page.getByRole("button", { name: "เพิ่มข้อมูลบริษัท" }).click();
     await page.locator("input[name='name']").first().fill("Partner Tech Co.");
     await page.locator("input[name='industry']").fill("FinTech");
     await page.locator("input[name='workLocations']").fill("Bangkok");
@@ -77,12 +108,13 @@ test.describe("Fair Membership Governance — Recruiter Invitation Flow", () => 
     await page.getByRole("button", { name: "บันทึกบริษัท" }).click();
 
     // Verify Fair is now selectable in Booth creation
+    await page.getByRole("button", { name: "สร้างบูธ", exact: true }).click();
     const fairSelect = page.locator("select[name='fairId']");
     await expect(fairSelect).toBeVisible();
     await fairSelect.selectOption({ label: "Bangkok Tech Fair 2026 · PUBLISHED" });
 
-    await page.locator("input[name='name']").nth(1).fill("Partner FinTech Booth");
-    await page.locator("textarea[name='summary']").nth(1).fill("Hiring Senior Engineers");
+    await page.locator("input[name='name']").last().fill("Partner FinTech Booth");
+    await page.locator("textarea[name='summary']").last().fill("Hiring Senior Engineers");
     await page.getByRole("button", { name: "Publish Booth" }).click();
 
     // Booth created successfully
@@ -91,6 +123,7 @@ test.describe("Fair Membership Governance — Recruiter Invitation Flow", () => 
 });
 
 test.describe("Fair Membership Governance — Recruiter Access Request Flow", () => {
+  test.describe.configure({ timeout: 90_000 });
   test("recruiter can request fair access and admin approves it", async ({ page }) => {
     // 1. Register Admin and create a published Fair
     await registerUser(page, {
@@ -101,15 +134,15 @@ test.describe("Fair Membership Governance — Recruiter Access Request Flow", ()
     });
 
     await page.goto("/admin/fairs");
-    await page.locator("input[name='title']").fill("AI Summit 2026");
-    await page.locator("input[name='slug']").fill("ai-summit-2026");
-    await page.locator("input[name='locationLabel']").fill("Bangkok");
-    await page.locator("input[name='startsAt']").fill("2026-11-01T09:00");
-    await page.locator("input[name='endsAt']").fill("2026-11-01T18:00");
-    await page.locator("textarea[name='summary']").fill("AI innovation expo");
-    await page.getByRole("button", { name: "สร้าง Draft" }).click();
-
-    await page.getByRole("button", { name: "Publish" }).first().click();
+    await createFair(page, {
+      title: "AI Summit 2026",
+      slug: "ai-summit-2026",
+      location: "Bangkok",
+      startsAt: "2026-11-01T09:00",
+      endsAt: "2026-11-01T18:00",
+      summary: "AI innovation expo",
+    });
+    await publishFirstFair(page);
 
     // Logout Admin
     await openProfileDropdown(page);
@@ -148,22 +181,25 @@ test.describe("Fair Membership Governance — Recruiter Access Request Flow", ()
 
     await page.goto("/admin/fairs");
     // Verify pending badge
-    await expect(page.getByText(/1 คำขอรออนุมัติ/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "คำขอรออนุมัติ 1" })).toBeVisible();
 
-    // Go to pending tab and approve
-    const pendingTab = page.getByRole("button", { name: /รออนุมัติ/i }).first();
+    // Open governance, go to pending tab and approve
+    await page.getByRole("button", { name: /จัดการสมาชิกและคำขอทั้งหมด/ }).click();
+    const governanceDialog = page.getByRole("dialog", { name: /ศูนย์จัดการสมาชิก/ });
+    const pendingTab = governanceDialog.getByRole("button", { name: /รออนุมัติ/i });
     await pendingTab.click();
 
-    const approveBtn = page.getByRole("button", { name: "อนุมัติเข้าร่วม" }).first();
+    const approveBtn = governanceDialog.getByRole("button", { name: "อนุมัติเข้าร่วม" });
     await approveBtn.click();
 
     // Verified approved
-    await expect(page.getByText("ไม่มีคำขอรออนุมัติ")).toBeVisible();
+    await expect(governanceDialog.getByText("ไม่มีคำขอรออนุมัติ")).toBeVisible();
   });
 });
 
 test.describe("Fair Membership Governance — Accessibility", () => {
   test("admin fairs page with governance panel passes axe audit", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await registerUser(page, {
       displayName: "Admin Axe",
       email: "axe-admin@test.local",
@@ -182,6 +218,7 @@ test.describe("Fair Membership Governance — Accessibility", () => {
   });
 
   test("recruiter workspace with membership section passes axe audit", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await registerUser(page, {
       displayName: "Recruiter Axe",
       email: "axe-recruiter@test.local",

@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("Role-based navigation — candidate", () => {
-  test("candidate sees หน้าแรก and จ็อบแฟร์ nav links", async ({ page }) => {
+  test("candidate sees แดชบอร์ด and จ็อบแฟร์ nav links", async ({ page }) => {
     await registerUser(page, {
       displayName: "Candidate Nav",
       email: "nav-cand@test.local",
@@ -18,10 +18,10 @@ test.describe("Role-based navigation — candidate", () => {
 
     await ensureNavVisible(page);
     const nav = page.locator("nav[aria-label='เมนูหลัก']");
-    await expect(nav.getByText("หน้าแรก")).toBeVisible();
-    await expect(nav.getByText("จ็อบแฟร์")).toBeVisible();
-    // Should NOT see admin or recruiter dashboard link
-    await expect(nav.getByText("แดชบอร์ด")).toBeHidden();
+    await expect(nav.getByRole("link", { name: "แดชบอร์ด", exact: true })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "จ็อบแฟร์", exact: true })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Recruiter Studio", exact: true })).toBeHidden();
+    await expect(nav.getByRole("link", { name: "จัดการงานแฟร์", exact: true })).toBeHidden();
   });
 
   test("candidate can navigate to /fairs", async ({ page }) => {
@@ -74,7 +74,8 @@ test.describe("Role-based navigation — recruiter", () => {
 
     await ensureNavVisible(page);
     const nav = page.locator("nav[aria-label='เมนูหลัก']");
-    await expect(nav.getByText("แดชบอร์ด")).toBeVisible();
+    await expect(nav.getByRole("link", { name: "แดชบอร์ด", exact: true })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Recruiter Studio", exact: true })).toBeVisible();
   });
 
   test("recruiter can navigate to workspace", async ({ page }) => {
@@ -86,7 +87,7 @@ test.describe("Role-based navigation — recruiter", () => {
     });
 
     await ensureNavVisible(page);
-    await page.locator("nav[aria-label='เมนูหลัก']").getByText("แดชบอร์ด").first().click();
+    await page.locator("nav[aria-label='เมนูหลัก']").getByRole("link", { name: "Recruiter Studio", exact: true }).click();
     await expect(page).toHaveURL(/\/recruiter\/workspace/);
   });
 
@@ -114,7 +115,8 @@ test.describe("Role-based navigation — admin", () => {
 
     await ensureNavVisible(page);
     const nav = page.locator("nav[aria-label='เมนูหลัก']");
-    await expect(nav.getByText("แดชบอร์ด")).toBeVisible();
+    await expect(nav.getByRole("link", { name: "แดชบอร์ด", exact: true })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "จัดการงานแฟร์", exact: true })).toBeVisible();
   });
 
   test("admin can navigate to /admin/fairs", async ({ page }) => {
@@ -126,7 +128,7 @@ test.describe("Role-based navigation — admin", () => {
     });
 
     await ensureNavVisible(page);
-    await page.locator("nav[aria-label='เมนูหลัก']").getByText("แดชบอร์ด").first().click();
+    await page.locator("nav[aria-label='เมนูหลัก']").getByRole("link", { name: "จัดการงานแฟร์", exact: true }).click();
     await expect(page).toHaveURL(/\/admin\/fairs/);
   });
 });

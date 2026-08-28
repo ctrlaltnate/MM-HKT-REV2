@@ -15,6 +15,7 @@ import {
 import { type FormEvent, type KeyboardEvent, useEffect, useId, useState } from "react";
 
 import type { FairMediaLink, FairStatus, JobFair } from "../domain/types";
+import { useToast } from "../context/ToastContext";
 import { Modal } from "./Modal";
 import { PixelButton, StatusPill } from "./PixelUI";
 
@@ -86,6 +87,7 @@ export function FairStudioModal({
   onSubmit,
 }: FairStudioModalProps) {
   const isEditing = Boolean(initialFair);
+  const { toast } = useToast();
   const formId = useId();
   const fieldIds = {
     title: `${formId}-title`,
@@ -262,17 +264,23 @@ export function FairStudioModal({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      setError("กรุณาระบุชื่องาน Job Fair");
+      const msg = "กรุณาระบุชื่องาน Job Fair";
+      setError(msg);
+      toast.error(msg);
       setActiveTab("schedule");
       return;
     }
     if (!slug.trim()) {
-      setError("กรุณาระบุ Slug URL");
+      const msg = "กรุณาระบุ Slug URL สำหรับงานแฟร์";
+      setError(msg);
+      toast.error(msg);
       setActiveTab("schedule");
       return;
     }
     if (new Date(endsAt) <= new Date(startsAt)) {
-      setError("เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่มงาน");
+      const msg = "เวลาสิ้นสุดงานแฟร์ต้องอยู่หลังเวลาเริ่มงาน";
+      setError(msg);
+      toast.error(msg);
       setActiveTab("schedule");
       return;
     }

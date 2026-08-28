@@ -417,6 +417,7 @@ export function FairMembershipModal({
 
                   <input
                     type="email"
+                    aria-label="อีเมล Recruiter ที่ต้องการเชิญ"
                     placeholder="recruiter@company.com"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}

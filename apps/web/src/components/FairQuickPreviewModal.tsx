@@ -37,7 +37,11 @@ export function FairQuickPreviewModal({
 
   const fairBooths = booths.filter((b) => b.fairId === fair.id);
   const fairBoothIds = new Set(fairBooths.map((b) => b.id));
-  const fairJobs = jobs.filter((j) => fairBoothIds.has(j.boothId));
+  const fairJobs = jobs.filter(
+    (j) =>
+      (j.boothId && fairBoothIds.has(j.boothId)) ||
+      fairBooths.some((b) => b.assignedJobIds?.includes(j.id)),
+  );
 
   return (
     <Modal

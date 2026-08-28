@@ -6,27 +6,23 @@ import { InfoTooltip } from "./InfoTooltip";
 interface SkillTagInputProps {
   skills: string[];
   onChange: (skills: string[]) => void;
+  id?: string;
   label?: string;
   hint?: string;
+  placeholder?: string;
+  suggestions?: string[];
+  emptyText?: string;
 }
-
-const POPULAR_SUGGESTIONS = [
-  "TypeScript",
-  "React",
-  "Node.js",
-  "Python",
-  "PostgreSQL",
-  "Tailwind CSS",
-  "Docker",
-  "Figma",
-  "Generative AI",
-];
 
 export function SkillTagInput({
   skills,
   onChange,
+  id = "skill-tag-input",
   label = "ทักษะที่คุณถนัด (Manual Skills)",
-  hint = "พิมพ์ชื่อทักษะแล้วกดปุ่ม 'เพิ่ม' หรือกด Enter เพื่อระบุทักษะเพิ่มเติม",
+  hint = "พิมพ์แล้วกด Enter หรือ comma เพื่อเพิ่ม และกดกากบาทเพื่อลบ",
+  placeholder = "พิมพ์ชื่อทักษะ แล้วกด Enter หรือ comma",
+  suggestions = [],
+  emptyText = "ยังไม่ได้เพิ่มรายการ",
 }: SkillTagInputProps) {
   const [inputValue, setInputValue] = useState("");
 
@@ -44,7 +40,7 @@ export function SkillTagInput({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
       addSkill(inputValue);
     }
@@ -53,7 +49,7 @@ export function SkillTagInput({
   return (
     <div className="skill-tag-input-container">
       <div className="field-label-group">
-        <label className="field-label" htmlFor="skill-tag-input">
+        <label className="field-label" htmlFor={id}>
           {label}
         </label>
         <InfoTooltip text={hint} />
@@ -61,13 +57,13 @@ export function SkillTagInput({
 
       <div className="tag-input-row">
         <input
-          id="skill-tag-input"
+          id={id}
           type="text"
           className="pixel-text-input"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="พิมพ์ชื่อทักษะ เช่น React, Python, UI/UX..."
+          placeholder={placeholder}
         />
         <PixelButton type="button" tone="cyan" onClick={() => addSkill(inputValue)}>
           <Plus aria-hidden="true" /> เพิ่ม
@@ -91,16 +87,16 @@ export function SkillTagInput({
           ))}
         </div>
       ) : (
-        <p className="empty-tags-hint">ยังไม่ได้เพิ่มทักษะด้วยตนเอง — สามารถพิมพ์เพิ่มหรือกดเลือกจากรายการแนะนำด้านล่าง</p>
+        <p className="empty-tags-hint">{emptyText}</p>
       )}
 
       {/* Suggested Quick Chips */}
-      <div className="suggested-tags-wrapper">
+      {suggestions.length > 0 ? <div className="suggested-tags-wrapper">
         <span className="suggested-heading">
           <Sparkles aria-hidden="true" /> แนะนำด่วน:
         </span>
         <div className="suggested-chips-group">
-          {POPULAR_SUGGESTIONS.filter((s) => !skills.some((sk) => sk.toLowerCase() === s.toLowerCase())).map((tag) => (
+          {suggestions.filter((s) => !skills.some((sk) => sk.toLowerCase() === s.toLowerCase())).map((tag) => (
             <button
               key={tag}
               type="button"
@@ -111,7 +107,7 @@ export function SkillTagInput({
             </button>
           ))}
         </div>
-      </div>
+      </div> : null}
     </div>
   );
 }

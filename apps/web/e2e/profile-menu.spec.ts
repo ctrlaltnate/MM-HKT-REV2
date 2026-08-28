@@ -69,7 +69,7 @@ test.describe("Profile dropdown — navigation", () => {
     await openProfileDropdown(page);
 
     const dropdown = page.locator(".profile-dropdown").filter({ visible: true }).first();
-    const accountLink = dropdown.getByText("แก้ไขข้อมูลส่วนตัว");
+    const accountLink = dropdown.getByRole("menuitem", { name: /ตั้งค่าบัญชีผู้ใช้/ });
     await accountLink.click();
 
     await expect(page).toHaveURL(/\/account/);

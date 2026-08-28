@@ -196,6 +196,16 @@ describe("multi-role preparation data", () => {
       status: "DRAFT",
     });
 
+    expect(() => createBooth(recruiter.id, {
+      fairId: fair.id,
+      companyId: company.id,
+      name: "Duplicate Company Booth",
+      summary: "Must be rejected while the one-booth pilot rule is active",
+      technologyTags: [],
+      accessibilityNote: "",
+      status: "DRAFT",
+    })).toThrow("COMPANY_BOOTH_EXISTS");
+
     // Update booth
     const updatedBooth = updateBooth(booth.id, {
       name: "Acme Studio Booth",
@@ -317,5 +327,113 @@ describe("multi-role preparation data", () => {
     // 6. Membership removal
     removeFairMembership(acceptedMembership.id);
     expect(getDatabaseSnapshot().memberships.find((m) => m.id === acceptedMembership.id)).toBeUndefined();
+  });
+
+  it("supports company job catalog, multi-fair booth assignment, and job reuse across fairs", async () => {
+    const admin = await registerLocalUser({
+      displayName: "Admin",
+      email: "admin-fairs@example.com",
+      password: "adminpassword",
+      role: "admin",
+    });
+    const fairA = createFair(admin.id, {
+      title: "Bangkok Tech Fair",
+      slug: "bkk-tech",
+      summary: "Tech Expo",
+      locationLabel: "Bangkok",
+      startsAt: "2026-10-01T09:00:00.000Z",
+      endsAt: "2026-10-01T18:00:00.000Z",
+      status: "PUBLISHED",
+    });
+    const fairB = createFair(admin.id, {
+      title: "Chiang Mai AI Fair",
+      slug: "cm-ai",
+      summary: "AI Expo",
+      locationLabel: "Chiang Mai",
+      startsAt: "2026-11-01T09:00:00.000Z",
+      endsAt: "2026-11-01T18:00:00.000Z",
+      status: "PUBLISHED",
+    });
+
+    const recruiter = await registerLocalUser({
+      displayName: "Global Recruiter",
+      email: "recruiter@globalcorp.com",
+      password: "recruiterpassword",
+      role: "recruiter",
+    });
+    const company = saveCompany(recruiter.id, {
+      name: "Global Tech Corp",
+      industry: "Software",
+      summary: "Leading software powerhouse",
+      website: "https://globaltech.corp",
+      workLocations: "Bangkok & Chiang Mai",
+    });
+
+    // 1. Create centralized company jobs in catalog (without booth)
+    const job1 = createJob({
+      companyId: company.id,
+      title: "Senior Fullstack Engineer",
+      summary: "Build scalable cloud services",
+      responsibilities: "Lead frontend & backend architectures",
+      mustHave: ["TypeScript", "Node.js", "React"],
+      niceToHave: ["GraphQL", "Docker"],
+      salaryMin: 90_000,
+      salaryMax: 130_000,
+      workMode: "REMOTE",
+      employmentType: "FULL_TIME",
+      status: "PUBLISHED",
+    });
+
+    const job2 = createJob({
+      companyId: company.id,
+      title: "AI Research Scientist",
+      summary: "Develop LLM systems",
+      responsibilities: "Fine-tune models",
+      mustHave: ["Python", "PyTorch"],
+      niceToHave: ["CUDA"],
+      salaryMin: 100_000,
+      salaryMax: 160_000,
+      workMode: "HYBRID",
+      employmentType: "FULL_TIME",
+      status: "PUBLISHED",
+    });
+
+    expect(job1.id).toBeDefined();
+    expect(job2.id).toBeDefined();
+    expect(getDatabaseSnapshot().jobs.filter((j) => j.companyId === company.id)).toHaveLength(2);
+
+    // 2. Open Booth in Fair A and assign job1
+    const boothA = createBooth(recruiter.id, {
+      fairId: fairA.id,
+      companyId: company.id,
+      name: "Global Tech BKK Booth",
+      summary: "Hiring Top Engineers in BKK",
+      technologyTags: ["TypeScript", "Cloud"],
+      accessibilityNote: "Wheelchair accessible and text interviews",
+      status: "PUBLISHED",
+      assignedJobIds: [job1.id],
+    });
+
+    expect(boothA.assignedJobIds).toEqual([job1.id]);
+
+    // 3. Open Booth in Fair B and reuse BOTH job1 and job2!
+    const boothB = createBooth(recruiter.id, {
+      fairId: fairB.id,
+      companyId: company.id,
+      name: "Global Tech Chiang Mai Booth",
+      summary: "Hiring AI & Fullstack in CM",
+      technologyTags: ["AI", "Python", "React"],
+      accessibilityNote: "Online captions enabled",
+      status: "PUBLISHED",
+      assignedJobIds: [job1.id, job2.id],
+    });
+
+    expect(boothB.assignedJobIds).toEqual([job1.id, job2.id]);
+
+    // 4. Deleting Booth A does not destroy the company jobs in the catalog!
+    deleteBooth(boothA.id);
+    expect(getDatabaseSnapshot().booths.find((b) => b.id === boothA.id)).toBeUndefined();
+    expect(getDatabaseSnapshot().jobs.filter((j) => j.companyId === company.id)).toHaveLength(2);
+    expect(getDatabaseSnapshot().booths.find((b) => b.id === boothB.id)?.assignedJobIds).toEqual([job1.id, job2.id]);
   });
 });

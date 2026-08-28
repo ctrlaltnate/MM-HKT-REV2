@@ -233,6 +233,7 @@ export interface Booth {
   technologyTags: string[];
   accessibilityNote: string;
   status: BoothStatus;
+  assignedJobIds?: string[];
   createdAt: string;
 }
 
@@ -241,13 +242,14 @@ export type JobPostingStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
 export interface JobPosting {
   id: string;
-  boothId: string;
   companyId: string;
+  boothId?: string;
   title: string;
   summary: string;
   responsibilities: string;
   mustHave: string[];
   niceToHave: string[];
+  headcount?: number;
   salaryMin: number | null;
   salaryMax: number | null;
   workMode: "REMOTE" | "HYBRID" | "ONSITE";

@@ -1307,11 +1307,14 @@ input[type="checkbox"] {
   backdrop-filter: blur(12px);
 }
 
-.auth-modal {
-  width: min(640px, 100%);
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
-  padding: clamp(20px, 4vw, 36px);
+.auth-modal,
+.modal-custom-panel {
+  width: min(680px, 100%);
+  max-height: min(90vh, 880px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
   background:
     linear-gradient(rgba(120, 219, 230, 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(120, 219, 230, 0.025) 1px, transparent 1px),
@@ -1322,32 +1325,79 @@ input[type="checkbox"] {
 }
 
 .modal-heading {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 18px;
+  gap: 16px;
+  padding: clamp(16px, 3vw, 24px) clamp(18px, 4vw, 32px) 14px;
+  background: rgba(13, 24, 48, 0.98);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  flex-shrink: 0;
 }
 
 .modal-heading h2 {
-  margin-bottom: 18px;
-  font-size: clamp(1.65rem, 4vw, 2.5rem);
-  line-height: 1.1;
+  margin: 0;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  line-height: 1.15;
 }
 
+.modal-heading p {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: clamp(16px, 3vw, 24px) clamp(18px, 4vw, 32px);
+  overscroll-behavior: contain;
+}
+
+.modal-close-button,
 .icon-button {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
   cursor: pointer;
   color: var(--text);
-  background: var(--surface-1);
-  border: 2px solid var(--line);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  transition: all 0.15s ease;
 }
 
+.modal-close-button:hover,
 .icon-button:hover {
   border-color: var(--cyan);
+  background: rgba(120, 219, 230, 0.15);
+  color: var(--cyan);
+}
+
+.modal-body .button-row,
+.modal-body form > .button-row:last-child {
+  position: sticky;
+  bottom: -24px;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 14px clamp(18px, 4vw, 32px);
+  margin-top: 24px;
+  margin-left: calc(-1 * clamp(18px, 4vw, 32px));
+  margin-right: calc(-1 * clamp(18px, 4vw, 32px));
+  margin-bottom: calc(-1 * clamp(16px, 3vw, 24px));
+  background: rgba(10, 19, 38, 0.98);
+  border-top: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  flex-shrink: 0;
 }
 
 .auth-modal-notice {
@@ -7457,6 +7507,363 @@ button.admin-stat-filter {
   margin: 0;
 }
 
+.booth-list-summary,
+.booth-list-summary-item,
+.booth-list-summary-item > div {
+  display: flex;
+  gap: 12px;
+}
+
+.booth-list-summary {
+  flex-direction: column;
+}
+
+.booth-list-summary-item {
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface-deep);
+}
+
+.booth-list-summary-item > div {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.booth-list-summary-item span:last-child,
+.booth-list-summary .form-help {
+  color: var(--muted);
+}
+
+.recruiter-job-heading {
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.recruiter-job-heading h2,
+.recruiter-job-heading p {
+  margin-block: 0;
+}
+
+.recruiter-job-heading p {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.recruiter-job-list {
+  display: grid;
+  gap: 10px;
+}
+
+.recruiter-job-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  background: var(--surface-deep);
+}
+
+.recruiter-job-list-copy {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.recruiter-job-list-copy > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.recruiter-job-list-copy > span {
+  color: var(--muted);
+}
+
+.company-summary-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.company-summary-heading h2 {
+  margin: 0;
+}
+
+.company-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.company-summary-grid > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  background: var(--surface-deep);
+}
+
+.company-summary-grid span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.company-summary-grid strong,
+.company-summary-grid p {
+  overflow-wrap: anywhere;
+}
+
+.company-summary-grid p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.company-summary-wide {
+  grid-column: 1 / -1;
+}
+
+.recruiter-workspace-header {
+  display: flex;
+  align-items: flex-start;
+  padding-block: 12px 24px;
+}
+
+.recruiter-workspace-header > div:first-child {
+  max-width: 820px;
+}
+
+.recruiter-workspace-header h1 {
+  max-width: none;
+  margin-block: 8px 5px;
+  font-size: clamp(2.25rem, 4.6vw, 3.8rem);
+  line-height: 1;
+}
+
+.recruiter-workspace-header p {
+  max-width: 700px;
+  margin: 0;
+}
+
+.recruiter-progress-track {
+  height: 7px;
+  overflow: hidden;
+  background: var(--surface-deep);
+  border: 1px solid var(--line);
+}
+
+.recruiter-progress-track span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--success));
+}
+
+.recruiter-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 0;
+  margin-bottom: 24px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.recruiter-next-action,
+.recruiter-readiness {
+  padding: clamp(22px, 3vw, 34px);
+}
+
+.recruiter-next-action {
+  display: flex;
+  min-height: 290px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  background:
+    linear-gradient(120deg, rgba(120, 219, 230, 0.1), transparent 65%),
+    var(--surface-deep);
+}
+
+.recruiter-next-action h2 {
+  max-width: 18ch;
+  margin: 10px 0 8px;
+  font-size: clamp(1.55rem, 3vw, 2.4rem);
+}
+
+.recruiter-next-action p {
+  max-width: 58ch;
+  margin: 0 0 22px;
+  color: var(--muted);
+}
+
+.recruiter-primary-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--cyan);
+  background: var(--cyan);
+  color: #071426;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 4px 4px 0 rgba(120, 219, 230, 0.25);
+}
+
+.recruiter-primary-link svg {
+  width: 18px;
+}
+
+.recruiter-readiness {
+  border-left: 1px solid var(--line);
+  background: rgba(120, 219, 230, 0.035);
+}
+
+.recruiter-readiness-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.recruiter-readiness-heading > div {
+  display: grid;
+  gap: 5px;
+}
+
+.recruiter-readiness-percent {
+  color: var(--cyan);
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.recruiter-setup-steps {
+  display: grid;
+  gap: 0;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recruiter-setup-steps li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 52px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.recruiter-setup-steps li.is-current {
+  color: var(--mango);
+}
+
+.recruiter-setup-steps li.is-complete {
+  color: var(--success);
+}
+
+.recruiter-setup-steps li.is-locked {
+  opacity: 0.62;
+}
+
+.recruiter-step-number {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid currentColor;
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+.recruiter-step-number svg {
+  width: 16px;
+  height: 16px;
+}
+
+.recruiter-setup-steps li > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.recruiter-setup-steps li > div span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.recruiter-section-nav {
+  position: sticky;
+  z-index: 5;
+  top: 72px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding: 9px 10px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  background: rgba(8, 20, 31, 0.94);
+  backdrop-filter: blur(12px);
+}
+
+.recruiter-section-nav span,
+.recruiter-section-nav a {
+  flex: 0 0 auto;
+}
+
+.recruiter-section-nav span {
+  padding-inline: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.recruiter-section-nav a {
+  min-height: 36px;
+  padding: 8px 11px;
+  border: 1px solid transparent;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.recruiter-section-nav a:hover,
+.recruiter-section-nav a:focus-visible {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(120, 219, 230, 0.08);
+}
+
+.recruiter-workspace-section {
+  scroll-margin-top: 92px;
+}
+
+@media (max-width: 1023px) {
+  .recruiter-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .recruiter-next-action {
+    min-height: 0;
+  }
+
+  .recruiter-readiness {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+}
+
 .admin-category-tabs {
   display: flex;
   gap: 8px;
@@ -8054,7 +8461,9 @@ button.admin-stat-filter {
 @media (max-width: 639px) {
   .admin-page-header,
   .ops-header,
-  .admin-fairs-heading {
+  .admin-fairs-heading,
+  .company-summary-heading,
+  .recruiter-workspace-header {
     flex-direction: column;
     align-items: stretch;
   }
@@ -8069,6 +8478,9 @@ button.admin-stat-filter {
   }
 
   .admin-header-actions,
+  .booth-list-summary-item,
+  .recruiter-job-heading,
+  .recruiter-job-list-item,
   .admin-fair-card-footer,
   .admin-card-primary-actions,
   .admin-confirm-actions,
@@ -8076,6 +8488,24 @@ button.admin-stat-filter {
   .ops-modal-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .company-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recruiter-next-action,
+  .recruiter-readiness {
+    padding: 20px;
+  }
+
+  .recruiter-setup-steps li {
+    min-height: 0;
+  }
+
+  .recruiter-section-nav {
+    top: 60px;
+    margin-inline: -4px;
   }
 
   .admin-header-actions .pixel-button,
