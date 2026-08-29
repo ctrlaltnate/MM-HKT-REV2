@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build -w @maskedmatch/web",
+  "outputDirectory": "apps/web/dist",
+  "rewrites": [
+    { "source": "/recruiter", "destination": "/index.html" },
+    { "source": "/recruiter/(.*)", "destination": "/index.html" },
+    { "source": "/demo/(.*)", "destination": "/index.html" },
+    { "source": "/fairs/(.*)", "destination": "/index.html" },
+    { "source": "/candidate/(.*)", "destination": "/index.html" },
+    { "source": "/admin/(.*)", "destination": "/index.html" },
+    { "source": "/ops/(.*)", "destination": "/index.html" },
+    { "source": "/app", "destination": "/index.html" },
+    { "source": "/account", "destination": "/index.html" },
+    { "source": "/auth", "destination": "/index.html" }
+  ]
+}

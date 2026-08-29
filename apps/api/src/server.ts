@@ -57,6 +57,17 @@ app.get("/health", (_request, response) => {
   });
 });
 
+// Same-origin production health endpoint used by the Vercel serverless deployment.
+app.get("/api/health", (_request, response) => {
+  response.json({
+    data: {
+      status: "ok",
+      geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
+      model: process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
+    },
+  });
+});
+
 // REST API Routers
 app.use("/api/auth", authRouter);
 app.use("/api/fairs", fairsRouter);

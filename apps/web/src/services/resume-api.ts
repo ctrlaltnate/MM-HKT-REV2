@@ -1,9 +1,9 @@
 import type { ApiErrorEnvelope, ResumeAnalysis } from "../domain/types";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8787";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? "http://127.0.0.1:8787" : "");
 
 export async function getApiHealth(): Promise<{ geminiConfigured: boolean; model: string }> {
-  const response = await fetch(`${API_BASE_URL}/health`);
+  const response = await fetch(`${API_BASE_URL}${import.meta.env.DEV ? "/health" : "/api/health"}`);
   if (!response.ok) throw new Error("API_UNAVAILABLE");
   const payload = (await response.json()) as {
     data: { geminiConfigured: boolean; model: string };

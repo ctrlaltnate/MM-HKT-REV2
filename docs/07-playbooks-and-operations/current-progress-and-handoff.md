@@ -10,6 +10,7 @@
 - **ข้อจำกัด:** camera mask เป็น local UI demo และไม่ได้ transform outgoing media track จึงยังไม่ใช่ production media privacy pipeline
 - Verification 2026-08-30: `npm run typecheck` PASS, `npm test` PASS (29/29), `npm run build` PASS
 - Recruiter demo job discovery now starts category-first: the full-width catalog shows four categories before any role, selecting a category reveals only its roles, and selecting a role animates a detailed JD panel with GSAP. Each of seven synthetic roles now has explicit overview, responsibilities, qualifications and benefits. CV intake is no longer embedded in the JD; it opens in a modal only after `สนใจงานนี้`.
+- Vercel deployment support now includes SPA rewrites for direct role/deep links, a root catch-all serverless Express entry at `api/[...path].ts`, same-origin production API defaults, and `/api/health`. The Vercel project must use the repository root (not `apps/web`) as its Root Directory and define `GEMINI_API_KEY` to enable live AI calls.
 
 ### Public playable hall route
 
