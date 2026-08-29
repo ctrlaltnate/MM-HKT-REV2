@@ -2,6 +2,15 @@
 
 ## Recruiter-only assessment demo update (2026-08-29)
 
+### Resume confirmation, camera-mask interview and reflection (2026-08-30)
+
+- `/recruiter` แสดง modal checkpoint หลังสร้าง assessment และก่อนเปิดคำถาม เพื่อให้ตรวจ evidence, JD coverage, matched/missing skills และยืนยันหรือย้อนกลับไปแก้ผลวิเคราะห์
+- Masked interview ขอสิทธิ์กล้องด้วย visible action เท่านั้น, ไม่เปิดไมค์, หยุด media tracks เมื่อปิด/ออกจาก component และใช้ browser `FaceDetector` วาง graphic mask ตามกรอบใบหน้าเมื่อรองรับ; browser ที่ไม่รองรับแสดง centered-mask fallback อย่างตรงไปตรงมา ส่วน HR เป็น synthetic simulation
+- หลัง private two-sided decision ทั้ง `Mutual Match` และ `No Match` แสดง assessment reflection: คะแนน, จำนวนข้อถูก, จุดแข็ง, skill ที่ควรพัฒนา และ explanation จากข้อที่ตอบผิด โดยไม่ผูกคุณค่าผู้สมัครกับผล match
+- **ข้อจำกัด:** camera mask เป็น local UI demo และไม่ได้ transform outgoing media track จึงยังไม่ใช่ production media privacy pipeline
+- Verification 2026-08-30: `npm run typecheck` PASS, `npm test` PASS (29/29), `npm run build` PASS
+- Recruiter demo job discovery now starts category-first: the full-width catalog shows four categories before any role, selecting a category reveals only its roles, and selecting a role animates a detailed JD panel with GSAP. Each of seven synthetic roles now has explicit overview, responsibilities, qualifications and benefits. CV intake is no longer embedded in the JD; it opens in a modal only after `สนใจงานนี้`.
+
 ### Public playable hall route
 
 - เพิ่ม `/demo/hall` เป็น full-viewport Phaser Career Hall สำหรับสาธิตแบบ public โดยไม่ต้องลงชื่อเข้าใช้ มีข้อมูลสังเคราะห์ 2 บูธ บูธละ 3 ตำแหน่ง เดินด้วย WASD/ลูกศร/คลิก เปิด drawer ดูบริษัทและงานด้วยการเข้าใกล้แล้วกด `E` หรือปุ่ม action ได้
