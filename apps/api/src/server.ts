@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import express from "express";
 import multer from "multer";
 
-import { analyzeResumePdf } from "./gemini.js";
+import { analyzeResumePdf, generateAssessment } from "./gemini.js";
 import { authenticate } from "./middleware/auth.js";
 import { authRouter } from "./routes/auth.js";
 import { fairsRouter } from "./routes/fairs.js";
@@ -118,6 +118,20 @@ app.post("/api/resumes/analyze", upload.single("resume"), async (request, respon
         detail: message,
       },
     });
+  }
+});
+
+app.post("/api/assessments/generate", async (request, response) => {
+  const requestId = crypto.randomUUID();
+  const apiKey = process.env.GEMINI_API_KEY;
+  const { jobTitle, jobSummary, requiredSkills, resumeEvidence } = request.body ?? {};
+  if (!apiKey) { response.status(503).json({ error: { code: "GEMINI_NOT_CONFIGURED", message: "ยังไม่ได้ตั้งค่า GEMINI_API_KEY", requestId, retryable: false } }); return; }
+  if (!jobTitle || !jobSummary || !Array.isArray(requiredSkills) || !resumeEvidence) { response.status(400).json({ error: { code: "INVALID_ASSESSMENT_INPUT", message: "ข้อมูล JD หรือ Resume ไม่ครบ", requestId, retryable: false } }); return; }
+  try {
+    const questions = await generateAssessment({ jobTitle, jobSummary, requiredSkills, resumeEvidence }, apiKey, process.env.GEMINI_MODEL ?? "gemini-3.6-flash");
+    response.json({ data: { questions }, meta: { requestId, model: process.env.GEMINI_MODEL ?? "gemini-3.6-flash" } });
+  } catch (error) {
+    response.status(502).json({ error: { code: "ASSESSMENT_GENERATION_FAILED", message: error instanceof Error ? error.message : "สร้าง Assessment ไม่สำเร็จ", requestId, retryable: true } });
   }
 });
 

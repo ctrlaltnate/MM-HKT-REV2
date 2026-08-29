@@ -230,7 +230,7 @@ export class DataStore {
 
     // Cascading delete booths and jobs under this fair
     const boothIds = this.booths.filter((b) => b.fairId === id).map((b) => b.id);
-    this.jobs = this.jobs.filter((j) => !boothIds.includes(j.boothId));
+    this.jobs = this.jobs.filter((j) => !j.boothId || !boothIds.includes(j.boothId));
     this.booths = this.booths.filter((b) => b.fairId !== id);
     this.memberships = this.memberships.filter((m) => m.fairId !== id);
     this.fairs = this.fairs.filter((f) => f.id !== id);

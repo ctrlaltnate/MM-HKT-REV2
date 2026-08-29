@@ -4,6 +4,7 @@ import {
   CalendarPlus,
   CheckCircle2,
   FileSearch,
+  Gamepad2,
   ScanSearch,
   ShieldCheck,
   Store,
@@ -68,6 +69,7 @@ export function LandingPage() {
               </PixelButton>
             )}
             <PixelLink to="/fairs" tone="neutral">สำรวจงานแฟร์</PixelLink>
+            <PixelLink to="/demo/hall" tone="cyan"><Gamepad2 aria-hidden="true" /> ทดลองเดินใน Career Hall</PixelLink>
           </div>
 
           <ul className="hero-assurances" data-reveal aria-label="จุดเด่นของระบบ">

@@ -1,5 +1,20 @@
 # Current Progress and Handoff
 
+## Recruiter-only assessment demo update (2026-08-29)
+
+### Public playable hall route
+
+- เพิ่ม `/demo/hall` เป็น full-viewport Phaser Career Hall สำหรับสาธิตแบบ public โดยไม่ต้องลงชื่อเข้าใช้ มีข้อมูลสังเคราะห์ 2 บูธ บูธละ 3 ตำแหน่ง เดินด้วย WASD/ลูกศร/คลิก เปิด drawer ดูบริษัทและงานด้วยการเข้าใกล้แล้วกด `E` หรือปุ่ม action ได้
+- Landing Page มี CTA `ทดลองเดินใน Career Hall` เชื่อมตรงไปยัง route นี้ ขณะที่เว็บไซต์และ routes เดิมทั้งหมดคงทำงานตามเดิม
+- หน้าสาธิตโหลดแบบ lazy route เพื่อไม่บังคับให้ Landing Page ดาวน์โหลด Phaser bundle ล่วงหน้า
+
+- **Delivery label:** `PARTIAL / LOCAL DEMO` — recruiter journey is executable locally; Gemini requires `GEMINI_API_KEY`, while assessment generation has a visibly labelled deterministic fallback. Masked interview is a UI simulation, not real media.
+- เว็บไซต์เดิมและ role routes ทั้งหมดกลับมาเปิดใช้งานตามเดิมแล้ว ส่วน recruiter assessment demo ใหม่ยังคงเข้าถึงได้โดยตรงที่ `/recruiter` โดยไม่แทนที่ recruiter workspace เดิมที่ `/recruiter/workspace`.
+- Recruiter demo includes seven synthetic jobs: two Tech roles and five non-Tech roles.
+- Executable flow: select JD → attach PDF → Gemini resume extraction → compare evidence with JD → Gemini-generated assessment (10 questions, four choices) → pre-interview result summary → masked HR conversation simulation → private recruiter/candidate decisions → Mutual Match or No Match.
+- Added `POST /api/assessments/generate`, using the existing Gemini configuration and a constrained JSON response contract. Resume/JD inputs are explicitly treated as untrusted content.
+- Verification on 2026-08-29: `npm run typecheck` PASS; `npm test` PASS (29/29); `npm run build` PASS.
+
 เอกสารนี้เป็น status snapshot และ handoff ล่าสุดของโครงการ MaskedMatch เพื่อให้ AI Agent และผู้พัฒนาเข้ามาทำงานต่อได้ทันทีโดยไม่ต้องคาดเดาสถานะระบบ
 
 ## 1. Quick start สำหรับผู้มารับงานต่อ
