@@ -2,12 +2,19 @@
 
 ## Recruiter-only assessment demo update (2026-08-29)
 
+### Mock animal video interview (2026-08-30)
+
+- `/recruiter` now presents both interview participants as generated 8-bit mock video feeds: an anonymous cat candidate and a fox recruiter, each with a fictional background and animated call-status UI.
+- The interview screen does not request camera or microphone permission, does not open a media device, and does not connect a real peer. `@mediapipe/tasks-vision` and the previous live-camera processor were removed.
+- Both feeds are explicitly labelled `MOCK`, and the recruiter copy states that the scene uses fictional images rather than a live privacy/masking pipeline.
+- **Delivery label: `LOCAL UI DEMO`**. This is a scripted visual prototype, not live video infrastructure.
+
 ### Resume confirmation, camera-mask interview and reflection (2026-08-30)
 
 - `/recruiter` แสดง modal checkpoint หลังสร้าง assessment และก่อนเปิดคำถาม เพื่อให้ตรวจ evidence, JD coverage, matched/missing skills และยืนยันหรือย้อนกลับไปแก้ผลวิเคราะห์
-- Masked interview ขอสิทธิ์กล้องด้วย visible action เท่านั้น, ไม่เปิดไมค์, หยุด media tracks เมื่อปิด/ออกจาก component และใช้ browser `FaceDetector` วาง graphic mask ตามกรอบใบหน้าเมื่อรองรับ; browser ที่ไม่รองรับแสดง centered-mask fallback อย่างตรงไปตรงมา ส่วน HR เป็น synthetic simulation
+- Interview ใช้ภาพ mock ตัวละครสัตว์ 8-bit ทั้งสองฝั่งและไม่ขอสิทธิ์กล้องหรือไมโครโฟน โดยผู้สมัครเป็นแมวและ HR จำลองเป็นจิ้งจอก
 - หลัง private two-sided decision ทั้ง `Mutual Match` และ `No Match` แสดง assessment reflection: คะแนน, จำนวนข้อถูก, จุดแข็ง, skill ที่ควรพัฒนา และ explanation จากข้อที่ตอบผิด โดยไม่ผูกคุณค่าผู้สมัครกับผล match
-- **ข้อจำกัด:** camera mask เป็น local UI demo และไม่ได้ transform outgoing media track จึงยังไม่ใช่ production media privacy pipeline
+- **ข้อจำกัด:** interview เป็น scripted local UI demo ไม่ใช่การเชื่อมต่อวิดีโอหรือ media privacy pipeline จริง
 - Verification 2026-08-30: `npm run typecheck` PASS, `npm test` PASS (29/29), `npm run build` PASS
 - Recruiter demo job discovery now starts category-first: the full-width catalog shows four categories before any role, selecting a category reveals only its roles, and selecting a role animates a detailed JD panel with GSAP. Each of seven synthetic roles now has explicit overview, responsibilities, qualifications and benefits. CV intake is no longer embedded in the JD; it opens in a modal only after `สนใจงานนี้`.
 - Vercel deployment support now includes SPA rewrites for direct role/deep links, a root catch-all serverless Express entry at `api/[...path].ts`, same-origin production API defaults, and `/api/health`. The Vercel project must use the repository root (not `apps/web`) as its Root Directory and define `GEMINI_API_KEY` to enable live AI calls.

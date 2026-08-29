@@ -8644,3 +8644,24 @@ button.admin-stat-filter {
     animation: none;
   }
 }
+/* Privacy-first animal masks for the interview demo. The raw camera stays hidden. */
+.raw-camera-source{display:none!important}
+.masked-camera-viewport canvas{width:100%;height:100%;display:block;object-fit:cover}
+.camera-model-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(4,15,23,.92);color:#cbd9df;text-align:center}
+.camera-model-loading svg{width:38px;height:38px;color:#78dbe6;animation:camera-spin 1s linear infinite}
+.privacy-pipeline-badge{position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid #fbbf24;background:rgba(7,19,27,.9);color:#fbbf24;font-size:.68rem;font-weight:900;letter-spacing:.06em}
+.privacy-pipeline-badge.safe{border-color:#4ade80;color:#4ade80}
+.privacy-pipeline-badge svg{width:14px;height:14px}
+@keyframes camera-spin{to{transform:rotate(360deg)}}
+
+.virtual-animal-mask.fox{position:relative;width:124px;height:116px;margin:12px auto 4px;border:4px solid #caa9ff;border-radius:44% 44% 50% 50%;background:linear-gradient(145deg,#c56438 0 57%,#f5dfc8 58% 100%);box-shadow:0 0 0 4px #10172b,0 0 28px rgba(154,114,255,.46)}
+.virtual-animal-mask.fox .ear{position:absolute;z-index:-1;top:-35px;width:48px;height:58px;background:#c56438;border:4px solid #caa9ff;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.virtual-animal-mask.fox .ear.left{left:3px;transform:rotate(-11deg)}
+.virtual-animal-mask.fox .ear.right{right:3px;transform:rotate(11deg)}
+.virtual-animal-mask.fox .eye{position:absolute;top:44px;width:24px;height:12px;border-radius:50%;background:#1a1630;box-shadow:inset 0 0 0 4px #78dbe6}
+.virtual-animal-mask.fox .eye.left{left:20px;transform:rotate(12deg)}
+.virtual-animal-mask.fox .eye.right{right:20px;transform:rotate(-12deg)}
+.virtual-animal-mask.fox .nose{position:absolute;z-index:2;left:50%;top:69px;width:20px;height:15px;transform:translateX(-50%);background:#171321;clip-path:polygon(50% 100%,0 0,100% 0)}
+.virtual-animal-mask.fox .muzzle{position:absolute;left:50%;bottom:9px;width:62px;height:42px;transform:translateX(-50%);border-radius:50%;background:rgba(255,244,229,.93)}
+.masked-person.hr .virtual-animal-mask+strong{margin-top:12px}
+.mock-call-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid #36515e;background:#08151e;color:#9db2bd;font-size:.72rem;letter-spacing:.07em}.mock-call-header>div{display:flex;align-items:center;gap:8px;color:#78dbe6;font-weight:900}.mock-live-dot{width:8px;height:8px;border-radius:50%;background:#f87171;box-shadow:0 0 0 4px rgba(248,113,113,.12);animation:mock-pulse 1.5s ease-in-out infinite}.mock-video-grid{align-items:stretch}.mock-video-participant{position:relative;min-width:0;margin:0;overflow:hidden;border:1px solid #426170;background:#061019;box-shadow:6px 6px 0 rgba(2,7,12,.7)}.mock-video-participant img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;image-rendering:auto}.mock-video-participant figcaption{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;background:#0c1c27;border-top:1px solid #36515e}.mock-video-participant figcaption>div{display:grid;gap:2px}.mock-video-participant figcaption span{color:#91a8b3;font-size:.7rem}.mock-video-participant.recruiter{border-color:#795fac}.mock-corner-label{position:absolute;top:10px;left:10px;padding:6px 8px;border:1px solid #78dbe6;background:rgba(4,14,22,.88);color:#78dbe6;font-size:.65rem;font-weight:900;letter-spacing:.08em}.mock-video-participant.recruiter .mock-corner-label{border-color:#caa9ff;color:#caa9ff}.mock-audio-bars{display:flex;align-items:center;gap:3px;height:22px}.mock-audio-bars i{display:block;width:3px;height:7px;background:#4ade80;animation:mock-wave .72s ease-in-out infinite alternate}.mock-audio-bars i:nth-child(2){animation-delay:.12s}.mock-audio-bars i:nth-child(3){animation-delay:.24s}.mock-audio-bars i:nth-child(4){animation-delay:.36s}@keyframes mock-wave{to{height:20px}}@keyframes mock-pulse{50%{opacity:.4;transform:scale(.82)}}@media(max-width:760px){.mock-call-header{align-items:flex-start;flex-direction:column}.mock-video-grid{grid-template-columns:1fr}}

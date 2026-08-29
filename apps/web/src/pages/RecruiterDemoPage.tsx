@@ -1,4 +1,4 @@
-import { ArrowRight, BriefcaseBusiness, Camera, CameraOff, Check, CheckCircle2, ClipboardCheck, FileText, LoaderCircle, Pencil, RotateCcw, Search, ShieldCheck, Sparkles, Upload, Users } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, Check, CheckCircle2, ClipboardCheck, FileText, LoaderCircle, Pencil, RotateCcw, Search, ShieldCheck, Sparkles, Upload, Users } from "lucide-react";
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { analyzeResume, generateAssessment, type AssessmentQuestion } from "../services/resume-api";
@@ -34,50 +34,6 @@ function scoreFor(job: Job, claims: string) {
   const coverage = Math.round((matched.length / job.skills.length) * 100);
   const evidence = /ปี|%|โปรเจกต์|project|เคย|ผลลัพธ์|ลด|เพิ่ม/.test(normalized) ? 82 : 48;
   return { matched, missing: job.skills.filter((skill) => !matched.includes(skill)), score: Math.round(coverage * 0.65 + evidence * 0.35), evidence };
-}
-
-function MaskedCamera() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const frameRef = useRef<number | null>(null);
-  const [cameraState, setCameraState] = useState<"idle" | "starting" | "active" | "denied">("idle");
-  const [maskBox, setMaskBox] = useState({ left: 34, top: 18, width: 32, height: 52 });
-  const [tracking, setTracking] = useState(false);
-
-  const stopCamera = () => {
-    if (frameRef.current) cancelAnimationFrame(frameRef.current);
-    videoRef.current?.srcObject && (videoRef.current.srcObject as MediaStream).getTracks().forEach((track) => track.stop());
-    if (videoRef.current) videoRef.current.srcObject = null;
-    setCameraState("idle");
-  };
-
-  useEffect(() => () => stopCamera(), []);
-
-  const startCamera = async () => {
-    setCameraState("starting");
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
-      if (!videoRef.current) return;
-      videoRef.current.srcObject = stream;
-      await videoRef.current.play();
-      setCameraState("active");
-      const Detector = (window as unknown as { FaceDetector?: new (options?: { fastMode?: boolean; maxDetectedFaces?: number }) => { detect: (source: HTMLVideoElement) => Promise<Array<{ boundingBox: DOMRectReadOnly }>> } }).FaceDetector;
-      if (!Detector) return;
-      const detector = new Detector({ fastMode: true, maxDetectedFaces: 1 });
-      setTracking(true);
-      const detect = async () => {
-        const video = videoRef.current;
-        if (!video || video.readyState < 2) return;
-        try {
-          const face = (await detector.detect(video))[0];
-          if (face && video.videoWidth && video.videoHeight) setMaskBox({ left: 100 - ((face.boundingBox.x + face.boundingBox.width) / video.videoWidth * 100), top: face.boundingBox.y / video.videoHeight * 100, width: face.boundingBox.width / video.videoWidth * 100, height: face.boundingBox.height / video.videoHeight * 100 });
-        } catch { setTracking(false); }
-        frameRef.current = requestAnimationFrame(detect);
-      };
-      frameRef.current = requestAnimationFrame(detect);
-    } catch { setCameraState("denied"); }
-  };
-
-  return <div className="masked-camera-card"><div className="masked-camera-viewport"><video ref={videoRef} muted playsInline aria-label="ภาพกล้องผู้สมัครที่ปิดบังใบหน้า" />{cameraState === "active" && <div className={`tracked-face-mask ${tracking ? "is-tracking" : ""}`} style={{ left: `${maskBox.left}%`, top: `${maskBox.top}%`, width: `${maskBox.width}%`, height: `${maskBox.height}%` }}><ShieldCheck/><span>MASKED</span></div>}{cameraState !== "active" && <div className="camera-placeholder"><CameraOff/><strong>กล้องปิดอยู่</strong><span>ระบบจะไม่เปิดกล้องจนกว่าจะกดยินยอม</span></div>}</div><div className="camera-consent-bar"><div><strong>Candidate #7F2A</strong><span>{tracking ? "Face tracking active" : cameraState === "active" ? "ใช้หน้ากากตำแหน่งกลาง (browser ไม่รองรับ FaceDetector)" : cameraState === "denied" ? "ไม่ได้รับสิทธิ์กล้อง — ใช้ avatar fallback" : "Camera off by default"}</span></div>{cameraState === "active" ? <button type="button" onClick={stopCamera}><CameraOff/> ปิดกล้อง</button> : <button type="button" onClick={startCamera} disabled={cameraState === "starting"}><Camera/> {cameraState === "starting" ? "กำลังขอสิทธิ์..." : "ยินยอมเปิดกล้อง"}</button>}</div></div>;
 }
 
 export function RecruiterDemoPage() {
@@ -136,7 +92,7 @@ export function RecruiterDemoPage() {
         {selectedJobId && <section className="rec-work-panel" ref={jdPanelRef}><div className="rec-job-detail"><div><span className="eyebrow">Detailed job description</span><h2>{selectedJob.title}</h2><p>{selectedJob.summary}</p></div><div className="rec-job-meta"><span>{selectedJob.location}</span><span>{selectedJob.type}</span><strong>{selectedJob.salary}</strong></div></div><div className="rec-skill-row">{selectedJob.skills.map((skill) => <span key={skill}>{skill}</span>)}</div>
           {stage === "intake" && <div className="detailed-jd-content"><section><span className="eyebrow">เกี่ยวกับตำแหน่ง</span><p>{jobDetails[selectedJob.id]!.overview}</p></section><div className="jd-detail-columns"><section><h3>หน้าที่ความรับผิดชอบ</h3><ul>{jobDetails[selectedJob.id]!.responsibilities.map((item) => <li key={item}><Check/> {item}</li>)}</ul></section><section><h3>คุณสมบัติที่กำลังมองหา</h3><ul>{jobDetails[selectedJob.id]!.qualifications.map((item) => <li key={item}><Check/> {item}</li>)}</ul></section></div><section className="jd-benefits"><h3>สิ่งที่คุณจะได้รับ</h3><div>{jobDetails[selectedJob.id]!.benefits.map((item) => <span key={item}>{item}</span>)}</div></section><div className="jd-interest-bar"><div><strong>ตำแหน่งนี้ตรงกับสิ่งที่คุณกำลังมองหาหรือไม่?</strong><span>ขั้นถัดไปคือแนบ CV เพื่อวิเคราะห์เทียบกับ JD นี้</span></div><button className="rec-primary" type="button" onClick={() => setShowApplicationModal(true)}>สนใจงานนี้ <ArrowRight/></button></div></div>}
           {stage === "assessment" && <div className="rec-stage-content"><div className="rec-stage-heading"><span><ClipboardCheck/></span><div><h3>Assessment 10 ข้อ · 4 ตัวเลือก</h3><p>{apiNote}</p></div></div><div className="rec-question-list">{questions.map((question, index) => <fieldset key={question.id}><legend>ข้อ {index + 1}/10 · {question.skill}</legend><strong>{question.question}</strong>{question.options.map((option, optionIndex) => <label className="rec-choice" key={option}><input type="radio" name={question.id} checked={answers[index] === optionIndex} onChange={() => setAnswers((current) => { const next=[...current]; next[index]=optionIndex; return next; })}/><span>{String.fromCharCode(65+optionIndex)}</span>{option}</label>)}</fieldset>)}</div><button className="rec-primary" type="button" disabled={completedAnswers < 10} onClick={() => setStage("interview")}><ClipboardCheck/> ส่งคำตอบและเข้าห้องสัมภาษณ์ <ArrowRight/></button></div>}
-          {stage === "interview" && <div className="rec-stage-content"><div className="masked-interview"><MaskedCamera/><div className="masked-person hr"><Users/><strong>HR Recruiter · Simulation</strong><span>คู่สนทนาเสมือนสำหรับเดโม่ · ไม่มีบุคคลจริงเชื่อมต่อ</span><div className="hr-speaking-wave" aria-label="HR จำลองกำลังสนทนา"><i/><i/><i/><i/></div></div></div><div className="rec-ai-note"><ShieldCheck/><div><strong>Privacy notice</strong><p>ภาพกล้องประมวลผลบน browser และไม่ถูกอัปโหลดหรือบันทึก เดโม่วาง graphic mask ตามใบหน้าเมื่อ browser รองรับ FaceDetector; นี่ไม่ใช่ media masking pipeline สำหรับ production</p></div></div><button className="rec-primary" type="button" onClick={() => setStage("decision")}><Check/> จบการสนทนาและตัดสินใจ</button></div>}
+          {stage === "interview" && <div className="rec-stage-content"><div className="mock-call-header"><div><span className="mock-live-dot"/> MOCK INTERVIEW · 08:42</div><span>Private room #7F2A</span></div><div className="masked-interview mock-video-grid"><figure className="mock-video-participant"><img src="/interview/candidate-cat-video-call.png" alt="ตัวละครแมว 8 บิต ผู้สมัครงาน กำลังวิดีโอคอลจากฉากหลังจำลอง"/><figcaption><div><strong>Candidate #7F2A</strong><span>Cat avatar · Mock feed</span></div><span className="mock-audio-bars" aria-label="กำลังพูด"><i/><i/><i/><i/></span></figcaption><span className="mock-corner-label">YOU · MOCK</span></figure><figure className="mock-video-participant recruiter"><img src="/interview/recruiter-fox-video-call.png" alt="ตัวละครจิ้งจอก 8 บิต HR กำลังวิดีโอคอลจากสตูดิโอจำลอง"/><figcaption><div><strong>HR Recruiter</strong><span>Fox avatar · Mock feed</span></div><span className="mock-audio-bars" aria-label="กำลังพูด"><i/><i/><i/><i/></span></figcaption><span className="mock-corner-label">HR · MOCK</span></figure></div><div className="rec-ai-note"><ShieldCheck/><div><strong>Mock video call — ไม่ใช้กล้องจริง</strong><p>ทั้งผู้สมัครและ HR เป็นภาพตัวละครสัตว์ 8-bit พร้อมฉากหลังจำลอง หน้านี้ไม่ขอสิทธิ์กล้องหรือไมโครโฟน และไม่มีการเชื่อมต่อวิดีโอจริง</p></div></div><button className="rec-primary" type="button" onClick={() => setStage("decision")}><Check/> จบการสนทนาและตัดสินใจ</button></div>}
           {stage === "decision" && <div className="rec-stage-content"><div className="rec-stage-heading"><span><ShieldCheck/></span><div><h3>Private two-sided decision</h3><p>เลือกผลทั้งสองฝั่งเพื่อจำลอง resolver แบบเดิม ผลจะเปิดเมื่อส่งครบเท่านั้น</p></div></div><div className="rec-score-grid"><div><span>Recruiter decision</span><button className="rec-primary" onClick={() => setRecruiterDecision("APPROVE")}>สนใจไปต่อ</button> <button className="rec-secondary" onClick={() => setRecruiterDecision("REJECT")}>ไม่ไปต่อ</button></div><div><span>Candidate decision (demo)</span><button className="rec-primary" onClick={() => setCandidateDecision("APPROVE")}>สนใจไปต่อ</button> <button className="rec-secondary" onClick={() => setCandidateDecision("REJECT")}>ไม่ไปต่อ</button></div><div><span>Result</span><strong>{!recruiterDecision || !candidateDecision ? "รอทั้งสองฝั่ง" : recruiterDecision === "APPROVE" && candidateDecision === "APPROVE" ? "Mutual Match" : "No Match"}</strong></div></div>{recruiterDecision && candidateDecision && <><div className="rec-result-hero"><span><CheckCircle2/></span><div><h3>{recruiterDecision === "APPROVE" && candidateDecision === "APPROVE" ? "ทั้งสองฝ่ายสนใจตรงกัน" : "จบกระบวนการอย่างเป็นส่วนตัว"}</h3><p>{recruiterDecision === "APPROVE" && candidateDecision === "APPROVE" ? "พร้อมขอ consent เปิดเผยข้อมูลติดต่อในขั้นถัดไป" : "ไม่เปิดเผยว่าใครเลือกไม่ไปต่อ และยังคงปิดบังตัวตน"}</p></div><strong className="rec-final-score">{finalScore}<small>/100</small></strong></div><section className="assessment-reflection"><span className="eyebrow">Assessment result · เปิดหลังตัดสินใจแล้ว</span><h3>ทบทวนสิ่งที่ทำได้และสิ่งที่ควรพัฒนาต่อ</h3><div className="rec-score-grid"><div><span>คะแนนรวม</span><strong>{finalScore}%</strong><p>Resume + ความรู้</p></div><div><span>Resume ↔ JD</span><strong>{analysis.score}%</strong><p>ตรง {analysis.matched.length}/{selectedJob.skills.length} ทักษะ</p></div><div><span>Knowledge check</span><strong>{knowledgeScore}%</strong><p>ตอบถูก {correctAnswers}/10 ข้อ</p></div></div><div className="reflection-strengths"><div><strong>จุดแข็ง</strong><p>{analysis.matched.join(" · ") || "หลักฐานเชิงประสบการณ์"}</p></div><div><strong>ควรพัฒนา</strong><p>{questions.filter((question,index) => answers[index] !== question.correctIndex).map((question) => question.skill).filter((skill,index,list) => list.indexOf(skill) === index).join(" · ") || "ทบทวนการอธิบายเหตุผล"}</p></div></div><div className="reflection-lessons">{questions.filter((question,index) => answers[index] !== question.correctIndex).slice(0,3).map((question) => <article key={question.id}><strong>{question.skill}</strong><p>{question.explanation}</p></article>)}</div><p className="reflection-note">ผลการ Match ไม่เปลี่ยนคุณค่าของผู้สมัคร ใช้สรุปนี้เพื่อวางแผนเรียนรู้และเตรียมตัวครั้งถัดไป</p></section></>}<div className="rec-actions"><button className="rec-primary" type="button" onClick={reset}>จบและเริ่มรายใหม่</button></div></div>}
         </section>}
       </div>
