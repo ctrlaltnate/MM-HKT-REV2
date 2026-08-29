@@ -2,6 +2,13 @@
 
 ## Recruiter-only assessment demo update (2026-08-29)
 
+### Expanded Tech job catalog (2026-08-30)
+
+- The synthetic `/recruiter` catalog now contains 9 Tech roles across Frontend, Backend, Mobile, DevOps/Cloud, Cybersecurity, Machine Learning, QA Automation, UX/UI Product Design and Data Analytics, while preserving the existing 5 non-Tech roles.
+- Every added role includes a distinct summary, skill set, assessment seed questions, overview, responsibilities, qualifications and benefits. Category filtering and the existing JD → CV → assessment flow continue to use the selected role.
+- Search within a category now matches title, department and skills.
+- Verification 2026-08-30: `npm run typecheck` PASS; `npm test` PASS (29/29); `npm run build` PASS. The build retains only the existing Phaser chunk-size advisory.
+
 ### Mock animal video interview (2026-08-30)
 
 - `/recruiter` now presents both interview participants as generated 8-bit mock video feeds: an anonymous cat candidate and a fox recruiter, each with a fictional background and animated call-status UI.
