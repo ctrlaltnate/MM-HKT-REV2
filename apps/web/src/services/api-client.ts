@@ -24,7 +24,21 @@ import type {
   ApiErrorEnvelope,
 } from "@maskedmatch/contracts";
 
-const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://127.0.0.1:8787" : "");
+function getApiBaseUrl(): string {
+  const envUrl = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "").trim();
+  if (typeof window !== "undefined") {
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "0.0.0.0";
+    if (!isLocalhost && (envUrl.includes("localhost") || envUrl.includes("127.0.0.1"))) {
+      return "";
+    }
+  }
+  return envUrl || (import.meta.env.DEV ? "http://127.0.0.1:8787" : "");
+}
+
+const API_BASE = getApiBaseUrl();
 
 export class ApiError extends Error {
   constructor(
