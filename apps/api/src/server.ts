@@ -186,7 +186,7 @@ app.use(
   },
 );
 
-if (process.env.NODE_ENV !== "test") {
+if (process.env.NODE_ENV !== "test" && !process.env.VERCEL) {
   app.listen(port, "127.0.0.1", () => {
     console.log(`MaskedMatch local API listening on http://127.0.0.1:${port}`);
   });

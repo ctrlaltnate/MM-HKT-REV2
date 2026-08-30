@@ -18,7 +18,8 @@
   - **Question 11 (Subjective - อัตนัย พิมพ์ตอบ)**: Practical workplace problem-solving scenario where candidates type their reasoning, trade-offs, and incident response into a rich `<textarea>`. It is not scored automatically by machine, but forwarded directly into the **Recruiter Evaluation Card (Turn 2)** and **Reflection Portfolio (Turn 3)** for HR/Hiring Manager decision making.
 - **Production Deployment & AI API Routing Diagnostics**:
   - Registered route aliases (`["/api/resumes/analyze", "/resumes/analyze"]` and `["/api/assessments/generate", "/assessments/generate"]`) and added `api/index.ts` to ensure seamless execution across both local Node servers and Vercel serverless functions.
-  - Implemented smart API URL resolution (`resolveApiBaseUrl()`) that sanitizes localhost/127.0.0.1 environment variable overrides when running on production domains (preventing `ERR_CONNECTION_REFUSED` in production).
+  - Added `!process.env.VERCEL` guard to `app.listen()` in `apps/api/src/server.ts` so Vercel Serverless Functions export clean handlers without socket binding blocks.
+  - Implemented smart API URL resolution (`resolveApiBaseUrl()`) that sanitizes localhost/127.0.0.1 environment variable overrides when running on production domains (preventing `ERR_CONNECTION_REFUSED` and 404 HTML responses in production).
   - Set primary default model to `gemini-3.6-flash` with automatic fallback cascade across available models.
   - Added descriptive error telemetry in the UI live log and note so missing environment variables (e.g. `GEMINI_API_KEY` on Vercel) are immediately reported with clear resolution guidance.
 - **Stage 4: Two-Sided Private Swipe Deck & Mutual Match Contact Form**:

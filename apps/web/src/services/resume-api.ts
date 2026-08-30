@@ -43,6 +43,17 @@ export async function analyzeResume(file: File): Promise<ResumeAnalysis> {
     method: "POST",
     body: form,
   });
+  const contentType = response.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    const text = await response.text();
+    throw new Error(
+      `API Server Error (${response.status}): ${
+        text.includes("The page could not be found")
+          ? "Serverless Endpoint Not Found (404)"
+          : text.slice(0, 100)
+      }`
+    );
+  }
   const payload = (await response.json()) as { data: ResumeAnalysis } | ApiErrorEnvelope;
   if (!response.ok || !("data" in payload)) {
     throw new Error("error" in payload ? payload.error.message : "RESUME_ANALYSIS_FAILED");
@@ -73,6 +84,17 @@ export async function generateAssessment(input: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
+  const contentType = response.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    const text = await response.text();
+    throw new Error(
+      `API Server Error (${response.status}): ${
+        text.includes("The page could not be found")
+          ? "Serverless Endpoint Not Found (404)"
+          : text.slice(0, 100)
+      }`
+    );
+  }
   const payload = (await response.json()) as {
     data?: { questions: AssessmentQuestion[] };
     error?: { message: string };
