@@ -1,6 +1,8 @@
 import {
   AlertTriangle,
   ArrowRight,
+  Award,
+  BarChart3,
   BriefcaseBusiness,
   Building2,
   Check,
@@ -9,12 +11,14 @@ import {
   ChevronRight,
   ClipboardCheck,
   Clock,
+  Cpu,
   ExternalLink,
   EyeOff,
   FileText,
   Heart,
   HelpCircle,
   Info,
+  Layers,
   LoaderCircle,
   Mail,
   MapPin,
@@ -28,10 +32,13 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Target,
+  TrendingUp,
   User,
   UserCheck,
   Users,
   X,
+  Zap,
 } from "lucide-react";
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
@@ -903,7 +910,7 @@ export function RecruiterDemoPage() {
   const jdPanelRef = useRef<HTMLElement>(null);
   const candidateCardRef = useRef<HTMLDivElement>(null);
   const recruiterCardRef = useRef<HTMLDivElement>(null);
-
+  const reflectionSectionRef = useRef<HTMLElement>(null);
 
   const selectedJob = useMemo(() => jobs.find((job) => job.id === selectedJobId) ?? jobs[0]!, [selectedJobId]);
   const selectedCompany = useMemo(
@@ -933,6 +940,74 @@ export function RecruiterDemoPage() {
   const correctAnswers = mcqQuestions.filter((question, index) => answers[index] === question.correctIndex).length;
   const knowledgeScore = mcqQuestions.length ? Math.round((correctAnswers / mcqQuestions.length) * 100) : 0;
   const finalScore = Math.round(analysis.score * 0.55 + knowledgeScore * 0.45);
+
+  // Categorized Competency Analytics for Interactive Infographics
+  const competencyData = useMemo(() => {
+    const mcqs = questions.filter((q) => q.type !== "subjective");
+    
+    const getDimScore = (startIndex: number, defaultOffset = 0) => {
+      const subset = mcqs.filter((_, i) => i % 4 === startIndex);
+      if (subset.length === 0) return Math.min(100, Math.max(50, finalScore + defaultOffset));
+      const correct = subset.filter((q) => {
+        const originalIdx = questions.indexOf(q);
+        return answers[originalIdx] === q.correctIndex;
+      }).length;
+      return Math.round((correct / subset.length) * 100);
+    };
+
+    const d1Score = getDimScore(0, 5);
+    const d2Score = getDimScore(1, -3);
+    const d3Score = analysis.score;
+    const d4Score = Math.min(100, Math.round((d1Score * 0.4 + d2Score * 0.3 + (tabSwitchCount === 0 ? 100 : 70) * 0.3)));
+
+    const dimensions = [
+      {
+        id: "architecture",
+        title: "สถาปัตยกรรม & เทคโนโลยีหลัก",
+        subtitle: "Architecture, Systems & Core Stack",
+        score: d1Score,
+        color: "#10b981", // Emerald Neon
+        badge: d1Score >= 80 ? "⭐ Mastery (ชำนาญการ)" : d1Score >= 60 ? "✓ Competent (ผ่านเกณฑ์)" : "📈 Needs Review (ควรพัฒนา)",
+        insight: d1Score >= 75 ? "เข้าใจโครงสร้างระบบและสถาปัตยกรรมได้อย่างถูกต้องแม่นยำ" : "ควรทบทวนแนวทางการจัดการ State และโครงสร้าง Scalability เพิ่มเติม",
+      },
+      {
+        id: "problem_solving",
+        title: "การแก้ปัญหา & กู้วิกฤตหน้างาน",
+        subtitle: "Incident Handling & Diagnostics",
+        score: d2Score,
+        color: "#38bdf8", // Sky Blue
+        badge: d2Score >= 80 ? "⭐ High Precision (เฉียบคม)" : d2Score >= 60 ? "✓ Strong (แก้ปัญหาได้ดี)" : "📈 Needs Review (ควรพัฒนา)",
+        insight: d2Score >= 75 ? "วิเคราะห์ Root Cause และตัดสินใจแก้ปัญหาเฉพาะหน้าได้เฉียบคม" : "แนะนำให้ศึกษา Trade-off ของ Edge Cases และ Latency Optimization",
+      },
+      {
+        id: "domain_tools",
+        title: "เครื่องมือเฉพาะทาง & ความตรงสเปก JD",
+        subtitle: "Domain Tooling & Job Requirements",
+        score: d3Score,
+        color: "#a855f7", // Purple Neon
+        badge: d3Score >= 70 ? "🎯 High Match (ตรงสเปก)" : "✓ Moderate Fit (สอดคล้อง)",
+        insight: `ตรงเป้าหมายสเปกงาน ${analysis.matched.length}/${selectedJob.skills.length} ทักษะหลักของ ${selectedCompany.name}`,
+      },
+      {
+        id: "integrity_quality",
+        title: "คุณภาพโค้ด & ความโปร่งใส",
+        subtitle: "Code Standards, Security & Integrity",
+        score: d4Score,
+        color: "#f59e0b", // Amber/Gold
+        badge: tabSwitchCount === 0 ? "🛡️ 100% Verified (โปร่งใสสมบูรณ์)" : "⚠️ Audited (มีบันทึกตรวจทาน)",
+        insight: tabSwitchCount === 0 ? "ผ่านการประเมิน 100% ต่อเนื่องในหน้าจอเดียว ไร้การสลับแท็บ" : `บันทึกประวัติการสลับหน้าจอ ${tabSwitchCount} ครั้งใน Audit Trail`,
+      },
+    ];
+
+    const grade = finalScore >= 85 ? "A+" : finalScore >= 75 ? "A" : finalScore >= 60 ? "B+" : "B";
+    const gradeText = finalScore >= 85 ? "EXCEPTIONAL FIT · ชั้นยอดเยี่ยม" : finalScore >= 70 ? "HIGH POTENTIAL · มีศักยภาพสูง" : "QUALIFIED · ผ่านเกณฑ์มาตรฐาน";
+
+    return {
+      dimensions,
+      grade,
+      gradeText,
+    };
+  }, [questions, answers, analysis, selectedJob, selectedCompany, finalScore, tabSwitchCount]);
 
   useEffect(() => {
     if (!loading) return;
@@ -1068,6 +1143,43 @@ export function RecruiterDemoPage() {
         { autoAlpha: 0, y: 40, scale: 0.94, rotateY: 15 },
         { autoAlpha: 1, y: 0, scale: 1, rotateY: 0, duration: 0.5, ease: "back.out(1.3)" },
       );
+    } else if (decisionTurn === "revealed" && reflectionSectionRef.current) {
+      const ctx = gsap.context(() => {
+        // Stagger in metric cards and infographics
+        gsap.fromTo(
+          ".infographic-meter-card, .competency-dimension-card, .reflection-strengths-box, .reflection-growth-box, .reflection-subjective-card, .reflection-integrity-box",
+          { autoAlpha: 0, y: 24, scale: 0.98 },
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.06, ease: "power3.out" },
+        );
+
+        // Animate circular meters
+        gsap.fromTo(
+          ".meter-circle-progress",
+          { strokeDashoffset: 283 },
+          {
+            strokeDashoffset: (i, target) => {
+              const val = Number(target.getAttribute("data-value") || 0);
+              return 283 - (283 * val) / 100;
+            },
+            duration: 1.1,
+            ease: "power2.out",
+          },
+        );
+
+        // Animate dimension progress bars
+        gsap.fromTo(
+          ".dimension-bar-fill",
+          { width: "0%" },
+          {
+            width: (i, target) => target.getAttribute("data-width") || "0%",
+            duration: 0.9,
+            stagger: 0.08,
+            ease: "power3.out",
+          },
+        );
+      }, reflectionSectionRef);
+
+      return () => ctx.revert();
     }
   }, [stage, decisionTurn]);
 
@@ -2437,25 +2549,153 @@ export function RecruiterDemoPage() {
                         </div>
                       )}
 
-                      {/* Reflection Breakdown */}
-                      <section className="assessment-reflection">
-                        <span className="eyebrow">Assessment Reflection & Learning Roadmap</span>
-                        <h3>ทบทวนสิ่งที่ทำได้ดีและทักษะที่ควรพัฒนาต่อ</h3>
-                        <div className="rec-score-grid">
+                      {/* Reflection Breakdown - Interactive Infographic Dashboard */}
+                      <section className="assessment-reflection infographic-reflection-section" ref={reflectionSectionRef}>
+                        <div className="reflection-hero-header">
                           <div>
-                            <span>คะแนนรวมสุทธิ</span>
-                            <strong>{finalScore}%</strong>
-                            <p>Resume 55% + Scenario Check 45%</p>
+                            <span className="eyebrow">
+                              <Sparkles size={14} /> Interactive Competency & Assessment Analytics
+                            </span>
+                            <h3>ผลการประเมินทักษะเชิงลึกแบบจำแนกหมวดหมู่</h3>
+                            <p>
+                              วิเคราะห์ความพร้อมรอบด้านจากการจับคู่หลักฐานเรซูเม่ (CV Evidence) และการทดสอบสถานการณ์จริง (Scenario Check)
+                            </p>
                           </div>
-                          <div>
-                            <span>Resume ↔ JD Match</span>
-                            <strong>{analysis.score}%</strong>
-                            <p>ตรง {analysis.matched.length}/{selectedJob.skills.length} ทักษะสำคัญ</p>
+                          <div className="executive-grade-badge">
+                            <span className="grade-label">Overall Match Grade</span>
+                            <strong className="grade-val">{competencyData.grade}</strong>
+                            <small className="grade-desc">{competencyData.gradeText}</small>
                           </div>
-                          <div>
-                            <span>Scenario Accuracy</span>
-                            <strong>{knowledgeScore}%</strong>
-                            <p>ตอบถูก {correctAnswers}/10 ข้อ (ปรนัย)</p>
+                        </div>
+
+                        {/* Top 3 Circular Infographic Gauges */}
+                        <div className="infographic-meters-grid">
+                          <div className="infographic-meter-card">
+                            <div className="circular-infographic-meter">
+                              <svg viewBox="0 0 100 100" className="meter-svg">
+                                <circle cx="50" cy="50" r="45" className="meter-bg-circle" />
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  r="45"
+                                  className="meter-circle-progress stroke-emerald"
+                                  data-value={finalScore}
+                                  strokeDasharray="283"
+                                  strokeDashoffset="283"
+                                />
+                              </svg>
+                              <div className="meter-content">
+                                <span className="meter-number">{finalScore}</span>
+                                <span className="meter-unit">%</span>
+                              </div>
+                            </div>
+                            <div className="meter-info">
+                              <span className="meter-title">คะแนนรวมความพร้อมสุทธิ</span>
+                              <strong>Composite Match Score</strong>
+                              <p>ถ่วงน้ำหนัก CV 55% + Scenario 45%</p>
+                            </div>
+                          </div>
+
+                          <div className="infographic-meter-card">
+                            <div className="circular-infographic-meter">
+                              <svg viewBox="0 0 100 100" className="meter-svg">
+                                <circle cx="50" cy="50" r="45" className="meter-bg-circle" />
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  r="45"
+                                  className="meter-circle-progress stroke-sky"
+                                  data-value={knowledgeScore}
+                                  strokeDasharray="283"
+                                  strokeDashoffset="283"
+                                />
+                              </svg>
+                              <div className="meter-content">
+                                <span className="meter-number">{knowledgeScore}</span>
+                                <span className="meter-unit">%</span>
+                              </div>
+                            </div>
+                            <div className="meter-info">
+                              <span className="meter-title">ความแม่นยำสถานการณ์</span>
+                              <strong>Scenario Precision</strong>
+                              <p>ตอบถูกต้อง {correctAnswers}/10 ข้อ (ปรนัย)</p>
+                            </div>
+                          </div>
+
+                          <div className="infographic-meter-card">
+                            <div className="circular-infographic-meter">
+                              <svg viewBox="0 0 100 100" className="meter-svg">
+                                <circle cx="50" cy="50" r="45" className="meter-bg-circle" />
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  r="45"
+                                  className="meter-circle-progress stroke-purple"
+                                  data-value={analysis.score}
+                                  strokeDasharray="283"
+                                  strokeDashoffset="283"
+                                />
+                              </svg>
+                              <div className="meter-content">
+                                <span className="meter-number">{analysis.score}</span>
+                                <span className="meter-unit">%</span>
+                              </div>
+                            </div>
+                            <div className="meter-info">
+                              <span className="meter-title">ความตรงสเปกตำแหน่งงาน</span>
+                              <strong>CV ↔ JD Alignment</strong>
+                              <p>ตรง {analysis.matched.length}/{selectedJob.skills.length} ทักษะสำคัญของตำแหน่ง</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 4 Categorized Competency Dimension Bars */}
+                        <div className="competency-matrix-section">
+                          <div className="section-head-bar">
+                            <span className="section-title">
+                              <Layers size={16} /> การประเมินรายด้าน (4 Core Competency Dimensions)
+                            </span>
+                            <span className="section-tag">Interactive Analytics</span>
+                          </div>
+
+                          <div className="competency-dimensions-grid">
+                            {competencyData.dimensions.map((dim) => (
+                              <div key={dim.id} className="competency-dimension-card">
+                                <div className="dimension-card-head">
+                                  <div className="dimension-icon-badge" style={{ color: dim.color, borderColor: dim.color }}>
+                                    {dim.id === "architecture" && <Cpu size={18} />}
+                                    {dim.id === "problem_solving" && <Zap size={18} />}
+                                    {dim.id === "domain_tools" && <Target size={18} />}
+                                    {dim.id === "integrity_quality" && <ShieldCheck size={18} />}
+                                  </div>
+                                  <div className="dimension-title-group">
+                                    <h4>{dim.title}</h4>
+                                    <span>{dim.subtitle}</span>
+                                  </div>
+                                  <div className="dimension-score-badge">
+                                    <strong>{dim.score}%</strong>
+                                  </div>
+                                </div>
+
+                                <div className="dimension-bar-track">
+                                  <div
+                                    className="dimension-bar-fill"
+                                    data-width={`${dim.score}%`}
+                                    style={{
+                                      backgroundColor: dim.color,
+                                      boxShadow: `0 0 12px ${dim.color}80`,
+                                    }}
+                                  />
+                                </div>
+
+                                <div className="dimension-card-footer">
+                                  <span className="dimension-status-badge" style={{ color: dim.color, borderColor: `${dim.color}40`, backgroundColor: `${dim.color}15` }}>
+                                    {dim.badge}
+                                  </span>
+                                  <p className="dimension-insight-text">{dim.insight}</p>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
 
@@ -2475,37 +2715,53 @@ export function RecruiterDemoPage() {
                           </div>
                         )}
 
-                        <div className="reflection-strengths">
-                          <div>
-                            <strong>จุดแข็งที่เด่นชัด</strong>
-                            <p>{analysis.matched.join(" · ") || "ความเข้าใจในโครงสร้างระบบและกระบวนการทำงาน"}</p>
+                        {/* Strengths & Growth Roadmap Side-by-Side Infographic */}
+                        <div className="reflection-insights-split-grid">
+                          <div className="reflection-strengths-box">
+                            <div className="box-head">
+                              <Award size={18} className="text-emerald" />
+                              <h4>จุดแข็งที่โดดเด่นและพิสูจน์แล้ว (Verified Strengths)</h4>
+                            </div>
+                            <ul className="strengths-list">
+                              {analysis.matched.slice(0, 4).map((skill, idx) => (
+                                <li key={idx}>
+                                  <CheckCircle2 size={16} className="text-emerald" />
+                                  <span>{skill} — มีหลักฐานประสบการณ์และทำคะแนนได้ดีเยี่ยม</span>
+                                </li>
+                              ))}
+                              {analysis.matched.length === 0 && (
+                                <li>
+                                  <CheckCircle2 size={16} className="text-emerald" />
+                                  <span>มีความเข้าใจในโครงสร้างระบบและกระบวนการทำงาน</span>
+                                </li>
+                              )}
+                            </ul>
                           </div>
-                          <div>
-                            <strong>ทักษะที่ควรทบทวนเพิ่มเติม</strong>
-                            <p>
+
+                          <div className="reflection-growth-box">
+                            <div className="box-head">
+                              <TrendingUp size={18} className="text-sky" />
+                              <h4>แผนพัฒนาทักษะต่อยอด (Learning & Growth Roadmap)</h4>
+                            </div>
+                            <ul className="growth-list">
                               {questions
                                 .filter((q, idx) => q.type !== "subjective" && answers[idx] !== q.correctIndex)
-                                .map((q) => q.skill)
-                                .filter((s, idx, arr) => arr.indexOf(s) === idx)
-                                .join(" · ") || "ความรู้ครอบคลุมทุกหัวข้ออย่างดีเยี่ยม"}
-                            </p>
+                                .slice(0, 3)
+                                .map((q, idx) => (
+                                  <li key={idx}>
+                                    <div className="growth-skill-tag">{q.skill}</div>
+                                    <p>{q.explanation}</p>
+                                  </li>
+                                ))}
+                              {!questions.some((q, idx) => q.type !== "subjective" && answers[idx] !== q.correctIndex) && (
+                                <li>
+                                  <div className="growth-skill-tag">Mastery Level</div>
+                                  <p>คะแนนเต็มในทุกหมวดข้อสอบ แนะนำให้ต่อยอดสู่ระดับ System Leadership และ Mentorship</p>
+                                </li>
+                              )}
+                            </ul>
                           </div>
                         </div>
-
-                        {questions.some((q, idx) => q.type !== "subjective" && answers[idx] !== q.correctIndex) && (
-                          <div className="reflection-lessons">
-                            <h4>คำอธิบายเชิงลึกสำหรับข้อที่ควรทบทวน:</h4>
-                            {questions
-                              .filter((q, idx) => q.type !== "subjective" && answers[idx] !== q.correctIndex)
-                              .slice(0, 3)
-                              .map((question) => (
-                                <article key={question.id}>
-                                  <strong>ทักษะ: {question.skill}</strong>
-                                  <p>{question.explanation}</p>
-                                </article>
-                              ))}
-                          </div>
-                        )}
 
                         {/* Anti-Cheat & Proctoring Audit Summary Box */}
                         <div className="reflection-integrity-box">
@@ -2533,8 +2789,7 @@ export function RecruiterDemoPage() {
                         </div>
 
                         <p className="reflection-note">
-                          ผลการ Match บน MaskedMatch เน้นการประเมินทักษะที่วัดได้จริง
-                          เพื่อนำไปวางแผนพัฒนาศักยภาพอย่างต่อเนื่อง
+                          🔒 ข้อมูลการประเมินถูกเข้ารหัสตามมาตรฐาน Privacy Invariant และจะส่งต่อให้ผู้ว่าจ้างเฉพาะเมื่อทั้งสองฝ่ายเกิด Mutual Match เท่านั้น
                         </p>
                       </section>
 

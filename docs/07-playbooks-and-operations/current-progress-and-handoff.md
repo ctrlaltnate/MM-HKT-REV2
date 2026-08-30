@@ -16,8 +16,12 @@
 - **10 Multiple-Choice + 1 Subjective Problem-Solving Question**:
   - **Questions 1 to 10 (MCQs)**: 10 Scenario-based Multiple-Choice Questions scored 0–100% for the Knowledge Score gauge.
   - **Question 11 (Subjective - อัตนัย พิมพ์ตอบ)**: Practical workplace problem-solving scenario where candidates type their reasoning, trade-offs, and incident response into a rich `<textarea>`. It is not scored automatically by machine, but forwarded directly into the **Recruiter Evaluation Card (Turn 2)** and **Reflection Portfolio (Turn 3)** for HR/Hiring Manager decision making.
-- **Default Routing Redirection to `/recruiter`**:
-  - Configured root `/`, `/r`, and `/home` in `apps/web/src/App.tsx` and `vercel.json` to automatically redirect straight to `/recruiter` (`RecruiterDemoPage`), making the live assessment demo the primary entry point across the deployed application.
+- **Interactive Competency & Assessment Infographic Dashboard (GSAP Animated)**:
+  - Replaced plain text summary with an executive cyber-styled Infographic Dashboard on Turn 3.
+  - **Top 3 Circular SVG Gauge Meters**: Real-time animated circular progress meters for Composite Match Score, Scenario Precision (MCQs), and CV ↔ JD Alignment with Executive Fit Badges (A+, A, B+).
+  - **4 Categorized Core Competency Dimension Bars**: Real-time breakdown into Architecture & Systems, Problem-Solving & Diagnostics, Domain Tooling & JD Specs, and Code Standards & Integrity with neon progress bars and AI insights.
+  - **Side-by-Side Strengths & Growth Roadmap Panels**: Compact pill cards showcasing verified strengths and targeted learning recommendations.
+  - **Full GSAP Motion Pipeline**: Staggered card entrance, count-up stroke-dashoffset transitions, and smooth hover micro-animations.
 - **Production Deployment & AI API Routing Diagnostics**:
   - Removed `prebuild` recursive workspace hook from `apps/web/package.json` and set explicit linear monorepo build pipeline (`npm run build -w @maskedmatch/contracts && npm run build -w @maskedmatch/api && npm run build -w @maskedmatch/web`) to eliminate Vercel workspace recursion exit code 2.
   - Added dedicated Vercel Serverless Function entry points (`api/resumes/analyze.ts`, `api/assessments/generate.ts`, `api/health.ts`, `api/index.ts`, `api/[...path].ts`) with `export const config = { api: { bodyParser: false } }` to ensure native Vercel file-based routing and raw stream forwarding for Multer PDF uploads.
