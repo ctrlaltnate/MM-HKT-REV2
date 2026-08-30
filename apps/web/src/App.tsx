@@ -26,10 +26,12 @@ export function App() {
   return (
     <Suspense fallback={<RouteLoading />}>
       <Routes>
+        <Route path="/" element={<Navigate to="/recruiter" replace />} />
+        <Route path="r" element={<Navigate to="/recruiter" replace />} />
         <Route path="recruiter" element={<RecruiterDemoPage />} />
         <Route path="demo/hall" element={<GameHallDemoPage />} />
         <Route element={<AppShell />}>
-          <Route index element={<LandingPage />} />
+          <Route path="landing" element={<LandingPage />} />
           <Route path="auth" element={<AuthPage />} />
           <Route path="fairs" element={<FairsPage />} />
           <Route path="fairs/:fairId" element={<FairDetailPage />} />
@@ -39,7 +41,7 @@ export function App() {
           <Route path="recruiter/workspace" element={<ProtectedRoute role="recruiter"><RecruiterWorkspacePage /></ProtectedRoute>} />
           <Route path="admin/fairs" element={<ProtectedRoute role="admin"><AdminFairsPage /></ProtectedRoute>} />
           <Route path="ops/events/:eventId/live" element={<ProtectedRoute role="admin"><AdminOperationsPage /></ProtectedRoute>} />
-          <Route path="home" element={<Navigate to="/" replace />} />
+          <Route path="home" element={<Navigate to="/recruiter" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
