@@ -80,15 +80,15 @@ app.use("/api/fairs", membershipsRouter);
 app.use("/api", boothsAndJobsRouter);
 
 // Resume Analysis Route
-app.post("/api/resumes/analyze", upload.single("resume"), async (request, response) => {
+app.post(["/api/resumes/analyze", "/resumes/analyze"], upload.single("resume"), async (request, response) => {
   const requestId = crypto.randomUUID();
   const apiKey = process.env.GEMINI_API_KEY;
 
-  if (!apiKey) {
+  if (!apiKey || apiKey === "replace_with_your_gemini_api_key") {
     response.status(503).json({
       error: {
         code: "GEMINI_NOT_CONFIGURED",
-        message: "ยังไม่ได้ตั้งค่า GEMINI_API_KEY ใน .env.local",
+        message: "ยังไม่ได้ตั้งค่า GEMINI_API_KEY ใน Environment Variables ของ Hosting หรือ .env.local",
         requestId,
         retryable: false,
       },
@@ -112,7 +112,7 @@ app.post("/api/resumes/analyze", upload.single("resume"), async (request, respon
     const analysis = await analyzeResumePdf(
       request.file.buffer,
       apiKey,
-      process.env.GEMINI_MODEL ?? "gemini-3.7-flash",
+      process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
     );
     response.json({
       data: analysis,
@@ -137,13 +137,13 @@ app.post("/api/resumes/analyze", upload.single("resume"), async (request, respon
   }
 });
 
-app.post("/api/assessments/generate", async (request, response) => {
+app.post(["/api/assessments/generate", "/assessments/generate"], async (request, response) => {
   const requestId = crypto.randomUUID();
   const apiKey = process.env.GEMINI_API_KEY;
   const { jobTitle, jobSummary, requiredSkills, resumeEvidence } = request.body ?? {};
-  if (!apiKey) {
-    console.error("[Gemini Assessment Error] GEMINI_API_KEY is not configured in .env.local");
-    response.status(503).json({ error: { code: "GEMINI_NOT_CONFIGURED", message: "ยังไม่ได้ตั้งค่า GEMINI_API_KEY ใน .env.local", requestId, retryable: false } });
+  if (!apiKey || apiKey === "replace_with_your_gemini_api_key") {
+    console.error("[Gemini Assessment Error] GEMINI_API_KEY is not configured in Environment Variables or .env.local");
+    response.status(503).json({ error: { code: "GEMINI_NOT_CONFIGURED", message: "ยังไม่ได้ตั้งค่า GEMINI_API_KEY ใน Environment Variables ของ Hosting หรือ .env.local", requestId, retryable: false } });
     return;
   }
   if (!jobTitle || !jobSummary || !Array.isArray(requiredSkills) || !resumeEvidence) {
@@ -151,7 +151,7 @@ app.post("/api/assessments/generate", async (request, response) => {
     return;
   }
   try {
-    const model = process.env.GEMINI_MODEL ?? "gemini-3.7-flash";
+    const model = process.env.GEMINI_MODEL ?? "gemini-3.6-flash";
     const questions = await generateAssessment({ jobTitle, jobSummary, requiredSkills, resumeEvidence }, apiKey, model);
     response.json({ data: { questions }, meta: { requestId, model } });
   } catch (error) {

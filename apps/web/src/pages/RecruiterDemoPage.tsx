@@ -1100,9 +1100,11 @@ export function RecruiterDemoPage() {
         setClaims(result.recruiterSummary || result.candidateSummary);
         setApiNote(`✨ AI สกัดหลักฐานจากเรซูเม่สำเร็จใน ${elapsed}s`);
       } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "AI API ไม่ตอบสนอง";
+        console.error("[Resume Analysis Error]", err);
         setClaims(sampleClaims);
-        setAiLiveLog(`[${timeNow()}] ⚠️ AI API ไม่ตอบสนอง — สลับใช้ชุดข้อมูลสังเคราะห์จำลอง`);
-        setApiNote("⚠️ ระบบสลับใช้ข้อความสังเคราะห์จำลองแทน");
+        setAiLiveLog(`[${timeNow()}] ⚠️ AI Error: ${errorMsg} — สลับใช้ชุดข้อมูลสังเคราะห์จำลอง`);
+        setApiNote(`⚠️ สลับใช้ข้อความสังเคราะห์จำลอง (${errorMsg})`);
       } finally {
         await finishAiLoading();
       }
@@ -1134,12 +1136,14 @@ export function RecruiterDemoPage() {
       setSubjectiveAnswer("");
       setApiNote(`✨ สร้างจาก AI สำเร็จใน ${elapsed}s (Scenario เฉพาะบุคคล 11 ข้อ)`);
     } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "AI API ไม่ตอบสนอง";
+      console.error("[Assessment Generation Error]", err);
       const fallback = generateSmartFallbackAssessment(selectedJob, claims);
-      setAiLiveLog(`[${timeNow()}] ⚠️ AI API ไม่ตอบสนอง — สลับใช้ชุดข้อสอบ Fallback จำลอง`);
+      setAiLiveLog(`[${timeNow()}] ⚠️ AI Error: ${errorMsg} — สลับใช้ชุดข้อสอบ Fallback จำลอง`);
       setQuestions(fallback);
       setAnswers(Array(fallback.length).fill(undefined));
       setSubjectiveAnswer("");
-      setApiNote("✨ สร้างจาก AI (Scenario จำลอง 11 ข้อ)");
+      setApiNote(`⚠️ สลับใช้ Scenario จำลอง (${errorMsg})`);
     } finally {
       await finishAiLoading();
       setShowAnalysisConfirm(true);

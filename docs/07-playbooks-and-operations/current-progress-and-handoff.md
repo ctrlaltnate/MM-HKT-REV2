@@ -16,6 +16,10 @@
 - **10 Multiple-Choice + 1 Subjective Problem-Solving Question**:
   - **Questions 1 to 10 (MCQs)**: 10 Scenario-based Multiple-Choice Questions scored 0–100% for the Knowledge Score gauge.
   - **Question 11 (Subjective - อัตนัย พิมพ์ตอบ)**: Practical workplace problem-solving scenario where candidates type their reasoning, trade-offs, and incident response into a rich `<textarea>`. It is not scored automatically by machine, but forwarded directly into the **Recruiter Evaluation Card (Turn 2)** and **Reflection Portfolio (Turn 3)** for HR/Hiring Manager decision making.
+- **Production Deployment & AI API Routing Diagnostics**:
+  - Registered route aliases (`["/api/resumes/analyze", "/resumes/analyze"]` and `["/api/assessments/generate", "/assessments/generate"]`) to ensure seamless execution across both local Node servers and Vercel serverless functions.
+  - Set primary default model to `gemini-3.6-flash` with automatic fallback cascade across available models.
+  - Added descriptive error telemetry in the UI live log and note so missing environment variables (e.g. `GEMINI_API_KEY` on Vercel) are immediately reported with clear resolution guidance.
 - **Stage 4: Two-Sided Private Swipe Deck & Mutual Match Contact Form**:
   - Enabled **Full Touch & Mouse Drag Interactivity** (`PointerEvents` with `setPointerCapture`, `touch-action: none`, and hardware-accelerated 3D transforms) for both Candidate Turn (Turn 1) and Recruiter Turn (Turn 2) swipe cards.
   - Users can physically drag or swipe the card horizontally on both mobile screens and desktop trackpads/mice with dynamic tilt rotation and visual stamp badge reveal (`MATCH! / สนใจ` green stamp on right swipe, `PASS / ข้าม` red stamp on left swipe), with an elastic bounce-back when released below the threshold or smooth exit fling and instant turn transition when thrown.

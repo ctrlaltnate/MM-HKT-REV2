@@ -28,7 +28,9 @@ export async function analyzeResumePdf(
   console.log(`[AI Engine ${timeStr}] ⚡ [PDF Analysis] Received ${pdf.length} bytes. Initiating AI pipeline...`);
 
   const ai = new GoogleGenAI({ apiKey });
-  const modelCandidates = Array.from(new Set([model, "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash"]));
+  const modelCandidates = Array.from(
+    new Set([model, "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-2.5-flash", "gemini-2.0-flash"].filter(Boolean))
+  );
   let lastError: unknown = null;
 
   for (const candidate of modelCandidates) {
@@ -110,7 +112,9 @@ export async function generateAssessment(
   model: string,
 ): Promise<AssessmentQuestion[]> {
   const ai = new GoogleGenAI({ apiKey });
-  const modelCandidates = Array.from(new Set([model, "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash"]));
+  const modelCandidates = Array.from(
+    new Set([model, "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-2.5-flash", "gemini-2.0-flash"].filter(Boolean))
+  );
   const prompt = `
 เป้าหมาย: สร้างข้อสอบวัดทักษะเชิงลึก (Scenario-based Technical & Practical Assessment) 11 ข้อ (ช้อยส์ 10 ข้อ + อัตนัยพิมพ์ตอบ 1 ข้อ) สำหรับตำแหน่ง: ${input.jobTitle}
 
