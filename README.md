@@ -10,7 +10,7 @@ Requirements: Node.js 22+ and npm.
 npm install
 copy .env.example .env.local
 npm run dev
-```
+``` 
 
 Open `http://127.0.0.1:4173`. The local API listens at `http://127.0.0.1:8787`.
 
