@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { GoogleGenAI } from "@google/genai";
 
 import {
@@ -5,6 +6,22 @@ import {
   resumeAnalysisJsonSchema,
   type ResumeAnalysis,
 } from "./resume-schema.js";
+
+// In-Memory Cache for fast repeated demo tests without burning quota (30-minute TTL)
+const resumeCache = new Map<string, { data: ResumeAnalysis; timestamp: number }>();
+const assessmentCache = new Map<string, { data: AssessmentQuestion[]; timestamp: number }>();
+const CACHE_TTL_MS = 30 * 60 * 1000;
+
+function getHash(data: string | Buffer): string {
+  return createHash("sha256").update(data).digest("hex");
+}
+
+export function parseApiKeys(rawKey: string): string[] {
+  return rawKey
+    .split(/[,;\n]/)
+    .map((k) => k.trim())
+    .filter((k) => k && k !== "replace_with_your_gemini_api_key");
+}
 
 const systemInstruction = `
 You are a resume evidence extraction assistant for a privacy-first online job fair.
@@ -23,55 +40,77 @@ export async function analyzeResumePdf(
   apiKey: string,
   model: string,
 ): Promise<ResumeAnalysis> {
+  const hash = getHash(pdf);
+  const cached = resumeCache.get(hash);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ⚡ [PDF Analysis] Cache hit for PDF (${hash.slice(0, 8)})`);
+    return cached.data;
+  }
+
   const startTime = Date.now();
   const timeStr = new Date().toLocaleTimeString("th-TH");
   console.log(`[AI Engine ${timeStr}] ⚡ [PDF Analysis] Received ${pdf.length} bytes. Initiating AI pipeline...`);
 
-  const ai = new GoogleGenAI({ apiKey });
+  const keys = parseApiKeys(apiKey);
   const modelCandidates = Array.from(
-    new Set([model, "gemini-3.6-flash", "gemini-3.5-flash"].filter(Boolean))
+    new Set([model, "gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash"].filter(Boolean))
   );
   let lastError: unknown = null;
 
-  for (const candidate of modelCandidates) {
-    try {
-      const candidateStart = Date.now();
-      console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] 🔄 [PDF Analysis] Connecting to model: ${candidate}...`);
-      const response = await ai.models.generateContent({
-        model: candidate,
-        contents: [
-          {
-            role: "user",
-            parts: [
+  for (const currentKey of keys) {
+    const ai = new GoogleGenAI({ apiKey: currentKey });
+    for (const candidate of modelCandidates) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const candidateStart = Date.now();
+          console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] 🔄 [PDF Analysis] Connecting to model: ${candidate} (key: ${currentKey.slice(0, 6)}... attempt: ${attempt + 1})...`);
+          const response = await ai.models.generateContent({
+            model: candidate,
+            contents: [
               {
-                text: "วิเคราะห์ PDF นี้และคืนข้อมูลตาม JSON schema ที่กำหนด โดยอ้างเฉพาะหลักฐานที่พบในเอกสาร",
-              },
-              {
-                inlineData: {
-                  mimeType: "application/pdf",
-                  data: pdf.toString("base64"),
-                },
+                role: "user",
+                parts: [
+                  {
+                    text: "วิเคราะห์ PDF นี้และคืนข้อมูลตาม JSON schema ที่กำหนด โดยอ้างเฉพาะหลักฐานที่พบในเอกสาร",
+                  },
+                  {
+                    inlineData: {
+                      mimeType: "application/pdf",
+                      data: pdf.toString("base64"),
+                    },
+                  },
+                ],
               },
             ],
-          },
-        ],
-        config: {
-          systemInstruction,
-          responseMimeType: "application/json",
-          responseSchema: resumeAnalysisJsonSchema,
-        },
-      });
+            config: {
+              systemInstruction,
+              responseMimeType: "application/json",
+              responseSchema: resumeAnalysisJsonSchema,
+            },
+          });
 
-      const outputText = response.text;
-      if (outputText) {
-        const parsed = parseResumeAnalysis(outputText);
-        const elapsed = Date.now() - candidateStart;
-        console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ✅ [PDF Analysis] Done with ${candidate} in ${elapsed}ms (${parsed.skills.length} skills extracted)`);
-        return parsed;
+          const outputText = response.text;
+          if (outputText) {
+            const parsed = parseResumeAnalysis(outputText);
+            const elapsed = Date.now() - candidateStart;
+            console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ✅ [PDF Analysis] Done with ${candidate} in ${elapsed}ms (${parsed.skills.length} skills extracted)`);
+            resumeCache.set(hash, { data: parsed, timestamp: Date.now() });
+            return parsed;
+          }
+        } catch (err) {
+          lastError = err;
+          const msg = err instanceof Error ? err.message : String(err);
+          const isRateLimit = msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota");
+          console.warn(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ⚠️ [PDF Analysis] Model ${candidate} failed:`, msg);
+
+          if (isRateLimit && attempt === 0) {
+            console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ⏳ Rate limit hit on ${candidate}. Pausing 3s before retry...`);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            continue;
+          }
+          break; // move to next model candidate or next key
+        }
       }
-    } catch (err) {
-      lastError = err;
-      console.warn(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ⚠️ [PDF Analysis] Model ${candidate} failed:`, err instanceof Error ? err.message : err);
     }
   }
 
@@ -111,10 +150,13 @@ export async function generateAssessment(
   apiKey: string,
   model: string,
 ): Promise<AssessmentQuestion[]> {
-  const ai = new GoogleGenAI({ apiKey });
-  const modelCandidates = Array.from(
-    new Set([model, "gemini-3.6-flash", "gemini-3.5-flash"].filter(Boolean))
-  );
+  const hash = getHash(JSON.stringify(input));
+  const cached = assessmentCache.get(hash);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ⚡ [Assessment Gen] Cache hit for "${input.jobTitle}" (${hash.slice(0, 8)})`);
+    return cached.data;
+  }
+
   const prompt = `
 เป้าหมาย: สร้างข้อสอบวัดทักษะเชิงลึก (Scenario-based Technical & Practical Assessment) 11 ข้อ (ช้อยส์ 10 ข้อ + อัตนัยพิมพ์ตอบ 1 ข้อ) สำหรับตำแหน่ง: ${input.jobTitle}
 
@@ -137,58 +179,77 @@ ${input.resumeEvidence}
 
   const startTime = Date.now();
   console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ⚡ [Assessment Gen] Initiating 11-question generation for "${input.jobTitle}"...`);
+
+  const keys = parseApiKeys(apiKey);
+  const modelCandidates = Array.from(
+    new Set([model, "gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash"].filter(Boolean))
+  );
   let lastError: unknown = null;
 
-  for (const candidate of modelCandidates) {
-    try {
-      const candidateStart = Date.now();
-      console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] 🔄 [Assessment Gen] Connecting to model: ${candidate}...`);
-      const response = await ai.models.generateContent({
-        model: candidate,
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        config: {
-          systemInstruction: assessmentSystemInstruction,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "ARRAY",
-            minItems: 11,
-            maxItems: 11,
-            items: {
-              type: "OBJECT",
-              required: ["id", "type", "question", "explanation", "skill"],
-              properties: {
-                id: { type: "STRING" },
-                type: { type: "STRING", enum: ["multiple_choice", "subjective"] },
-                question: { type: "STRING" },
-                options: {
-                  type: "ARRAY",
-                  items: { type: "STRING" },
+  for (const currentKey of keys) {
+    const ai = new GoogleGenAI({ apiKey: currentKey });
+    for (const candidate of modelCandidates) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const candidateStart = Date.now();
+          console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] 🔄 [Assessment Gen] Connecting to model: ${candidate} (key: ${currentKey.slice(0, 6)}... attempt: ${attempt + 1})...`);
+          const response = await ai.models.generateContent({
+            model: candidate,
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            config: {
+              systemInstruction: assessmentSystemInstruction,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: "ARRAY",
+                minItems: 11,
+                maxItems: 11,
+                items: {
+                  type: "OBJECT",
+                  required: ["id", "type", "question", "explanation", "skill"],
+                  properties: {
+                    id: { type: "STRING" },
+                    type: { type: "STRING", enum: ["multiple_choice", "subjective"] },
+                    question: { type: "STRING" },
+                    options: {
+                      type: "ARRAY",
+                      items: { type: "STRING" },
+                    },
+                    correctIndex: { type: "INTEGER", minimum: 0, maximum: 3 },
+                    explanation: { type: "STRING" },
+                    skill: { type: "STRING" },
+                    placeholder: { type: "STRING" },
+                  },
                 },
-                correctIndex: { type: "INTEGER", minimum: 0, maximum: 3 },
-                explanation: { type: "STRING" },
-                skill: { type: "STRING" },
-                placeholder: { type: "STRING" },
               },
             },
-          },
-        },
-      });
+          });
 
-      const parsed = JSON.parse(response.text ?? "[]") as AssessmentQuestion[];
-      if (
-        parsed.length === 11 &&
-        parsed.slice(0, 10).every((item) => item.options && item.options.length === 4 && item.correctIndex !== undefined)
-      ) {
-        const elapsed = Date.now() - candidateStart;
-        console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ✅ [Assessment Gen] Done with ${candidate} in ${elapsed}ms (10 MCQs + 1 Subjective created)`);
-        return parsed;
+          const parsed = JSON.parse(response.text ?? "[]") as AssessmentQuestion[];
+          if (
+            parsed.length === 11 &&
+            parsed.slice(0, 10).every((item) => item.options && item.options.length === 4 && item.correctIndex !== undefined)
+          ) {
+            const elapsed = Date.now() - candidateStart;
+            console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ✅ [Assessment Gen] Done with ${candidate} in ${elapsed}ms (10 MCQs + 1 Subjective created)`);
+            assessmentCache.set(hash, { data: parsed, timestamp: Date.now() });
+            return parsed;
+          }
+        } catch (err) {
+          lastError = err;
+          const msg = err instanceof Error ? err.message : String(err);
+          const isRateLimit = msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota");
+          console.warn(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ⚠️ [Assessment Gen] Model ${candidate} failed:`, msg);
+
+          if (isRateLimit && attempt === 0) {
+            console.log(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ⏳ Rate limit hit on ${candidate}. Pausing 3s before retry...`);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            continue;
+          }
+          break; // move to next model candidate or next key
+        }
       }
-    } catch (err) {
-      lastError = err;
-      console.warn(`[AI Engine ${new Date().toLocaleTimeString("th-TH")}] ⚠️ [Assessment Gen] Model ${candidate} failed:`, err instanceof Error ? err.message : err);
     }
   }
 
   throw lastError instanceof Error ? lastError : new Error("Invalid assessment output from Gemini");
 }
-

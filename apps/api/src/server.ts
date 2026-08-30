@@ -57,7 +57,7 @@ app.get("/health", (_request, response) => {
     data: {
       status: "ok",
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "replace_with_your_gemini_api_key"),
-      model: process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
+      model: process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite",
     },
   });
 });
@@ -68,7 +68,7 @@ app.get("/api/health", (_request, response) => {
     data: {
       status: "ok",
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "replace_with_your_gemini_api_key"),
-      model: process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
+      model: process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite",
     },
   });
 });
@@ -112,7 +112,7 @@ app.post(["/api/resumes/analyze", "/resumes/analyze"], upload.single("resume"), 
     const analysis = await analyzeResumePdf(
       request.file.buffer,
       apiKey,
-      process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
+      process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite",
     );
     response.json({
       data: analysis,
@@ -151,7 +151,7 @@ app.post(["/api/assessments/generate", "/assessments/generate"], async (request,
     return;
   }
   try {
-    const model = process.env.GEMINI_MODEL ?? "gemini-3.6-flash";
+    const model = process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite";
     const questions = await generateAssessment({ jobTitle, jobSummary, requiredSkills, resumeEvidence }, apiKey, model);
     response.json({ data: { questions }, meta: { requestId, model } });
   } catch (error) {
