@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build -w @maskedmatch/web",
+  "buildCommand": "npm run build",
   "outputDirectory": "apps/web/dist",
   "rewrites": [
     { "source": "/recruiter", "destination": "/index.html" },

@@ -17,11 +17,11 @@
   - **Questions 1 to 10 (MCQs)**: 10 Scenario-based Multiple-Choice Questions scored 0–100% for the Knowledge Score gauge.
   - **Question 11 (Subjective - อัตนัย พิมพ์ตอบ)**: Practical workplace problem-solving scenario where candidates type their reasoning, trade-offs, and incident response into a rich `<textarea>`. It is not scored automatically by machine, but forwarded directly into the **Recruiter Evaluation Card (Turn 2)** and **Reflection Portfolio (Turn 3)** for HR/Hiring Manager decision making.
 - **Production Deployment & AI API Routing Diagnostics**:
-  - Registered route aliases (`["/api/resumes/analyze", "/resumes/analyze"]` and `["/api/assessments/generate", "/assessments/generate"]`) and added `api/index.ts` to ensure seamless execution across both local Node servers and Vercel serverless functions.
+  - Added dedicated Vercel Serverless Function entry points (`api/resumes/analyze.ts`, `api/assessments/generate.ts`, `api/health.ts`, `api/index.ts`, `api/[...path].ts`) with `export const config = { api: { bodyParser: false } }` to ensure native Vercel file-based routing and raw stream forwarding for Multer PDF uploads.
+  - Added server dependencies (`@google/genai`, `express`, `multer`, `cors`, `zod`, `dotenv`) into root `package.json` to ensure Vercel bundles all modules during Serverless Lambda compilation.
   - Added `!process.env.VERCEL` guard to `app.listen()` in `apps/api/src/server.ts` so Vercel Serverless Functions export clean handlers without socket binding blocks.
   - Implemented smart API URL resolution (`resolveApiBaseUrl()`) that sanitizes localhost/127.0.0.1 environment variable overrides when running on production domains (preventing `ERR_CONNECTION_REFUSED` and 404 HTML responses in production).
   - Set primary default model to `gemini-3.6-flash` with automatic fallback cascade across available models.
-  - Added descriptive error telemetry in the UI live log and note so missing environment variables (e.g. `GEMINI_API_KEY` on Vercel) are immediately reported with clear resolution guidance.
 - **Stage 4: Two-Sided Private Swipe Deck & Mutual Match Contact Form**:
   - Enabled **Full Touch & Mouse Drag Interactivity** (`PointerEvents` with `setPointerCapture`, `touch-action: none`, and hardware-accelerated 3D transforms) for both Candidate Turn (Turn 1) and Recruiter Turn (Turn 2) swipe cards.
   - Users can physically drag or swipe the card horizontally on both mobile screens and desktop trackpads/mice with dynamic tilt rotation and visual stamp badge reveal (`MATCH! / สนใจ` green stamp on right swipe, `PASS / ข้าม` red stamp on left swipe), with an elastic bounce-back when released below the threshold or smooth exit fling and instant turn transition when thrown.

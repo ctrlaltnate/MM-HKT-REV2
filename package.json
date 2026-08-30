@@ -16,6 +16,14 @@
     "test:e2e": "npm run test:e2e -w @maskedmatch/web",
     "build": "npm run build --workspaces --if-present"
   },
+  "dependencies": {
+    "@google/genai": "2.19.0",
+    "cors": "2.8.5",
+    "dotenv": "17.4.2",
+    "express": "5.2.1",
+    "multer": "2.2.0",
+    "zod": "4.4.3"
+  },
   "devDependencies": {
     "concurrently": "10.0.5",
     "typescript": "7.0.2"

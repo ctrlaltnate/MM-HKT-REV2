@@ -1,4 +1,4 @@
-import { app } from "../apps/api/src/server.js";
+import { app } from "../../apps/api/src/server.js";
 
 export const config = {
   api: {
