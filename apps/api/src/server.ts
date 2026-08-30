@@ -11,8 +11,13 @@ import { fairsRouter } from "./routes/fairs.js";
 import { membershipsRouter } from "./routes/memberships.js";
 import { boothsAndJobsRouter } from "./routes/booths-and-jobs.js";
 
-dotenv.config({ path: resolve(process.cwd(), "../../.env.local"), quiet: true });
+// Load environment variables from all standard search locations
 dotenv.config({ path: resolve(process.cwd(), ".env.local"), quiet: true });
+dotenv.config({ path: resolve(process.cwd(), ".env"), quiet: true });
+dotenv.config({ path: resolve(process.cwd(), "../.env.local"), quiet: true });
+dotenv.config({ path: resolve(process.cwd(), "../.env"), quiet: true });
+dotenv.config({ path: resolve(process.cwd(), "../../.env.local"), quiet: true });
+dotenv.config({ path: resolve(process.cwd(), "../../.env"), quiet: true });
 
 export const app = express();
 const port = Number(process.env.API_PORT ?? 8787);
@@ -51,7 +56,7 @@ app.get("/health", (_request, response) => {
   response.json({
     data: {
       status: "ok",
-      geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
+      geminiConfigured: Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "replace_with_your_gemini_api_key"),
       model: process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
     },
   });
@@ -62,7 +67,7 @@ app.get("/api/health", (_request, response) => {
   response.json({
     data: {
       status: "ok",
-      geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
+      geminiConfigured: Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "replace_with_your_gemini_api_key"),
       model: process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
     },
   });
@@ -107,7 +112,7 @@ app.post("/api/resumes/analyze", upload.single("resume"), async (request, respon
     const analysis = await analyzeResumePdf(
       request.file.buffer,
       apiKey,
-      process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
+      process.env.GEMINI_MODEL ?? "gemini-3.7-flash",
     );
     response.json({
       data: analysis,
@@ -119,7 +124,7 @@ app.post("/api/resumes/analyze", upload.single("resume"), async (request, respon
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown Gemini error";
-    console.error("[Gemini Analysis Error]", message);
+    console.error("[Gemini Resume Analysis Error]", message);
     response.status(502).json({
       error: {
         code: "RESUME_ANALYSIS_FAILED",
@@ -136,13 +141,23 @@ app.post("/api/assessments/generate", async (request, response) => {
   const requestId = crypto.randomUUID();
   const apiKey = process.env.GEMINI_API_KEY;
   const { jobTitle, jobSummary, requiredSkills, resumeEvidence } = request.body ?? {};
-  if (!apiKey) { response.status(503).json({ error: { code: "GEMINI_NOT_CONFIGURED", message: "ยังไม่ได้ตั้งค่า GEMINI_API_KEY", requestId, retryable: false } }); return; }
-  if (!jobTitle || !jobSummary || !Array.isArray(requiredSkills) || !resumeEvidence) { response.status(400).json({ error: { code: "INVALID_ASSESSMENT_INPUT", message: "ข้อมูล JD หรือ Resume ไม่ครบ", requestId, retryable: false } }); return; }
+  if (!apiKey) {
+    console.error("[Gemini Assessment Error] GEMINI_API_KEY is not configured in .env.local");
+    response.status(503).json({ error: { code: "GEMINI_NOT_CONFIGURED", message: "ยังไม่ได้ตั้งค่า GEMINI_API_KEY ใน .env.local", requestId, retryable: false } });
+    return;
+  }
+  if (!jobTitle || !jobSummary || !Array.isArray(requiredSkills) || !resumeEvidence) {
+    response.status(400).json({ error: { code: "INVALID_ASSESSMENT_INPUT", message: "ข้อมูล JD หรือ Resume ไม่ครบ", requestId, retryable: false } });
+    return;
+  }
   try {
-    const questions = await generateAssessment({ jobTitle, jobSummary, requiredSkills, resumeEvidence }, apiKey, process.env.GEMINI_MODEL ?? "gemini-3.6-flash");
-    response.json({ data: { questions }, meta: { requestId, model: process.env.GEMINI_MODEL ?? "gemini-3.6-flash" } });
+    const model = process.env.GEMINI_MODEL ?? "gemini-3.7-flash";
+    const questions = await generateAssessment({ jobTitle, jobSummary, requiredSkills, resumeEvidence }, apiKey, model);
+    response.json({ data: { questions }, meta: { requestId, model } });
   } catch (error) {
-    response.status(502).json({ error: { code: "ASSESSMENT_GENERATION_FAILED", message: error instanceof Error ? error.message : "สร้าง Assessment ไม่สำเร็จ", requestId, retryable: true } });
+    const message = error instanceof Error ? error.message : "สร้าง Assessment ไม่สำเร็จ";
+    console.error("[Gemini Assessment Generation Error]", message);
+    response.status(502).json({ error: { code: "ASSESSMENT_GENERATION_FAILED", message, requestId, retryable: true } });
   }
 });
 

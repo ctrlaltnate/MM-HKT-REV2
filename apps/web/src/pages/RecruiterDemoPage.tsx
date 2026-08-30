@@ -1,59 +1,838 @@
-import { ArrowRight, BriefcaseBusiness, Check, CheckCircle2, ClipboardCheck, FileText, LoaderCircle, Pencil, RotateCcw, Search, ShieldCheck, Sparkles, Upload, Users } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  BriefcaseBusiness,
+  Building2,
+  Check,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardCheck,
+  Clock,
+  ExternalLink,
+  EyeOff,
+  FileText,
+  Heart,
+  HelpCircle,
+  Info,
+  LoaderCircle,
+  MapPin,
+  Pencil,
+  RotateCcw,
+  Search,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  Sparkles,
+  UserCheck,
+  Users,
+  X,
+} from "lucide-react";
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { analyzeResume, generateAssessment, type AssessmentQuestion } from "../services/resume-api";
+import { sponsorCompanies, type Company } from "../data/companies";
 
-type Job = { id: string; title: string; category: string; department: string; location: string; type: string; salary: string; summary: string; skills: string[]; questions: string[] };
+export type Job = {
+  id: string;
+  companyId: string;
+  title: string;
+  category: "Tech" | "Business" | "People" | "Operations";
+  department: string;
+  location: string;
+  type: string;
+  salary: string;
+  summary: string;
+  skills: string[];
+};
 
-const jobs: Job[] = [
-  { id: "frontend", title: "Frontend Developer", category: "Tech", department: "Product Engineering", location: "Bangkok · Hybrid", type: "Full-time", salary: "฿55K–85K", summary: "พัฒนาเว็บแอปที่เร็ว เข้าถึงได้ และดูแล state/API อย่างเป็นระบบ", skills: ["React", "TypeScript", "REST API", "Testing"], questions: ["อธิบายวิธีลด unnecessary re-render ใน React", "ออกแบบ error handling เมื่อ API ล่มอย่างไร", "ยกตัวอย่าง test ที่ช่วยป้องกัน regression"] },
-  { id: "backend", title: "Backend Engineer", category: "Tech", department: "Platform Engineering", location: "Bangkok · Hybrid", type: "Full-time", salary: "฿65K–100K", summary: "ออกแบบ API และบริการหลังบ้านที่ปลอดภัย รองรับโหลด และสังเกตการณ์ได้", skills: ["Node.js", "PostgreSQL", "API Design", "System Design"], questions: ["ออกแบบ idempotent API สำหรับสร้างคำสั่งซื้ออย่างไร", "เลือก index ใน PostgreSQL จากอะไร", "รับมือ service latency สูงผิดปกติอย่างไร"] },
-  { id: "mobile", title: "Mobile Application Developer", category: "Tech", department: "Mobile Product", location: "Bangkok · Hybrid", type: "Full-time", salary: "฿58K–90K", summary: "สร้างแอปมือถือข้ามแพลตฟอร์มที่ลื่นไหล เสถียร และใช้งานแบบ offline ได้", skills: ["React Native", "TypeScript", "Mobile UI", "App Testing"], questions: ["จัดการ offline synchronization อย่างไร", "วิเคราะห์ปัญหา frame drop บนมือถืออย่างไร", "วางแผน release ที่ลดความเสี่ยงอย่างไร"] },
-  { id: "devops", title: "DevOps & Cloud Engineer", category: "Tech", department: "Cloud Infrastructure", location: "Remote · Thailand", type: "Full-time", salary: "฿70K–110K", summary: "ดูแล cloud platform, CI/CD และ reliability ให้ทีมส่งระบบได้เร็วและปลอดภัย", skills: ["AWS", "Docker", "Kubernetes", "CI/CD"], questions: ["ออกแบบ deployment แบบ zero downtime อย่างไร", "แยก secret ระหว่าง environment อย่างไร", "จะลดเวลา CI pipeline โดยไม่ลดคุณภาพอย่างไร"] },
-  { id: "security", title: "Cybersecurity Analyst", category: "Tech", department: "Security Operations", location: "Bangkok · Hybrid", type: "Full-time", salary: "฿60K–95K", summary: "เฝ้าระวัง ตรวจสอบ และตอบสนองเหตุการณ์ความปลอดภัยโดยใช้หลักฐาน", skills: ["SIEM", "Incident Response", "Network Security", "Threat Analysis"], questions: ["คัดแยก alert ปริมาณมากอย่างไร", "ขั้นตอนแรกเมื่อสงสัย credential compromise คืออะไร", "แยก false positive ออกจากเหตุจริงอย่างไร"] },
-  { id: "ml", title: "Machine Learning Engineer", category: "Tech", department: "AI Platform", location: "Bangkok · Hybrid", type: "Full-time", salary: "฿75K–120K", summary: "นำโมเดล machine learning ขึ้น production พร้อมติดตามคุณภาพและความเป็นธรรม", skills: ["Python", "Machine Learning", "MLOps", "Model Evaluation"], questions: ["ตรวจ data leakage ก่อน train อย่างไร", "ติดตาม model drift ใน production อย่างไร", "เลือก metric เมื่อ class ไม่สมดุลอย่างไร"] },
-  { id: "qa", title: "QA Automation Engineer", category: "Tech", department: "Quality Engineering", location: "Bangkok · Hybrid", type: "Full-time", salary: "฿48K–78K", summary: "สร้างระบบทดสอบอัตโนมัติที่จับความเสี่ยงสำคัญและทำให้ release มั่นใจขึ้น", skills: ["Playwright", "API Testing", "Test Strategy", "CI/CD"], questions: ["เลือก test case ใดไว้ใน smoke suite", "ลด flaky end-to-end test อย่างไร", "ออกแบบ API contract test เพื่อจับ regression อย่างไร"] },
-  { id: "ux", title: "UX/UI Product Designer", category: "Tech", department: "Product Design", location: "Bangkok · Hybrid", type: "Full-time", salary: "฿50K–82K", summary: "ออกแบบประสบการณ์ดิจิทัลจากงานวิจัยจนถึง design system และทดสอบกับผู้ใช้", skills: ["User Research", "Figma", "Prototyping", "Design Systems"], questions: ["เปลี่ยน insight จาก interview เป็น design decision อย่างไร", "ทดสอบ prototype เมื่อเวลาจำกัดอย่างไร", "จัดการ component ที่ไม่สอดคล้องกับ design system อย่างไร"] },
-  { id: "data", title: "Data Analyst", category: "Tech", department: "Data & Insights", location: "Bangkok · Hybrid", type: "Full-time", salary: "฿45K–70K", summary: "เปลี่ยนข้อมูลธุรกิจเป็น insight และ dashboard ที่ใช้ตัดสินใจได้", skills: ["SQL", "Python", "Data Visualization", "Statistics"], questions: ["เขียนแนวคิด SQL หา monthly retention", "จะตรวจ data quality ก่อนทำ dashboard อย่างไร", "อธิบายความต่าง correlation และ causation"] },
-  { id: "marketing", title: "Digital Marketing Specialist", category: "Business", department: "Marketing", location: "Bangkok · On-site", type: "Full-time", salary: "฿38K–58K", summary: "วางแคมเปญ วัด conversion และปรับงบจากข้อมูลจริง", skills: ["Campaign Strategy", "Google Analytics", "Content", "Performance Marketing"], questions: ["ออกแบบ funnel สำหรับสินค้าใหม่", "เลือก metric เพื่อวัด campaign อย่างไร", "ทำอย่างไรเมื่อ CAC สูงขึ้นต่อเนื่อง"] },
-  { id: "sales", title: "B2B Sales Executive", category: "Business", department: "Sales", location: "Bangkok · Hybrid", type: "Full-time", salary: "฿35K–60K + commission", summary: "ดูแล pipeline ลูกค้าองค์กรตั้งแต่ discovery ถึงปิดการขาย", skills: ["B2B Sales", "Negotiation", "CRM", "Account Planning"], questions: ["เล่าวิธี qualify ลูกค้าองค์กร", "รับมือ objection เรื่องราคาอย่างไร", "จัดลำดับดีลใน pipeline จากอะไร"] },
-  { id: "hr", title: "People Operations Officer", category: "People", department: "Human Resources", location: "Bangkok · On-site", type: "Full-time", salary: "฿32K–48K", summary: "ดูแล employee experience และกระบวนการ HR ให้แม่นยำ", skills: ["HR Operations", "Labour Law", "Onboarding", "Communication"], questions: ["ออกแบบ onboarding 30 วันอย่างไร", "จัดการข้อมูลพนักงานที่ละเอียดอ่อนอย่างไร", "ยกตัวอย่างการแก้ employee issue"] },
-  { id: "finance", title: "Financial Planning Analyst", category: "Operations", department: "Finance", location: "Bangkok · Hybrid", type: "Full-time", salary: "฿48K–72K", summary: "ทำ budget, forecast และวิเคราะห์ผลต่างเพื่อสนับสนุนผู้บริหาร", skills: ["Financial Modeling", "Excel", "Forecasting", "Variance Analysis"], questions: ["สร้าง rolling forecast จากสมมติฐานใด", "อธิบาย favorable variance ที่อาจเป็นสัญญาณลบ", "ตรวจความถูกต้องของ financial model อย่างไร"] },
-  { id: "ops", title: "Customer Operations Lead", category: "Operations", department: "Customer Experience", location: "Remote · Thailand", type: "Full-time", salary: "฿42K–65K", summary: "ยกระดับคุณภาพบริการด้วย SLA, coaching และ process improvement", skills: ["Customer Service", "SLA Management", "Process Improvement", "Team Coaching"], questions: ["จัดการ backlog ที่เกิน SLA อย่างไร", "วัดคุณภาพทีมบริการด้วย metric ใด", "เล่าการปรับ process ที่ลดปัญหาซ้ำ"] },
+export const jobs: Job[] = [
+  // Tech (6 positions)
+  {
+    id: "tech-msft-ai",
+    companyId: "microsoft",
+    title: "Cloud & AI Solutions Architect",
+    category: "Tech",
+    department: "Azure AI & Cloud Solutions",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿90K–145K",
+    summary: "ออกแบบสถาปัตยกรรม Enterprise Cloud & AI บน Azure ดูแลความปลอดภัย Scalability และการบูรณาการ Generative AI Solutions สำหรับลูกค้าองค์กร",
+    skills: ["Azure Cloud", "Generative AI", "Cloud Architecture", "Kubernetes", "System Security"],
+  },
+  {
+    id: "tech-lineman-fullstack",
+    companyId: "lineman",
+    title: "Senior Full-Stack Engineer",
+    category: "Tech",
+    department: "Core Marketplace Engineering",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿75K–120K",
+    summary: "พัฒนาและดูแลระบบ Marketplace On-demand ขนาดใหญ่ รองรับ High Concurrency แสน Transactions/min ด้วย Microservices และ Real-time API",
+    skills: ["React", "TypeScript", "Node.js / Go", "PostgreSQL", "System Design"],
+  },
+  {
+    id: "tech-canva-frontend",
+    companyId: "canva",
+    title: "Frontend Design Engineer",
+    category: "Tech",
+    department: "Visual Suite & Magic Studio",
+    location: "Bangkok & Sydney · Hybrid",
+    type: "Full-time",
+    salary: "฿70K–110K",
+    summary: "สร้างสรรค์ Canvas-based Interactive Web Tools ระดับโลก พร้อมเชื่อมต่อ Magic AI และเน้น Performance 60fps รวมถึง Web Accessibility",
+    skills: ["React", "TypeScript", "Canvas/WebGL", "Design Systems", "Web Performance"],
+  },
+  {
+    id: "tech-mfec-security",
+    companyId: "mfec",
+    title: "Cybersecurity & Cloud Defense Specialist",
+    category: "Tech",
+    department: "Security Operations Center (SOC)",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿65K–105K",
+    summary: "เฝ้าระวัง ตอบสนองต่อภัยคุกคามไซเบอร์ระดับองค์กร ตรวจสอบ SIEM และวางมาตรฐานความปลอดภัยคลาวด์ ISO 27001",
+    skills: ["SIEM / SOC", "Threat Hunting", "Cloud Security", "Incident Response", "Network Defense"],
+  },
+  {
+    id: "tech-muvmi-mobile",
+    companyId: "muvmi",
+    title: "Mobile Application Engineer (EV Fleet)",
+    category: "Tech",
+    department: "Smart Mobility App Team",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿55K–90K",
+    summary: "พัฒนาโมบายแอปพลิเคชันเรียกรถตุ๊กตุ๊กไฟฟ้าแบบ On-Demand เชื่อมต่อ Telemetry แบบเรียลไทม์ และระบบแชร์เส้นทางอัจฉริยะ",
+    skills: ["React Native", "TypeScript", "Geolocation / Maps", "WebSockets", "Mobile UI"],
+  },
+  {
+    id: "tech-jobthai-data",
+    companyId: "jobthai",
+    title: "Data Analytics & ML Platform Engineer",
+    category: "Tech",
+    department: "Data & Career Intelligence",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿60K–95K",
+    summary: "สร้าง Data Pipeline วิเคราะห์ข้อมูลตลาดแรงงาน และพัฒนาโมเดล AI Talent Matching จับคู่งานและทักษะอย่างแม่นยำ",
+    skills: ["Python", "SQL", "BigQuery", "Machine Learning", "Data Pipeline"],
+  },
+
+  // Business (4 positions)
+  {
+    id: "biz-msft-sales",
+    companyId: "microsoft",
+    title: "Enterprise Partner Sales Lead",
+    category: "Business",
+    department: "Enterprise Commercial",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿80K–130K + Incentive",
+    summary: "ดูแลการขายโซลูชันคลาวด์และ AI แก่กลุ่มลูกค้าองค์กรขนาดใหญ่ วางกลยุทธ์ Digital Transformation ร่วมกับผู้บริหารระดับสูง",
+    skills: ["B2B Enterprise Sales", "Cloud Strategy", "Negotiation", "Account Management", "Solution Selling"],
+  },
+  {
+    id: "biz-lineman-growth",
+    companyId: "lineman",
+    title: "Digital Growth & Performance Marketer",
+    category: "Business",
+    department: "Growth & User Acquisition",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿50K–80K",
+    summary: "วางแผนแคมเปญกระตุ้นการเติบโตของผู้ใช้ใหม่และ Retention วิเคราะห์ Funnel & CAC/LTV และปรับงบโฆษณาด้วยข้อมูลจริง",
+    skills: ["Performance Marketing", "Funnel Analytics", "SQL / Google Analytics", "A/B Testing", "Campaign ROI"],
+  },
+  {
+    id: "biz-canva-brand",
+    companyId: "canva",
+    title: "Brand & Creator Marketing Specialist",
+    category: "Business",
+    department: "Regional Brand & Creator Community",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿45K–75K",
+    summary: "ขับเคลื่อนการรับรู้แบรนด์ สร้างคอมมูนิตี้ Content Creator และร่วมมือกับพันธมิตรสร้างสรรค์เพื่อขยายการใช้งาน Canva ในไทย",
+    skills: ["Brand Storytelling", "Creator Partnerships", "Content Strategy", "Social Media", "Community Growth"],
+  },
+  {
+    id: "biz-if-bd",
+    companyId: "ifdrink",
+    title: "International Business Development Executive",
+    category: "Business",
+    department: "Global Export & Commercial",
+    location: "Bangkok & Travel · Hybrid",
+    type: "Full-time",
+    salary: "฿55K–85K + Commission",
+    summary: "ขยายตลาดส่งออกเครื่องดื่มน้ำมะพร้าวและน้ำผลไม้ IF สู่ต่างประเทศ เจรจากับคู่ค้าระหว่างประเทศและบริหาร Distributor ทั่วโลก",
+    skills: ["International Trade", "Key Account Management", "Export Compliance", "Distributor Negotiation", "FMCG Commercial"],
+  },
+
+  // People (4 positions)
+  {
+    id: "people-mfec-ta",
+    companyId: "mfec",
+    title: "Technical Talent Acquisition Partner",
+    category: "People",
+    department: "People & Organization",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿45K–70K",
+    summary: "วางแผนและดำเนินการสรรหาบุคลากรสายเทคโนโลยีระดับ Specialist สัมภาษณ์เชิงลึก และสร้าง Candidate Experience ที่ยอดเยี่ยม",
+    skills: ["Tech Sourcing", "Competency Interviewing", "Employer Branding", "Candidate Experience", "Tech Talent Pipeline"],
+  },
+  {
+    id: "people-canva-hrbp",
+    companyId: "canva",
+    title: "People & Culture Partner (HRBP)",
+    category: "People",
+    department: "People Operations",
+    location: "Bangkok & Sydney · Hybrid",
+    type: "Full-time",
+    salary: "฿60K–95K",
+    summary: "เป็นที่ปรึกษาเชิงกลยุทธ์ด้านบุคลากรแก่ผู้นำทีม ดูแล Culture, Employee Engagement, และการเติบโตของทีมตามค่านิยม Canva",
+    skills: ["People Strategy", "Employee Engagement", "Coaching & Feedback", "DEI Programs", "Talent Management"],
+  },
+  {
+    id: "people-spark-coach",
+    companyId: "techspark",
+    title: "Talent Development & Community Specialist",
+    category: "People",
+    department: "Learning & Community",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿40K–65K",
+    summary: "ออกแบบโปรแกรมบ่มเพาะทักษะสายเทค จัดเวิร์กช็อป Mentorship และสร้างระบบสนับสนุนคนรุ่นใหม่สู่สายงานดิจิทัล",
+    skills: ["Learning & Development", "Workshop Facilitation", "Mentorship Programs", "Community Building", "Talent Coaching"],
+  },
+  {
+    id: "people-jobthai-er",
+    companyId: "jobthai",
+    title: "People Operations & Employee Experience Officer",
+    category: "People",
+    department: "Human Resources",
+    location: "Bangkok · On-site / Hybrid",
+    type: "Full-time",
+    salary: "฿35K–55K",
+    summary: "ดูแล Employee Lifecycle ตั้งแต่ Onboarding บริหารจัดการสวัสดิการ แรงงานสัมพันธ์ และสร้างสุขภาวะที่ดีในที่ทำงาน",
+    skills: ["HR Operations", "Onboarding Design", "Labor Law Compliance", "Employee Relations", "HRIS & Benefits"],
+  },
+
+  // Operations (4 positions)
+  {
+    id: "ops-muvmi-fleet",
+    companyId: "muvmi",
+    title: "EV Fleet & City Operations Lead",
+    category: "Operations",
+    department: "Urban Mobility Operations",
+    location: "Bangkok · On-site / Hybrid",
+    type: "Full-time",
+    salary: "฿50K–78K",
+    summary: "บริหารจัดการฝูงรถตุ๊กตุ๊กไฟฟ้า สถานีชาร์จ และประสานงานทีมปฏิบัติการภาคสนามเพื่อความปลอดภัยและการเดินทางตรงเวลา",
+    skills: ["Fleet Operations", "Route Optimization", "SLA Management", "Incident Response", "Process Improvement"],
+  },
+  {
+    id: "ops-if-supply",
+    companyId: "ifdrink",
+    title: "Supply Chain & Logistics Operations Manager",
+    category: "Operations",
+    department: "Operations & Supply Chain",
+    location: "Bangkok & Factory · Hybrid",
+    type: "Full-time",
+    salary: "฿50K–80K",
+    summary: "ควบคุมการวางแผนการผลิต ห่วงโซ่อุปทาน คลังสินค้า และการขนส่งสินค้าส่งออกทั่วโลกให้ตรงตามมาตรฐานสากลและต้นทุนเหมาะสม",
+    skills: ["Supply Chain Planning", "Logistics & Freight", "Warehouse Management", "Cost Optimization", "Export Operations"],
+  },
+  {
+    id: "ops-lineman-cs",
+    companyId: "lineman",
+    title: "Customer Experience & Operations Lead",
+    category: "Operations",
+    department: "Customer Operations",
+    location: "Bangkok · Hybrid",
+    type: "Full-time",
+    salary: "฿52K–82K",
+    summary: "บริหารคุณภาพการให้บริการลูกค้าและร้านค้า ติดตาม SLA พัฒนาคู่มือแก้ไขปัญหา และประสานทีม Product เพื่อปรับระบบ",
+    skills: ["Customer Service Excellence", "SLA & KPI Tracking", "Team Coaching", "Root Cause Analysis", "Process Re-engineering"],
+  },
+  {
+    id: "ops-julian-spa",
+    companyId: "julians",
+    title: "Spa & Wellness Operations Manager",
+    category: "Operations",
+    department: "Hospitality & Operations",
+    location: "Bangkok · On-site",
+    type: "Full-time",
+    salary: "฿42K–68K",
+    summary: "ควบคุมมาตรฐานการให้บริการสปาระดับ 5 ดาว ดูแลสต็อกผลิตภัณฑ์ออร์แกนิก จัดตารางบุคลากร และควบคุมความพึงพอใจลูกค้า",
+    skills: ["Hospitality Management", "Quality Assurance", "Inventory Management", "Staff Scheduling", "VIP Customer Care"],
+  },
 ];
 
-const sampleClaims = "มีประสบการณ์ React และ TypeScript 3 ปี เชื่อมต่อ REST API และเขียน Testing ด้วย Vitest เคยปรับ performance dashboard จนเวลาโหลดลดลง 35% และดูแล accessibility ตาม WCAG";
+const sampleClaims =
+  "มีประสบการณ์ React และ TypeScript 3 ปี เชื่อมต่อ REST/GraphQL API และเขียน Automated Testing ด้วย Vitest/Playwright เคยปรับ Performance แดชบอร์ดจน Response Time ลดลง 40% จัดการ State และ Error Handling อย่างเป็นระบบตามมาตรฐาน WCAG";
 
-const categoryDescriptions: Record<string, string> = { Tech: "Software, data และ digital product", Business: "Marketing และการเติบโตทางธุรกิจ", People: "บุคลากรและประสบการณ์พนักงาน", Operations: "การเงินและงานปฏิบัติการ" };
-const jobDetails: Record<string, { overview: string; responsibilities: string[]; qualifications: string[]; benefits: string[] }> = {
-  frontend: { overview: "ร่วมพัฒนา customer-facing web application ตั้งแต่การออกแบบ component, เชื่อมต่อ API ไปจนถึงส่ง production โดยทำงานใกล้ชิดกับ Designer และ Backend Engineer", responsibilities: ["พัฒนา React component ที่ reusable และ accessible", "ออกแบบ state management และ error handling สำหรับ REST API", "เขียน unit/integration test และร่วม review code", "ติดตาม performance และแก้ปัญหา production"], qualifications: ["ประสบการณ์ Frontend 2–4 ปี", "ใช้ React และ TypeScript ในงานจริง", "เข้าใจ testing, Git และ web performance"], benefits: ["Hybrid 3 วัน/สัปดาห์", "งบเรียนรู้ ฿20,000/ปี", "ประกันสุขภาพและเวลาทำงานยืดหยุ่น"] },
-  backend: { overview: "ร่วมสร้างบริการหลักของแพลตฟอร์ม ตั้งแต่กำหนด contract ของ API, ออกแบบข้อมูล ไปจนถึงดูแลระบบหลัง deploy โดยให้ความสำคัญกับ security, observability และการเติบโตของระบบ", responsibilities: ["ออกแบบและพัฒนา REST API ด้วย Node.js และ TypeScript", "ออกแบบ schema, transaction และ query บน PostgreSQL", "เขียน automated test และทบทวน code/design", "ติดตาม latency, error rate และแก้ incident ร่วมกับทีม"], qualifications: ["ประสบการณ์ Backend 3 ปีขึ้นไป", "เข้าใจ database, caching และ distributed system พื้นฐาน", "สื่อสาร trade-off ด้าน performance และ maintainability ได้"], benefits: ["Cloud lab budget", "On-call allowance", "Hybrid และ flexible hours"] },
-  mobile: { overview: "พัฒนาแอปหลักบน iOS และ Android ร่วมกับ Product, Design และ Backend โดยดูแลตั้งแต่ architecture, native integration จนถึงการส่งเวอร์ชันขึ้น store", responsibilities: ["พัฒนา feature ด้วย React Native และ TypeScript", "ออกแบบ navigation, state และ offline data flow", "เขียน unit, integration และ device test", "ติดตาม crash, performance และ feedback หลัง release"], qualifications: ["ประสบการณ์ Mobile 2–4 ปี", "เคยส่งแอปขึ้น App Store หรือ Play Store", "เข้าใจ mobile lifecycle, accessibility และ platform guideline"], benefits: ["อุปกรณ์ทดสอบครบแพลตฟอร์ม", "งบ conference", "Hybrid work"] },
-  devops: { overview: "สร้าง internal platform ให้ทีมผลิตภัณฑ์ deploy ได้อย่างสม่ำเสมอ พร้อมดูแล cloud cost, security baseline และ reliability ของ workload สำคัญ", responsibilities: ["ดูแล infrastructure บน AWS และ Kubernetes", "สร้าง CI/CD pipeline และ deployment automation", "กำหนด monitoring, alert และ incident runbook", "ร่วมทำ capacity planning และ cost optimization"], qualifications: ["ประสบการณ์ Cloud/DevOps 3 ปีขึ้นไป", "ใช้ Docker, Kubernetes และ infrastructure as code", "เข้าใจ networking, Linux และ security ของ cloud"], benefits: ["Remote within Thailand", "Certification sponsorship", "On-call allowance และ home-office budget"] },
-  security: { overview: "ทำงานใน Security Operations เพื่อตรวจจับและตอบสนองภัยคุกคาม พร้อมปรับ detection rule และสื่อสารความเสี่ยงแก่ทีมเทคนิคและธุรกิจ", responsibilities: ["ตรวจสอบ SIEM alert และจัดลำดับ incident", "เก็บหลักฐาน วิเคราะห์ root cause และควบคุมผลกระทบ", "ปรับ detection playbook และ threat intelligence", "จัดทำ post-incident report โดยไม่กล่าวโทษบุคคล"], qualifications: ["ประสบการณ์ SOC หรือ cybersecurity 2 ปีขึ้นไป", "เข้าใจ network, endpoint และ identity security", "คิดเชิงหลักฐานและทำงานภายใต้เหตุเร่งด่วนได้"], benefits: ["Security training lab", "Certification budget", "Shift/on-call allowance"] },
-  ml: { overview: "เชื่อมงาน data science กับ production โดยสร้าง training pipeline, model service และระบบติดตามคุณภาพที่ตรวจสอบย้อนกลับได้ รวมถึงพิจารณา fairness และ privacy", responsibilities: ["พัฒนา feature/training pipeline ด้วย Python", "นำโมเดลขึ้น production และดูแล model registry", "วัด drift, latency, accuracy และ bias", "ร่วมออกแบบ experiment กับ Data Scientist และ Product"], qualifications: ["ประสบการณ์ ML engineering หรือ data science 2–4 ปี", "เข้าใจ supervised learning และ model evaluation", "มีพื้นฐาน software engineering, API และ cloud"], benefits: ["GPU/cloud sandbox", "Research learning day", "Conference และ publication support"] },
-  qa: { overview: "ขับเคลื่อนคุณภาพตั้งแต่ refinement ถึง production โดยออกแบบ test strategy ตามความเสี่ยง และสร้าง automation ที่รวดเร็ว เชื่อถือได้ และดูแลง่าย", responsibilities: ["วาง test strategy และ acceptance coverage", "พัฒนา UI automation ด้วย Playwright และ API test", "เชื่อม test suite กับ CI/CD และรายงานผลที่อ่านง่าย", "วิเคราะห์ defect trend และช่วยทีมป้องกัน regression"], qualifications: ["ประสบการณ์ QA Automation 2 ปีขึ้นไป", "เขียน TypeScript/JavaScript และ API test ได้", "เข้าใจ test pyramid, mocking และ flaky-test control"], benefits: ["Device/browser lab", "Automation learning budget", "Flexible hybrid work"] },
-  ux: { overview: "ดูแล discovery และ interaction design ของผลิตภัณฑ์ B2B/B2C ตั้งแต่ทำความเข้าใจผู้ใช้ สร้าง prototype จนถึง handoff และวัดผลหลังส่งมอบ", responsibilities: ["วางแผน user research และสังเคราะห์ insight", "สร้าง user flow, wireframe และ interactive prototype", "ดูแล component และ guideline ใน design system", "ทำ usability test และทำงานร่วมกับ Engineer เรื่อง accessibility"], qualifications: ["ประสบการณ์ Product Design 2–4 ปี", "มี portfolio แสดงกระบวนการและผลลัพธ์", "ใช้ Figma คล่องและเข้าใจ responsive/accessibility"], benefits: ["Research participant budget", "Design conference support", "Hybrid และ flexible hours"] },
-  data: { overview: "เปลี่ยนข้อมูลจาก product และ commercial teams ให้เป็น insight ที่อธิบายได้ พร้อมสร้าง dashboard และมาตรฐาน data quality ที่ทีมเชื่อถือ", responsibilities: ["เขียน SQL เพื่อเตรียมและตรวจสอบข้อมูล", "สร้าง dashboard และสื่อสาร insight กับ stakeholder", "วิเคราะห์ funnel, cohort และ experiment", "กำหนด metric definition ร่วมกับทีมธุรกิจ"], qualifications: ["ประสบการณ์วิเคราะห์ข้อมูล 1–3 ปี", "ใช้ SQL และ Python ได้คล่อง", "เข้าใจสถิติและ data visualization"], benefits: ["Hybrid work", "Data conference budget", "ประกันสุขภาพกลุ่ม"] },
-  marketing: { overview: "ดูแลแคมเปญดิจิทัลแบบ end-to-end ตั้งแต่กำหนด audience, creative brief, media execution จนถึงวิเคราะห์ conversion", responsibilities: ["วาง campaign plan และจัดสรรงบ", "ติดตาม CAC, ROAS และ conversion funnel", "ประสานงาน content และ creative", "สรุปผลและเสนอการทดลองรอบถัดไป"], qualifications: ["ประสบการณ์ digital marketing 2 ปีขึ้นไป", "ใช้ Google Analytics และ ad platforms", "สื่อสารด้วยข้อมูลและทดลองอย่างเป็นระบบ"], benefits: ["Performance bonus", "งบ certification", "Flexible leave"] },
-  sales: { overview: "สร้างและดูแล B2B pipeline สำหรับลูกค้าองค์กร ตั้งแต่ discovery, solution proposal, negotiation จนถึง handoff ให้ customer success", responsibilities: ["หาและ qualify โอกาสทางการขาย", "ทำ discovery และนำเสนอ solution", "บริหาร CRM และ forecast รายสัปดาห์", "เจรจาเงื่อนไขและปิดการขาย"], qualifications: ["ประสบการณ์ B2B sales 2 ปีขึ้นไป", "เข้าใจ consultative selling", "บริหารหลาย deal พร้อมกันได้"], benefits: ["Commission ไม่จำกัดเพดาน", "ค่าเดินทาง", "Sales enablement program"] },
-  hr: { overview: "ดูแล employee lifecycle และทำให้กระบวนการ People Operations ถูกต้อง เป็นมิตร และปกป้องข้อมูลส่วนบุคคล", responsibilities: ["ดูแล onboarding และ offboarding", "จัดการ HR document และ employee records", "ตอบคำถาม policy และประสาน payroll", "เก็บ feedback เพื่อปรับ employee experience"], qualifications: ["ประสบการณ์ HR Operations 1–3 ปี", "เข้าใจกฎหมายแรงงานเบื้องต้น", "ละเอียดและรักษาความลับได้ดี"], benefits: ["Wellbeing allowance", "ประกันสุขภาพ", "People development track"] },
-  finance: { overview: "สนับสนุนการตัดสินใจของผู้บริหารด้วย budget, rolling forecast และการวิเคราะห์ผลต่างที่เชื่อมตัวเลขกับเหตุผลทางธุรกิจ", responsibilities: ["จัดทำ budget และ monthly forecast", "วิเคราะห์ actual เทียบ plan", "ดูแล financial model และ scenario", "จัดทำ management report"], qualifications: ["ประสบการณ์ FP&A หรือ finance 2 ปีขึ้นไป", "Excel และ financial modeling แข็งแรง", "อธิบายตัวเลขให้ non-finance เข้าใจได้"], benefits: ["Hybrid work", "Professional certification support", "Annual performance bonus"] },
-  ops: { overview: "นำทีม Customer Operations ให้ส่งมอบบริการตาม SLA พร้อมสร้างระบบ coaching และปรับ process เพื่อลดปัญหาซ้ำ", responsibilities: ["ติดตาม SLA, backlog และ quality", "วางตารางและ coach ทีมบริการ", "วิเคราะห์ root cause และปรับ workflow", "ประสาน Product เมื่อพบปัญหาเชิงระบบ"], qualifications: ["ประสบการณ์ customer operations 3 ปีขึ้นไป", "เคยดูแลทีมหรือ project", "ใช้ข้อมูลจัดลำดับปัญหาได้"], benefits: ["Remote within Thailand", "Home-office allowance", "Leadership development"] },
+const categoryDescriptions: Record<string, string> = {
+  Tech: "Software Engineering, Cloud, AI, Security และ Data Intelligence",
+  Business: "Growth Marketing, Brand Community และ Enterprise Commercial",
+  People: "Talent Acquisition, People Strategy (HRBP) และ Community Learning",
+  Operations: "Fleet Logistics, Supply Chain, Customer Operations และ Hospitality",
+};
+
+const jobDetails: Record<
+  string,
+  { overview: string; responsibilities: string[]; qualifications: string[]; benefits: string[] }
+> = {
+  "tech-msft-ai": {
+    overview:
+      "ร่วมทีม Enterprise Cloud & AI เพื่อออกแบบและวางสถาปัตยกรรมระดับคลาวด์บน Microsoft Azure ให้กับองค์กรชั้นนำในไทย โดยมุ่งเน้นการนำ Azure OpenAI, Copilot Studio, และ Modern Cloud-native Architecture ไปใช้งานจริงอย่างปลอดภัยและคุ้มค่า",
+    responsibilities: [
+      "ออกแบบและให้คำปรึกษาด้าน Enterprise Cloud & Generative AI Architecture",
+      "วางแผนความปลอดภัยตามเฟรมเวิร์ก Microsoft Cloud Security Benchmark",
+      "ทำงานร่วมกับลูกค้าองค์กรในการทำ Proof-of-Concept และขึ้น Production",
+      "เป็น Technical Evangelist ถ่ายทอด Best Practice แก่ทีมวิศวกรภายนอก",
+    ],
+    qualifications: [
+      "ประสบการณ์ Cloud Architecture หรือ AI Integration 3–5 ปีขึ้นไป",
+      "คุ้นเคยกับ Microsoft Azure, Kubernetes, และ AI/LLM SDKs",
+      "มีทักษะการสื่อสารเชิงกลยุทธ์ ถ่ายทอดโจทย์ธุรกิจสู่โซลูชันเทคนิคได้",
+    ],
+    benefits: [
+      "Hybrid work ยืดหยุ่นสูงสุด",
+      "งบสอบ Certifications และเรียนรู้ระดับสากลฟรี",
+      "ประกันสุขภาพพรีเมียมครอบคลุมครอบครัว",
+      "Wellness & Fitness Allowance รายปี",
+    ],
+  },
+  "tech-lineman-fullstack": {
+    overview:
+      "ร่วมสร้าง Core Marketplace Platform ของ LINE MAN Wongnai ที่รองรับการสั่งอาหาร บริการเรียกรถ และ Mart ของคนไทยหลายล้านคนทุกวัน โดยเน้นระบบที่ทนทาน (High Availability) และขยายตัวได้รวดเร็ว (High Concurrency)",
+    responsibilities: [
+      "พัฒนาและดูแล Full-stack Services ด้วย React, TypeScript, Node.js และ Go",
+      "ออกแบบ Database Schema, Transactions และ Caching Strategy บน PostgreSQL/Redis",
+      "เขียน Unit & Integration Tests พร้อมทบทวน Code เพื่อรักษามาตรฐานความเสถียร",
+      "ตรวจวัดและปรับแต่ง Latency และ System Reliability ใน Production",
+    ],
+    qualifications: [
+      "ประสบการณ์ Full-stack Web Development 3 ปีขึ้นไป",
+      "เข้าใจ Microservices, Message Queues และ High Concurrency Systems",
+      "สามารถแก้ไขปัญหา Incident และคิดวิเคราะห์อย่างเป็นระบบด้วยข้อมูล",
+    ],
+    benefits: [
+      "LINE MAN Credit สั่งอาหารฟรีทุกเดือน",
+      "อาหารกลางวันและเครื่องดื่มฟรีที่ออฟฟิศ",
+      "เวลาทำงานยืดหยุ่น & Hybrid work",
+      "MacBook Pro สเปกท็อปสำหรับวิศวกร",
+    ],
+  },
+  "tech-canva-frontend": {
+    overview:
+      "ออกแบบและพัฒนา Interactive Visual Canvas และเครื่องมือ AI-assisted Design ให้ผู้ใช้งานกว่า 170 ล้านคนทั่วโลก โดยผลักดันขีดจำกัดของ Web Graphics, WebGL, Real-time Collaboration และ Component Design Systems",
+    responsibilities: [
+      "พัฒนา Interactive Features บน Canvas โดยเน้น Frame-rate ที่ลื่นไหล (60fps)",
+      "สร้าง Reusable UI Components และขยาย Design System ร่วมกับทีมนักออกแบบ",
+      "บูรณาการ Magic Studio AI เข้าสู่ Workflow การออกแบบของผู้ใช้",
+      "ดูแล Web Accessibility (a11y) และ Cross-platform Browser Compatibility",
+    ],
+    qualifications: [
+      "ประสบการณ์ Frontend Engineering 3–5 ปี โดยเชี่ยวชาญ React & TypeScript",
+      "มีความเข้าใจลึกซึ้งเรื่อง DOM Performance, Canvas API หรือ WebGL",
+      "ใส่ใจใน Product Detail, Micro-animations และ User Experience",
+    ],
+    benefits: [
+      "Canva Pro ฟรีตลอดชีพสำหรับตนเองและครอบครัว",
+      "Home Office Stipend สำหรับจัดโต๊ะทำงาน",
+      "Learning & Growth Fund รายปี",
+      "วันลาดูแลสุขภาพจิต (Mental Health Days)",
+    ],
+  },
+  "tech-mfec-security": {
+    overview:
+      "ประจำศูนย์ Security Operations Center (SOC) ดูแลความปลอดภัยโครงสร้างพื้นฐานระดับประเทศ ตรวจจับ วิเคราะห์ และตอบสนองต่อภัยคุกคามไซเบอร์ (Incident Response) ให้กับธนาคารและองค์กรภาครัฐ",
+    responsibilities: [
+      "เฝ้าระวังและวิเคราะห์ Security Alerts จาก SIEM, EDR และ Cloud Logs",
+      "ดำเนินการ Incident Response, Root Cause Analysis และระงับเหตุฉุกเฉิน",
+      "พัฒนา Detection Rules และ Threat Hunting Playbooks ใหม่ๆ",
+      "ให้คำแนะนำแก่ทีมลูกค้าในการแก้ไขช่องโหว่ตามมาตรฐาน ISO 27001",
+    ],
+    qualifications: [
+      "ประสบการณ์ SOC Analyst หรือ Cybersecurity 2 ปีขึ้นไป",
+      "เข้าใจ Network Protocols, Cloud Security (AWS/Azure) และ Attack Frameworks",
+      "มีทักษะคิดเชิงหลักฐาน (Evidence-based) และทำงานภายใต้ภาวะฉุกเฉินได้",
+    ],
+    benefits: [
+      "สนับสนุนค่าสอบ Certificate สากล (CISSP, CEH, Sec+) เต็มจำนวน",
+      "โบนัสตามผลงานและ Incentive โครงการ",
+      "ประกันสุขภาพกลุ่มชั้นนำ",
+      "กิจกรรมชมรมกีฬาและ Esports ภายใน",
+    ],
+  },
+  "tech-muvmi-mobile": {
+    overview:
+      "พัฒนาแอปพลิเคชัน MuvMi สำหรับผู้โดยสารและแอปพลิเคชันสำหรับคนขับรถตุ๊กตุ๊กไฟฟ้า เชื่อมต่อกับระบบ Dynamic Routing และ Telemetry ของรถ EV แบบเรียลไทม์เพื่อสร้างประสบการณ์การเดินทางในเมืองที่ไร้รอยต่อ",
+    responsibilities: [
+      "พัฒนาฟีเจอร์จองรถ เรียกรถ และชำระเงินด้วย React Native และ TypeScript",
+      "ปรับปรุงประสิทธิภาพ Real-time Map Rendering และตำแหน่ง GPS บนมือถือ",
+      "จัดการ State, Offline Caching และ WebSocket Data Stream",
+      "ทดสอบแอปพลิเคชันบนอุปกรณ์จริงและส่งขึ้น App Store / Play Store",
+    ],
+    qualifications: [
+      "ประสบการณ์ Mobile App Development 2–4 ปี",
+      "เชี่ยวชาญ React Native, Geolocation APIs, และ WebSockets",
+      "มีความกระตือรือร้นในการแก้ปัญหาการเดินทางและสิ่งแวดล้อมในเมือง",
+    ],
+    benefits: [
+      "สิทธิ์นั่ง MuvMi เดินทางในกรุงเทพฯ ฟรี",
+      "กองทุนสนับสนุนการเดินทางพลังงานสะอาด",
+      "เวลาทำงานยืดหยุ่นและการทำงานแบบ Hybrid",
+      "ส่วนลดร้านอาหารย่านสามย่าน-บรรทัดทอง",
+    ],
+  },
+  "tech-jobthai-data": {
+    overview:
+      "ยกระดับแพลตฟอร์ม JobThai ด้วย Big Data และ Machine Learning เพื่อสร้างระบบ Smart Candidate Matching และ Data Pipeline ที่ประมวลผลข้อมูลการสมัครงานนับล้านรายการ ให้เป็นแนวโน้มตลาดแรงงานที่มีคุณค่า",
+    responsibilities: [
+      "พัฒนา Data Pipeline และ ETL Workflow ด้วย Python และ Google BigQuery",
+      "พัฒนาโมเดล AI Semantic Search และ Resume-JD Matcher",
+      "สร้าง Data Dashboard สำหรับวิเคราะห์ Metrics พฤติกรรมผู้ใช้งาน",
+      "ร่วมออกแบบ Database Architecture เพื่อรองรับการสืบค้นความเร็วสูง",
+    ],
+    qualifications: [
+      "ประสบการณ์ Data Engineering หรือ Machine Learning 2 ปีขึ้นไป",
+      "เชี่ยวชาญ Python, SQL, Cloud Data Warehouse และ ML Frameworks",
+      "มีความคิดเชิงสถิติ เข้าใจ Data Validation และ Quality Control",
+    ],
+    benefits: [
+      "Hybrid Work สัปดาห์ละ 2-3 วัน",
+      "งบสัมมนาและคอร์สพัฒนาทักษะวิชาชีพ",
+      "ประกันสุขภาพกลุ่มครอบคลุม OPD/IPD",
+      "เงินช่วยเหลือพิเศษและโบนัสประจำปี",
+    ],
+  },
+
+  // Business (4)
+  "biz-msft-sales": {
+    overview:
+      "ขับเคลื่อนการเติบโตเชิงพาณิชย์ของ Microsoft Thailand โดยนำเสนอโซลูชัน Enterprise Cloud, Copilot AI และ Security แก่ผู้นำระดับ C-Level ของกลุ่มธุรกิจชั้นนำ",
+    responsibilities: [
+      "สร้างและบริหาร Sales Pipeline ลูกค้าองค์กรระดับ Enterprise",
+      "นำเสนอ Strategic Solution Pitch ร่วมกับ Cloud Solution Architects",
+      "เจรจาเงื่อนไขสัญญาเชิงพาณิชย์และปิดการขายตามเป้าหมายรายไตรมาส",
+      "ดูแลรักษาความสัมพันธ์ระยะยาวในฐานะ Trusted Business Advisor",
+    ],
+    qualifications: [
+      "ประสบการณ์ B2B Enterprise IT Solution Sales 3–6 ปี",
+      "เข้าใจภาพรวม Cloud, Software Licensing และ Digital Transformation",
+      "ทักษะการเจรจาต่อรองและการนำเสนอระดับมืออาชีพ",
+    ],
+    benefits: [
+      "Incentive และค่าคอมมิชชันตามผลงาน",
+      "งบสนับสนุนอุปกรณ์และค่าเดินทาง",
+      "Hybrid work ยืดหยุ่นสูงสุด",
+      "สวัสดิการระดับสากลครบครัน",
+    ],
+  },
+  "biz-lineman-growth": {
+    overview:
+      "วางแผนและบริหารงบการตลาด Performance Marketing ของ LINE MAN ขับเคลื่อนการได้มาของผู้ใช้ใหม่ (User Acquisition) และการสั่งซื้อซ้ำ ผ่านการทดลองและวิเคราะห์ข้อมูลเชิงลึก",
+    responsibilities: [
+      "วางแผนและยิงแคมเปญโฆษณาบน Google, Meta, TikTok และ programmatic ads",
+      "ติดตามและปรับปรุง CAC, LTV, Retention Rate และ Conversion Funnel",
+      "ทำ A/B Testing สำหรับ Ad Creatives และ Landing Pages อย่างต่อเนื่อง",
+      "สรุปข้อมูล ROI และเสนอแนะกลยุทธ์การเติบโตร่วมกับทีม Product",
+    ],
+    qualifications: [
+      "ประสบการณ์ Performance Marketing หรือ Growth 2–4 ปี",
+      "ใช้ Google Analytics, SQL, AppsFlyer และ Ads Manager ได้อย่างเชี่ยวชาญ",
+      "คิดวิเคราะห์ด้วยตัวเลขและกล้าทดลองสิ่งใหม่",
+    ],
+    benefits: [
+      "โบนัสตามผลงานและ Performance",
+      "LINE MAN Credit สำหรับสั่งอาหาร",
+      "งบ Upskill & Certification ด้านการตลาด",
+      "บรรยากาศการทำงานแบบ Data-driven",
+    ],
+  },
+  "biz-canva-brand": {
+    overview:
+      "สร้างแบรนด์ Canva ให้เป็นเครื่องมือการออกแบบอันดับหนึ่งในใจคนไทย ผ่านการสร้าง Creator Ecosystem แคมเปญสื่อสาร และกิจกรรมชุมชนครีเอทีฟ",
+    responsibilities: [
+      "วางกลยุทธ์การสื่อสารแบรนด์และบริหารจัดการ Content บนช่องทาง Social Media",
+      "สร้างเครือข่ายความร่วมมือกับ Local Creators, Influencers และสถาบันการศึกษา",
+      "วางแผนและจัดกิจกรรม Community Workshops ทั้งแบบ Online และ On-site",
+      "วัดผล Brand Sentiment, Engagement และความผูกพันของผู้ใช้งาน",
+    ],
+    qualifications: [
+      "ประสบการณ์ Brand Marketing หรือ Community Management 2–4 ปี",
+      "มีความคิดสร้างสรรค์ เล่าเรื่องเก่ง และเข้าใจพฤติกรรมคนรุ่นใหม่ในไทย",
+      "สื่อสารภาษาไทยและอังกฤษได้อย่างคล่องแคล่ว",
+    ],
+    benefits: [
+      "Canva Pro ฟรี และงบสร้างสรรค์ผลงาน",
+      "สวัสดิการ Home Office และสุขภาพจิต",
+      "โอกาสร่วมงานกับทีมนานาชาติ",
+      "วันลาพักผ่อนแบบยืดหยุ่น",
+    ],
+  },
+  "biz-if-bd": {
+    overview:
+      "ขยายการเติบโตของแบรนด์เครื่องดื่มน้ำมะพร้าวและน้ำผลไม้ IF สู่ตลาดเอเชีย ยุโรป และอเมริกา โดยค้นหาและเจรจากับตัวแทนจำหน่ายระดับนานาชาติ",
+    responsibilities: [
+      "ค้นหาและคัดเลือกตัวแทนจำหน่าย (Distributor) ในตลาดต่างประเทศเป้าหมาย",
+      "เจรจาข้อตกลงทางการค้า Incoterms, Pricing Structure และ Export Terms",
+      "ประสานงานทีมผลิตและโลจิสติกส์เพื่อวางแผนการส่งมอบสินค้า",
+      "เข้าร่วมงานแสดงสินค้านานาชาติ (Trade Fairs เช่น Thaifex, Gulfood)",
+    ],
+    qualifications: [
+      "ประสบการณ์ International Trade หรือ Business Development ในธุรกิจ FMCG 2–5 ปี",
+      "เข้าใจกฎหมายส่งออก ศุลกากร และเอกสารการค้าระหว่างประเทศ",
+      "สื่อสารภาษาอังกฤษเชิงธุรกิจได้ดีเยี่ยม (หากได้ภาษาที่สามจะได้รับการพิจารณาเป็นพิเศษ)",
+    ],
+    benefits: [
+      "Commission จากยอดขายส่งออก",
+      "โอกาสเดินทางไปปฏิบัติงานและออกบูธต่างประเทศ",
+      "เครื่องดื่มแบรนด์ IF ดื่มฟรีไม่อั้น",
+      "ประกันสุขภาพและโบนัสประจำปี",
+    ],
+  },
+
+  // People (4)
+  "people-mfec-ta": {
+    overview:
+      "ดูแลกระบวนการสรรหาและคัดเลือกบุคลากรสายเทคโนโลยีระดับแนวหน้า (Software Engineer, Cloud, Security) เพื่อรองรับการขยายตัวของโครงการระดับประเทศ",
+    responsibilities: [
+      "วางแผนกลยุทธ์ Sourcing และค้นหาผู้สมัครสายไอทีจากช่องทางต่างๆ",
+      "คัดกรองเบื้องต้นและสัมภาษณ์เชิงสมรรถนะ (Competency-based Interview)",
+      "ประสานงานกับ Hiring Managers เพื่อจัดทำ Assessment และข้อเสนอจ้างงาน",
+      "สร้าง Candidate Experience ที่อบอุ่น เป็นมืออาชีพ และโปร่งใส",
+    ],
+    qualifications: [
+      "ประสบการณ์ Technical Recruiter หรือ Talent Acquisition 2–4 ปี",
+      "เข้าใจ Tech Stack, ตำแหน่งงานด้านไอที และตลาดแรงงานสายเทคในไทย",
+      "มีทักษะการเจรจาต่อรองและการสร้างความสัมพันธ์ที่ดี",
+    ],
+    benefits: [
+      "สนับสนุนค่าอบรมและสอบใบรับรอง HR / Tech Recruiting",
+      "Incentive ตามการปิดตำแหน่งงาน",
+      "ประกันสุขภาพกลุ่มชั้นนำ",
+      "Hybrid Work สัปดาห์ละ 2-3 วัน",
+    ],
+  },
+  "people-canva-hrbp": {
+    overview:
+      "ทำงานร่วมกับผู้นำทีมในฐานะ People & Culture Partner ขับเคลื่อนวัฒนธรรมองค์กรที่เปิดกว้าง ดูแล Employee Engagement และพัฒนาศักยภาพของพนักงานตามค่านิยมของ Canva",
+    responsibilities: [
+      "เป็นที่ปรึกษาด้านการบริหารคน การประเมินผลงาน และการวางแผนกำลังคน",
+      "ขับเคลื่อนโปรแกรม Diversity, Equity & Inclusion (DEI) ภายในองค์กร",
+      "โค้ชผู้นำทีมในการให้ Feedback และการแก้ไขข้อขัดแย้งในทีม",
+      "ออกแบบและวิเคราะห์แบบสำรวจความผูกพันของพนักงาน (Engagement Survey)",
+    ],
+    qualifications: [
+      "ประสบการณ์ HR Business Partner หรือ People Operations 3–6 ปี",
+      "เข้าใจ Modern People Practices ในบริษัท Tech / Creative",
+      "มีทักษะ Empathy, Active Listening และการแก้ปัญหาเชิงสร้างสรรค์",
+    ],
+    benefits: [
+      "Canva Pro ฟรีและสวัสดิการ Home Office",
+      "งบดูแลสุขภาพจิตและ Wellbeing",
+      "โอกาสเติบโตในสายงานระดับสากล",
+      "บรรยากาศการทำงานที่สนับสนุนซึ่งกันและกัน",
+    ],
+  },
+  "people-spark-coach": {
+    overview:
+      "ออกแบบและส่งมอบโปรแกรมพัฒนาทักษะสายเทคโนโลยี (Bootcamps & Mentorship) เพื่อช่วยให้คนรุ่นใหม่และผู้ที่ต้องการย้ายสายงานประสบความสำเร็จในอาชีพดิจิทัล",
+    responsibilities: [
+      "ออกแบบ Curriculum การเรียนรู้และเวิร์กช็อปร่วมกับ Tech Experts",
+      "บริหารจัดการโครงการ Mentorship และจับคู่ผู้เรียนกับพี่เลี้ยงในวงการ",
+      "จัดกิจกรรม Hackathon, Portfolio Clinic และ Mock Interview Sessions",
+      "ติดตามและประเมินผลสัมฤทธิ์การได้งานของผู้เรียนในโครงการ",
+    ],
+    qualifications: [
+      "ประสบการณ์ Learning & Development หรือ Tech Education 2 ปีขึ้นไป",
+      "มีใจรักในการสอนและพัฒนาคน มีทักษะ Facilitation ที่ยอดเยี่ยม",
+      "เข้าใจความต้องการของตลาดแรงงานสายเทคยุคใหม่",
+    ],
+    benefits: [
+      "เข้าร่วมคอร์สและอีเวนต์สายเทคฟรีทั้งหมด",
+      "งบซื้อหนังสือและคอร์สออนไลน์ระดับสากล",
+      "เวลาทำงานยืดหยุ่น",
+      "เครือข่ายคนในวงการเทคโนโลยีชั้นนำ",
+    ],
+  },
+  "people-jobthai-er": {
+    overview:
+      "บริหารจัดการงาน People Operations และสร้างบรรยากาศการทำงานที่ดีให้กับพนักงาน JobThai ดูแลสิทธิประโยชน์ แรงงานสัมพันธ์ และสุขภาวะของพนักงาน",
+    responsibilities: [
+      "ดูแลกระบวนการ Onboarding พนักงานใหม่และจัดเตรียมเอกสารสัญญาจ้าง",
+      "บริหารจัดการสวัสดิการ ประกันสุขภาพ และการลาของพนักงาน",
+      "จัดกิจกรรม Employee Engagement และส่งเสริมสุขภาวะในที่ทำงาน",
+      "ให้คำปรึกษาแก่พนักงานเกี่ยวกับนโยบายองค์กรและกฎหมายแรงงาน",
+    ],
+    qualifications: [
+      "ประสบการณ์ HR Operations หรือ Employee Relations 1–3 ปี",
+      "เข้าใจกฎหมายแรงงานและระเบียบการจ้างงานเบื้องต้น",
+      "มีความละเอียดรอบคอบ และรักษาความลับของข้อมูลได้เป็นเลิศ",
+    ],
+    benefits: [
+      "Hybrid Work สัปดาห์ละ 2-3 วัน",
+      "ประกันสุขภาพกลุ่มครอบคลุม OPD/IPD",
+      "โบนัสประจำปีและเงินช่วยเหลือพิเศษ",
+      "บรรยากาศการทำงานที่มั่นคงและอบอุ่น",
+    ],
+  },
+
+  // Operations (4)
+  "ops-muvmi-fleet": {
+    overview:
+      "บริหารจัดการฝูงรถตุ๊กตุ๊กไฟฟ้า (EV Fleet) ประจำจุดบริการในกรุงเทพฯ ดูแลสถานีชาร์จ การบำรุงรักษา และการจัดกะคนขับ เพื่อส่งมอบบริการที่ปลอดภัยและตรงเวลา",
+    responsibilities: [
+      "วางแผนและควบคุมการกระจายรถ EV ให้สอดคล้องกับ Demand ของผู้โดยสาร",
+      "ติดตาม SLA เวลาในการรอรถ และประสิทธิภาพการเดินทางผ่าน Dashboard",
+      "ประสานงานทีมช่างและคนขับเมื่อเกิดเหตุขัดข้องบนท้องถนน",
+      "ปรับปรุงมาตรฐานความปลอดภัยและขั้นตอนการทำงานของทีมปฏิบัติการ",
+    ],
+    qualifications: [
+      "ประสบการณ์ Fleet Operations, Logistics หรือ On-site Operations 2–4 ปี",
+      "สามารถแก้ไขปัญหาเฉพาะหน้าได้อย่างรวดเร็วและใจเย็น",
+      "ใช้ข้อมูลในการวางแผนและจัดสรรทรัพยากรได้อย่างมีประสิทธิภาพ",
+    ],
+    benefits: [
+      "สิทธิ์นั่ง MuvMi เดินทางในกรุงเทพฯ ฟรี",
+      "กองทุนสนับสนุนการเดินทางด้วยพลังงานสะอาด",
+      "ค่าตอบแทนและเบี้ยเลี้ยงตามหน้าที่",
+      "ประกันอุบัติเหตุและสุขภาพกลุ่ม",
+    ],
+  },
+  "ops-if-supply": {
+    overview:
+      "บริหารจัดการกระบวนการซัพพลายเชน คลังสินค้า และการขนส่งสินค้าเครื่องดื่ม IF สำหรับส่งออกไปยังกว่า 30 ประเทศทั่วโลก ให้ตรงตามเวลาและมาตรฐานคุณภาพสากล",
+    responsibilities: [
+      "วางแผนความต้องการสินค้า (Demand Planning) และประสานงานโรงงานผลิต",
+      "บริหารจัดการพื้นที่คลังสินค้า และควบคุมการเบิกจ่ายสินค้าให้มีประสิทธิภาพ",
+      "ประสานงานบริษัทขนส่ง (Freight Forwarders) และสายการเดินเรือ",
+      "ควบคุมต้นทุนโลจิสติกส์และลดความสูญเสียในกระบวนการจัดเก็บ",
+    ],
+    qualifications: [
+      "ประสบการณ์ Supply Chain, Logistics หรือ Warehouse Management ใน FMCG 3–5 ปี",
+      "เข้าใจพิธีการส่งออก เอกสาร Bill of Lading และมาตรฐานการขนส่งอาหาร",
+      "มีความสามารถในการเจรจาต่อรองและบริหารจัดการหลายโครงการพร้อมกัน",
+    ],
+    benefits: [
+      "เครื่องดื่ม IF ดื่มฟรีไม่อั้น",
+      "โบนัสตามผลประกอบการประจำปี",
+      "ประกันสุขภาพและประกันอุบัติเหตุ",
+      "โอกาสเติบโตในธุรกิจส่งออกระดับโลก",
+    ],
+  },
+  "ops-lineman-cs": {
+    overview:
+      "นำทีม Customer Operations เพื่อส่งมอบการแก้ไขปัญหาที่รวดเร็วและเป็นธรรมแก่ผู้ใช้งาน ร้านอาหาร และไรเดอร์ พร้อมปรับปรุงกระบวนการเพื่อลดปัญหาซ้ำซ้อน",
+    responsibilities: [
+      "ติดตามและควบคุม SLA, CSAT และ First Contact Resolution (FCR)",
+      "วิเคราะห์ Root Cause ของปัญหาที่เกิดขึ้นบ่อย และประสานทีม Product เพื่อแก้ไข",
+      "พัฒนาคู่มือการปฏิบัติงาน (Standard Operating Procedures - SOP) สำหรับทีม Support",
+      "โค้ชและพัฒนาศักยภาพของทีมงานบริการลูกค้า",
+    ],
+    qualifications: [
+      "ประสบการณ์ Customer Operations หรือ Contact Center Management 3 ปีขึ้นไป",
+      "มีทักษะการวิเคราะห์ข้อมูลเพื่อยกระดับกระบวนการบริการ",
+      "มีความเห็นอกเห็นใจ (Empathy) และสามารถสื่อสารคลี่คลายสถานการณ์ตึงเครียดได้",
+    ],
+    benefits: [
+      "LINE MAN Credit สำหรับสั่งอาหาร",
+      "โบนัสตามผลงานและการรักษาคุณภาพ",
+      "อาหารกลางวันและเครื่องดื่มฟรีที่ออฟฟิศ",
+      "เวลาทำงานยืดหยุ่น & Hybrid work",
+    ],
+  },
+  "ops-julian-spa": {
+    overview:
+      "ดูแลการบริหารจัดการภาพรวมของ Julian's The Spa เพื่อรักษามาตรฐานการบริการระดับ 5 ดาว ควบคุมสต็อกผลิตภัณฑ์ออร์แกนิก และสร้างความประทับใจสูงสุดแก่ผู้รับบริการ",
+    responsibilities: [
+      "ควบคุมดูแลมาตรฐานการต้อนรับและการทำทรีตเมนต์ของทีม Therapist",
+      "บริหารตารางนัดหมายและการจัดกะการทำงานของพนักงานให้ราบรื่น",
+      "จัดการสต็อกผลิตภัณฑ์ออร์แกนิกและอุปกรณ์สปาให้มีความพร้อมเสมอ",
+      "ดูแลแก้ไขปัญหาเฉพาะหน้าและรับฟังคำติชมของลูกค้าคนสำคัญ",
+    ],
+    qualifications: [
+      "ประสบการณ์บริหารงาน Spa, Hospitality หรือ Luxury Wellness 2–5 ปี",
+      "มีความประณีต บุคลิกภาพดีเยี่ยม และมีจิตบริการระดับสูง",
+      "มีทักษะการบริหารทีมงานและการควบคุมคุณภาพ",
+    ],
+    benefits: [
+      "สิทธิ์ใช้บริการสปาทรีตเมนต์ฟรีทุกเดือน",
+      "ส่วนลดผลิตภัณฑ์บำรุงผิวออร์แกนิก",
+      "เครื่องแบบและอาหารประจำกะ",
+      "โบนัสและการปรับเงินเดือนประจำปี",
+    ],
+  },
 };
 
 function scoreFor(job: Job, claims: string) {
   const normalized = claims.toLowerCase();
   const matched = job.skills.filter((skill) => normalized.includes(skill.toLowerCase()));
   const coverage = Math.round((matched.length / job.skills.length) * 100);
-  const evidence = /ปี|%|โปรเจกต์|project|เคย|ผลลัพธ์|ลด|เพิ่ม/.test(normalized) ? 82 : 48;
-  return { matched, missing: job.skills.filter((skill) => !matched.includes(skill)), score: Math.round(coverage * 0.65 + evidence * 0.35), evidence };
+  const evidence = /ปี|%|โปรเจกต์|project|เคย|ผลลัพธ์|ลด|เพิ่ม|ms|latency|api|system|client|scale/i.test(normalized)
+    ? 85
+    : 50;
+  return {
+    matched,
+    missing: job.skills.filter((skill) => !matched.includes(skill)),
+    score: Math.round(coverage * 0.65 + evidence * 0.35),
+    evidence,
+  };
+}
+
+function shuffleDeterministic<T>(array: T[], seed: number): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = (seed * 11 + i * 17 + 5) % (i + 1);
+    const temp = result[i]!;
+    result[i] = result[j]!;
+    result[j] = temp;
+  }
+  return result;
+}
+
+function generateSmartFallbackAssessment(job: Job, claimsText: string): AssessmentQuestion[] {
+  const skillList = job.skills;
+  const rawTemplates = [
+    {
+      skillIdx: 0,
+      q: `ในสถานการณ์ที่ระบบต้องการความเสถียรสูงสุดขณะใช้งาน ${skillList[0]} สำหรับงาน ${job.title} ข้อใดคือแนวทางจัดการที่ถูกต้องตาม Best Practice?`,
+      correct: `ออกแบบโครงสร้างให้แยกส่วน (Decoupled), มี Circuit Breaker และรองรับ Graceful Degradation`,
+      d1: `รวมการทำงานทั้งหมดไว้ใน Process เดียวเพื่อลด Network Overhead ทั้งหมด`,
+      d2: `ปิดการตรวจสอบ Error และ Validation ชั่วคราวในช่วงที่มี Traffic สูงเพื่อประหยัด CPU`,
+      d3: `ตั้งค่า Timeout ของการเชื่อมต่อให้ยาวขึ้นเรื่อยๆ เมื่อระบบปลายทางเริ่มตอบสนองช้า`,
+      exp: `การแยกส่วนระบบและการใช้ Circuit Breaker ช่วยป้องกัน Cascading Failure เมื่อเกิดปัญหาใน Service ใด Service หนึ่ง`,
+    },
+    {
+      skillIdx: 1 % skillList.length,
+      q: `หากตรวจพบปัญหาคอขวด (Bottleneck) หรือความล่าช้าในการประมวลผลที่เกี่ยวข้องกับ ${skillList[1 % skillList.length]} ควรเริ่มแก้ไขที่จุดใดเป็นอันดับแรก?`,
+      correct: `รวบรวม Telemetry และ Profiling Data เพื่อระบุ Root Cause ที่แท้จริงก่อนลงมือ Optimize`,
+      d1: `เพิ่มสเปกฮาร์ดแวร์เซิร์ฟเวอร์ (Vertical Scaling) สูงสุดทันทีโดยไม่ต้องตรวจ Log`,
+      d2: `ล้างฐานข้อมูลและแคชทั้งหมดออกจากระบบเพื่อให้เริ่มประมวลผลใหม่จากศูนย์`,
+      d3: `เปลี่ยนภาษาการเขียนโปรแกรมหรือเฟรมเวิร์กของระบบใหม่ทั้งหมดทันที`,
+      exp: `การวัดผลด้วย Profiler และ Metrics ที่ชัดเจนเป็นก้าวแรกที่สำคัญที่สุดในการแก้ปัญหา Performance อย่างแม่นยำ`,
+    },
+    {
+      skillIdx: 2 % skillList.length,
+      q: `เมื่อต้องรักษาความปลอดภัยและความถูกต้องของข้อมูลที่เกี่ยวกับ ${skillList[2 % skillList.length]} ข้อใดเป็นการปฏิบัติตามหลัก Least Privilege?`,
+      correct: `จำกัดสิทธิ์การเข้าถึงเฉพาะ Resource และ Action ที่จำเป็นต่อบทบาทการทำงานเท่านั้น`,
+      d1: `ให้สิทธิ์ระดับ Root/Superadmin แก่ทุกคนในทีมพัฒนาเพื่อความรวดเร็วในการ Debug งาน`,
+      d2: `จัดเก็บ API Keys และ Database Passwords ไว้ในไฟล์ Config สาธารณะใน Git Repository`,
+      d3: `ปิดการบันทึก Audit Logging เพื่อประหยัดพื้นที่จัดเก็บข้อมูลและลด I/O Overhead`,
+      exp: `หลักการ Least Privilege กำหนดให้ผู้ใช้และเซอร์วิสมีสิทธิ์เฉพาะที่จำเป็นต่องานเท่านั้น เพื่อจำกัดผลกระทบหากเกิดการรั่วไหล`,
+    },
+    {
+      skillIdx: 3 % skillList.length,
+      q: `ในการทดสอบและยืนยันคุณภาพที่เชื่อมโยงกับ ${skillList[3 % skillList.length]} ข้อใดแสดงถึงกลยุทธ์การทดสอบที่มีประสิทธิภาพสูงสุด?`,
+      correct: `สร้าง Automated Regression Suite พร้อม Mock External Dependencies ในระดับที่เหมาะสม`,
+      d1: `พึ่งพาเฉพาะการทดสอบด้วยมือ (Manual Testing) ในวันสุดท้ายก่อนขึ้น Production`,
+      d2: `เขียนเทสเฉพาะ Happy Path กรณีเดียวและละเว้น Edge Cases และ Error Cases ทั้งหมด`,
+      d3: `รัน Automated Tests เฉพาะเมื่อผู้ใช้งานจริงรายงานปัญหาความผิดพลาดเข้ามา`,
+      exp: `Automated Regression Testing ช่วยให้สามารถส่งมอบงานได้อย่างต่อเนื่องและมั่นใจโดยไม่กระทบฟีเจอร์เดิม`,
+    },
+    {
+      skillIdx: 4 % skillList.length,
+      q: `หากต้องตัดสินใจเลือก Trade-off ระหว่างความเร็วในการส่งมอบงาน (Speed) และความยั่งยืนของระบบ (Maintainability) ในบริบท ${job.title} ข้อใดเหมาะสมที่สุด?`,
+      correct: `กำหนด Minimal Viable Architecture ที่มี Clean Interfaces พร้อมบันทึก Technical Debt ที่ต้องแก้ไข`,
+      d1: `ละทิ้งเอกสารประกอบ (Documentation) และ Unit Tests ทั้งหมดเพื่อให้ทัน Deadline`,
+      d2: `ออกแบบสถาปัตยกรรมแบบ Over-engineered ซับซ้อนเกินความจำเป็นจริงโดยไม่คำนึงถึงกรอบเวลาเปิดตัว`,
+      d3: `ไม่แจ้งข้อจำกัดทางเทคนิคและผลกระทบระยะยาวให้ฝ่ายธุรกิจและผู้มีส่วนได้ส่วนเสียรับทราบ`,
+      exp: `การส่งมอบที่มีประสิทธิภาพต้องสร้างรากฐานที่สะอาด มี Documentation และจัดการ Technical Debt อย่างโปร่งใส`,
+    },
+    {
+      skillIdx: 0,
+      q: `ผู้สมัครระบุว่าเคยปรับปรุงระบบจนได้ผลลัพธ์ที่ดีขึ้น ข้อใดคือวิธีตรวจสอบความถูกต้องของการวัดผล (Measurement Validation)?`,
+      correct: `เปรียบเทียบ Baseline ก่อนและหลังการปรับปรุงด้วยเครื่องมือวัดผลแบบเดียวกันในสภาพแวดล้อมจริง`,
+      d1: `ประเมินความเร็วและความลื่นไหลด้วยความรู้สึกส่วนบุคคลของผู้พัฒนา`,
+      d2: `วัดผลเพียงครั้งเดียวทันทีหลัง Deploy โดยไม่สังเกตพฤติกรรมและความเปลี่ยนแปลงในระยะยาว`,
+      d3: `อ้างอิงเฉพาะค่าตัวเลขที่วัดได้บนเครื่องคอมพิวเตอร์ Local ของผู้พัฒนาเท่านั้น`,
+      exp: `การวัดผลที่น่าเชื่อถือต้องเทียบกับ Baseline ที่ชัดเจนและใช้เครื่องมือที่ได้มาตรฐานในสภาพแวดล้อมการใช้งานจริง`,
+    },
+    {
+      skillIdx: 1 % skillList.length,
+      q: `ในการรับมือกับความผิดพลาดของระบบภายนอก (Third-party Dependency Failure) ข้อใดคือวิธีการสร้าง Resilience ที่ดีที่สุด?`,
+      correct: `ใช้ Retry Mechanism แบบ Exponential Backoff ร่วมกับ Fallback Response ที่ปลอดภัย`,
+      d1: `ยิงคำขอซ้ำๆ ทันทีแบบ Infinite Loop รัวๆ จนกว่าระบบปลายทางจะยอมตอบกลับ`,
+      d2: `ปล่อยให้ Application หยุดทำงาน (Crash) ทันทีเพื่อให้ระบบ Monitoring แจ้งเตือน`,
+      d3: `ไม่ดักจับ Exception และปล่อยให้ผู้ใช้งานเห็นหน้าต่าง Error Stack Trace แบบดิบ`,
+      exp: `Exponential Backoff ป้องกันไม่ให้เกิด Thundering Herd Problem และ Fallback ช่วยให้ผู้ใช้ยังสามารถใช้งานระบบส่วนอื่นได้`,
+    },
+    {
+      skillIdx: 2 % skillList.length,
+      q: `เมื่อต้องทำงานร่วมกับ Stakeholders หลากหลายฝ่ายในโครงการ ${job.title} ข้อใดช่วยลดความเข้าใจคลาดเคลื่อนได้ดีที่สุด?`,
+      correct: `จัดทำ Service Level Agreement (SLA) และ Data Contract ที่มีนิยามชัดเจนและตรวจสอบได้`,
+      d1: `ใช้การพูดคุยปากเปล่าโดยไม่มีบันทึกหรือข้อตกลงที่เป็นลายลักษณ์อักษร`,
+      d2: `ปรับเปลี่ยนข้อกำหนดระหว่างทางตามใจชอบโดยไม่ต้องสื่อสารให้ทีมที่เกี่ยวข้องทราบ`,
+      d3: `คาดเดาความต้องการของระบบเองทั้งหมดโดยไม่สอบถามความคิดเห็นจากผู้ใช้งานจริง`,
+      exp: `Data Contracts และ SLAs ที่เป็นลายลักษณ์อักษรช่วยให้ทีมทำงานประสานกันได้อย่างราบรื่นและลดข้อผิดพลาดในการเชื่อมต่อ`,
+    },
+    {
+      skillIdx: 3 % skillList.length,
+      q: `ข้อใดคือสัญญาณเตือน (Red Flag) ที่บ่งบอกว่ากระบวนการทำงานหรือสถาปัตยกรรมกำลังสูญเสียความสามารถในการดูแลรักษา (Loss of Maintainability)?`,
+      correct: `การแก้ไข Code เพียงจุดเดียวส่งผลกระทบให้เกิด Bug ที่คาดไม่ถึงในจุดอื่นๆ ของระบบอย่างต่อเนื่อง`,
+      d1: `มีการทำ Code Review อย่างเข้มงวดและมีระบบ Automated Linting ตรวจสอบสไตล์โค้ด`,
+      d2: `มี Coverage ของ Unit Tests ครอบคลุมฟังก์ชันการทำงานหลักของระบบอย่างครบถ้วน`,
+      d3: `มีการวางแผนและลงมือทำ Refactoring โค้ดเก่าอย่างเป็นระบบสม่ำเสมอ`,
+      exp: `Tightly-coupled code และการขาด encapsulation มักทำให้การแก้ไขจุดหนึ่งกระทบจุดอื่นโดยไม่ตั้งใจ (Regression)`,
+    },
+    {
+      skillIdx: 4 % skillList.length,
+      q: `เพื่อเตรียมความพร้อมสำหรับ Scaling ในอนาคตของตำแหน่ง ${job.title} ข้อใดคือขั้นตอนการวางแผนเชิงรุก (Proactive Planning)?`,
+      correct: `ทำ Capacity Planning, กำหนด Auto-scaling Policies และจำลอง Load Test เสมือนจริง`,
+      d1: `รอให้เซิร์ฟเวอร์ล่มจากปริมาณผู้ใช้งานมหาศาลก่อนแล้วค่อยสั่งซื้ออุปกรณ์เพิ่มเติมฉุกเฉิน`,
+      d2: `ปิดกั้นไม่ให้ผู้ใช้งานใหม่สามารถลงทะเบียนเข้าใช้งานระบบเพื่อลดภาระงาน`,
+      d3: `ปิดระบบเพื่อซ่อมบำรุงทุกครั้งที่มีผู้ใช้งานพร้อมกันเกินเกณฑ์ปกติโดยไม่แจ้งล่วงหน้า`,
+      exp: `การทำ Load Testing และวาง Capacity Planning ล่วงหน้าช่วยให้ระบบรองรับการเติบโตของธุรกิจได้อย่างราบรื่น`,
+    },
+  ];
+
+  const mcqQuestions: AssessmentQuestion[] = rawTemplates.map((tpl, i) => {
+    const rawChoices = [
+      { text: tpl.correct, isCorrect: true },
+      { text: tpl.d1, isCorrect: false },
+      { text: tpl.d2, isCorrect: false },
+      { text: tpl.d3, isCorrect: false },
+    ];
+    // Shuffle deterministic based on index and job title
+    const shuffled = shuffleDeterministic(rawChoices, i * 7 + job.title.length + 3);
+    const options = shuffled.map((c) => c.text) as [string, string, string, string];
+    const correctIndex = shuffled.findIndex((c) => c.isCorrect);
+
+    return {
+      id: `smart-scenario-${i + 1}`,
+      type: "multiple_choice",
+      skill: skillList[tpl.skillIdx] ?? job.skills[0]!,
+      question: tpl.q,
+      options,
+      correctIndex: correctIndex >= 0 ? correctIndex : 0,
+      explanation: tpl.exp,
+    };
+  });
+
+  const subjectiveQuestion: AssessmentQuestion = {
+    id: `smart-scenario-11-subjective`,
+    type: "subjective",
+    skill: skillList[0] ?? job.skills[0]!,
+    question: `[ข้อเขียนอัตนัย] ในการทำงานจริงสำหรับตำแหน่ง ${job.title} หากทีมต้องเผชิญกับสถานการณ์ฉุกเฉินหรือความท้าทายด้าน ${skillList[0] || "การทำงาน"} คุณจะมีลำดับขั้นตอนการวิเคราะห์ปัญหา การสื่อสารกับทีม และแนวทางการแก้ไขอย่างไร?`,
+    explanation: "ประเมินวิธีคิดเชิงตรรกะ ทักษะการสื่อสาร และการแก้ปัญหาเฉพาะหน้า เพื่อประกอบการตัดสินใจสัมภาษณ์ของ HR",
+    placeholder: "พิมพ์อธิบายลำดับขั้นตอนการวิเคราะห์ปัญหา แนวทางการแก้ปัญหา และข้อควรระวังในมุมมองของคุณ...",
+  };
+
+  return [...mcqQuestions, subjectiveQuestion];
 }
 
 export function RecruiterDemoPage() {
   const [selectedJobId, setSelectedJobId] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<"Tech" | "Business" | "People" | "Operations" | "">("");
   const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [selectedCompanyForModal, setSelectedCompanyForModal] = useState<Company | null>(null);
   const [query, setQuery] = useState("");
   const [fileName, setFileName] = useState("");
   const [claims, setClaims] = useState("");
@@ -62,58 +841,2080 @@ export function RecruiterDemoPage() {
   const [stage, setStage] = useState<"intake" | "assessment" | "interview" | "decision">("intake");
   const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
   const [answers, setAnswers] = useState<number[]>([]);
+  const [subjectiveAnswer, setSubjectiveAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [aiProgress, setAiProgress] = useState(0);
   const [aiLoadingLabel, setAiLoadingLabel] = useState("");
+  const [aiLiveLog, setAiLiveLog] = useState("");
   const [apiNote, setApiNote] = useState("");
   const [showAnalysisConfirm, setShowAnalysisConfirm] = useState(false);
+
+  // Stage 2: 10-Minute Assessment Modal State (One Question at a Time)
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [timerSeconds, setTimerSeconds] = useState(600); // 10 minutes = 600s
+  const [timerExpired, setTimerExpired] = useState(false);
+  const [agreeAssessmentRules, setAgreeAssessmentRules] = useState(false);
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [proctoringLogs, setProctoringLogs] = useState<
+    Array<{
+      id: string;
+      timestamp: string;
+      questionNumber: number;
+      timeRemaining: number;
+      message: string;
+    }>
+  >([]);
+  const [showTabWarningModal, setShowTabWarningModal] = useState(false);
+  const questionCardRef = useRef<HTMLDivElement>(null);
+
+  // Stage 4: Decision Arena State
+  const [decisionTurn, setDecisionTurn] = useState<"candidate" | "recruiter" | "revealed">("candidate");
   const [recruiterDecision, setRecruiterDecision] = useState<"APPROVE" | "REJECT" | null>(null);
   const [candidateDecision, setCandidateDecision] = useState<"APPROVE" | "REJECT" | null>(null);
+  const [showQuestionsSummary, setShowQuestionsSummary] = useState(false);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const jdPanelRef = useRef<HTMLElement>(null);
-  const selectedJob = jobs.find((job) => job.id === selectedJobId) ?? jobs[0]!;
+  const candidateCardRef = useRef<HTMLDivElement>(null);
+  const recruiterCardRef = useRef<HTMLDivElement>(null);
+  const dragTracker = useRef<{ isDragging: boolean; startX: number; startY: number; currentX: number }>({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+  });
+
+  const selectedJob = useMemo(() => jobs.find((job) => job.id === selectedJobId) ?? jobs[0]!, [selectedJobId]);
+  const selectedCompany = useMemo(
+    () => sponsorCompanies[selectedJob.companyId] ?? sponsorCompanies.microsoft!,
+    [selectedJob],
+  );
   const analysis = useMemo(() => scoreFor(selectedJob, claims), [selectedJob, claims]);
-  const filteredJobs = jobs.filter((job) => job.category === selectedCategory && `${job.title} ${job.department} ${job.skills.join(" ")}`.toLowerCase().includes(query.toLowerCase()));
-  const completedAnswers = answers.filter((answer) => answer !== undefined).length;
-  const correctAnswers = questions.filter((question, index) => answers[index] === question.correctIndex).length;
-  const knowledgeScore = questions.length ? Math.round((correctAnswers / questions.length) * 100) : 0;
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      const matchCat = !selectedCategory || job.category === selectedCategory;
+      const company = sponsorCompanies[job.companyId];
+      const matchQuery =
+        !query ||
+        `${job.title} ${job.department} ${company?.name ?? ""} ${job.skills.join(" ")}`
+          .toLowerCase()
+          .includes(query.toLowerCase());
+      return matchCat && matchQuery;
+    });
+  }, [selectedCategory, query]);
+
+  const mcqQuestions = useMemo(() => questions.filter((q) => q.type !== "subjective"), [questions]);
+  const mcqAnsweredCount = answers.slice(0, mcqQuestions.length).filter((answer) => answer !== undefined).length;
+  const isSubjectiveAnswered = subjectiveAnswer.trim().length > 0;
+  const hasSubjective = questions.some((q) => q.type === "subjective");
+  const completedAnswers = mcqAnsweredCount + (hasSubjective && isSubjectiveAnswered ? 1 : 0);
+  const correctAnswers = mcqQuestions.filter((question, index) => answers[index] === question.correctIndex).length;
+  const knowledgeScore = mcqQuestions.length ? Math.round((correctAnswers / mcqQuestions.length) * 100) : 0;
   const finalScore = Math.round(analysis.score * 0.55 + knowledgeScore * 0.45);
 
   useEffect(() => {
     if (!loading) return;
-    const timer = window.setInterval(() => setAiProgress((current) => current >= 92 ? current : Math.min(92, current + Math.max(1, Math.round((92 - current) * .12)))), 260);
+    const timer = window.setInterval(
+      () =>
+        setAiProgress((current) =>
+          current >= 92 ? current : Math.min(92, current + Math.max(1, Math.round((92 - current) * 0.12))),
+        ),
+      260,
+    );
     return () => window.clearInterval(timer);
   }, [loading]);
 
   useEffect(() => {
     if (!selectedJobId || !jdPanelRef.current) return;
-    gsap.fromTo(jdPanelRef.current, { autoAlpha: 0, x: 70, scale: .98 }, { autoAlpha: 1, x: 0, scale: 1, duration: .55, ease: "power3.out", clearProps: "transform" });
+    gsap.fromTo(
+      jdPanelRef.current,
+      { autoAlpha: 0, x: 50, scale: 0.98 },
+      { autoAlpha: 1, x: 0, scale: 1, duration: 0.5, ease: "power3.out", clearProps: "transform" },
+    );
   }, [selectedJobId]);
 
-  const finishAiLoading = async () => { setAiProgress(100); await new Promise((resolve) => window.setTimeout(resolve, 220)); setLoading(false); setAiLoadingLabel(""); };
-  const handleFile = async (event: ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (!file) return; setFileName(file.name); setClaims(""); if (file.type === "application/pdf") { setAiProgress(4); setAiLoadingLabel("กำลังอ่านและสกัดหลักฐานจาก Resume"); setLoading(true); try { const result = await analyzeResume(file); setClaims(result.recruiterSummary || result.candidateSummary); setApiNote("วิเคราะห์ Resume ด้วย Gemini API สำเร็จ"); } catch { setClaims(sampleClaims); setApiNote("API วิเคราะห์ Resume ไม่พร้อม — ใช้ข้อความสังเคราะห์เพื่อให้เดโม่ทำต่อได้"); } finally { await finishAiLoading(); } } };
-  const createAssessment = async () => { setAiProgress(5); setAiLoadingLabel("กำลังสร้างคำถามจาก CV และ JD"); setLoading(true); setApiNote(""); try { const items = await generateAssessment({ jobTitle: selectedJob.title, jobSummary: selectedJob.summary, requiredSkills: selectedJob.skills, resumeEvidence: claims }); setQuestions(items); setAnswers(Array(10).fill(undefined)); setApiNote("สร้างข้อสอบ 10 ข้อด้วย Gemini API แล้ว"); } catch { const fallback = Array.from({length:10},(_,i):AssessmentQuestion => { const skill=selectedJob.skills[i%selectedJob.skills.length]!; return ({ id:`fallback-${i}`, skill, question:`ข้อใดแสดงความเข้าใจ ${skill} ที่เหมาะกับงาน ${selectedJob.title} มากที่สุด?`, options:["เลือกวิธีตามบริบทและอธิบาย trade-off ได้","ใช้วิธีเดิมทุกสถานการณ์","ข้ามการตรวจสอบผลลัพธ์","ตัดสินจากความรู้สึกเท่านั้น"], correctIndex:0, explanation:"คำตอบที่ดีต้องเลือกตามบริบทและอธิบายเหตุผลที่ตรวจสอบได้" }); }); setQuestions(fallback); setAnswers(Array(10).fill(undefined)); setApiNote("Gemini API ไม่พร้อม — ใช้ชุดสำรอง deterministic สำหรับเดโม่"); } finally { await finishAiLoading(); setShowAnalysisConfirm(true); } };
-  const reset = () => { setSelectedJobId(""); setSelectedCategory(""); setShowApplicationModal(false); setFileName(""); setClaims(""); setClaimsDraft(""); setEditClaimsOpen(false); setAnswers([]); setQuestions([]); setRecruiterDecision(null); setCandidateDecision(null); setStage("intake"); if (inputRef.current) inputRef.current.value = ""; };
+  // Stage 2: 10-Minute Timer
+  useEffect(() => {
+    if (stage !== "assessment") {
+      return;
+    }
+    const interval = window.setInterval(() => {
+      setTimerSeconds((prev) => {
+        if (prev <= 1) {
+          window.clearInterval(interval);
+          setTimerExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, [stage]);
 
-  return <div className="rec-demo-root">
-    <a className="skip-link" href="#main-content">ข้ามไปเนื้อหาหลัก</a>
-    <header className="rec-demo-header"><div className="rec-demo-brand"><span>MM</span><div><strong>MaskedMatch</strong><small>Recruiter Intelligence</small></div></div><div className="rec-demo-header-actions"><span className="demo-badge">LOCAL SYNTHETIC DEMO</span><button type="button" onClick={reset}><RotateCcw/> เริ่มเดโม่ใหม่</button></div></header>
-    <main id="main-content" className="rec-demo-main">
-      <section className="rec-demo-hero"><div><span className="eyebrow">Recruiter-only workspace</span><h1>ตรวจคนให้ตรงงาน<br/><em>ด้วยหลักฐาน ไม่ใช่แค่คีย์เวิร์ด</em></h1><p>แนบเรซูเม่ วิเคราะห์สิ่งที่ผู้สมัครเขียน เทียบ JD และสร้าง assessment เฉพาะบุคคล เพื่อยืนยันว่าความรู้จริงสอดคล้องกับคำกล่าวอ้าง</p></div><div className="rec-demo-metrics"><div><BriefcaseBusiness/><strong>7</strong><span>ตำแหน่งพร้อมเดโม่</span></div><div><Users/><strong>1</strong><span>ผู้สมัครในกระบวนการ</span></div><div><ShieldCheck/><strong>100%</strong><span>ข้อมูลสังเคราะห์</span></div></div></section>
-      <nav className="rec-demo-steps" aria-label="ขั้นตอนการประเมิน">{([['intake','1','Resume ↔ JD'],['assessment','2','ข้อสอบ 10 ข้อ'],['interview','3','Masked HR'],['decision','4','ตัดสินใจและผล']] as const).map(([key,num,label]) => <button key={key} type="button" className={stage === key ? "active" : ""} disabled><span>{num}</span>{label}</button>)}</nav>
-      <div className={`rec-demo-layout ${!selectedJobId ? "catalog-only" : ""}`}>
-        <aside className="rec-job-panel"><div className="rec-section-title"><div><span className="eyebrow">Job catalog</span><h2>{selectedCategory ? "เลือกตำแหน่งงาน" : "เลือกหมวดหมู่งาน"}</h2></div><span>{selectedCategory ? `${filteredJobs.length} roles` : "4 categories"}</span></div>{!selectedCategory ? <div className="job-category-grid">{Object.entries(categoryDescriptions).map(([category,description]) => <button type="button" key={category} onClick={() => setSelectedCategory(category)}><span>{jobs.filter((job) => job.category === category).length} ตำแหน่ง</span><strong>{category}</strong><p>{description}</p><ArrowRight/></button>)}</div> : <><button type="button" className="category-back" onClick={() => { setSelectedCategory(""); setSelectedJobId(""); }}>← หมวดหมู่ทั้งหมด</button><label className="rec-search"><Search/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="ค้นหาในหมวดหมู่นี้..." aria-label="ค้นหาตำแหน่งงาน"/></label><div className="rec-job-list">{filteredJobs.map((job) => <button type="button" key={job.id} className={selectedJobId === job.id ? "selected" : ""} onClick={() => { setSelectedJobId(job.id); setStage("intake"); }}><span>{job.category}</span><strong>{job.title}</strong><small>{job.department} · {job.salary}</small><ArrowRight/></button>)}</div></>}</aside>
-        {selectedJobId && <section className="rec-work-panel" ref={jdPanelRef}><div className="rec-job-detail"><div><span className="eyebrow">Detailed job description</span><h2>{selectedJob.title}</h2><p>{selectedJob.summary}</p></div><div className="rec-job-meta"><span>{selectedJob.location}</span><span>{selectedJob.type}</span><strong>{selectedJob.salary}</strong></div></div><div className="rec-skill-row">{selectedJob.skills.map((skill) => <span key={skill}>{skill}</span>)}</div>
-          {stage === "intake" && <div className="detailed-jd-content"><section><span className="eyebrow">เกี่ยวกับตำแหน่ง</span><p>{jobDetails[selectedJob.id]!.overview}</p></section><div className="jd-detail-columns"><section><h3>หน้าที่ความรับผิดชอบ</h3><ul>{jobDetails[selectedJob.id]!.responsibilities.map((item) => <li key={item}><Check/> {item}</li>)}</ul></section><section><h3>คุณสมบัติที่กำลังมองหา</h3><ul>{jobDetails[selectedJob.id]!.qualifications.map((item) => <li key={item}><Check/> {item}</li>)}</ul></section></div><section className="jd-benefits"><h3>สิ่งที่คุณจะได้รับ</h3><div>{jobDetails[selectedJob.id]!.benefits.map((item) => <span key={item}>{item}</span>)}</div></section><div className="jd-interest-bar"><div><strong>ตำแหน่งนี้ตรงกับสิ่งที่คุณกำลังมองหาหรือไม่?</strong><span>ขั้นถัดไปคือแนบ CV เพื่อวิเคราะห์เทียบกับ JD นี้</span></div><button className="rec-primary" type="button" onClick={() => setShowApplicationModal(true)}>สนใจงานนี้ <ArrowRight/></button></div></div>}
-          {stage === "assessment" && <div className="rec-stage-content"><div className="rec-stage-heading"><span><ClipboardCheck/></span><div><h3>Assessment 10 ข้อ · 4 ตัวเลือก</h3><p>{apiNote}</p></div></div><div className="rec-question-list">{questions.map((question, index) => <fieldset key={question.id}><legend>ข้อ {index + 1}/10 · {question.skill}</legend><strong>{question.question}</strong>{question.options.map((option, optionIndex) => <label className="rec-choice" key={option}><input type="radio" name={question.id} checked={answers[index] === optionIndex} onChange={() => setAnswers((current) => { const next=[...current]; next[index]=optionIndex; return next; })}/><span>{String.fromCharCode(65+optionIndex)}</span>{option}</label>)}</fieldset>)}</div><button className="rec-primary" type="button" disabled={completedAnswers < 10} onClick={() => setStage("interview")}><ClipboardCheck/> ส่งคำตอบและเข้าห้องสัมภาษณ์ <ArrowRight/></button></div>}
-          {stage === "interview" && <div className="rec-stage-content"><div className="mock-call-header"><div><span className="mock-live-dot"/> MOCK INTERVIEW · 08:42</div><span>Private room #7F2A</span></div><div className="masked-interview mock-video-grid"><figure className="mock-video-participant"><img src="/interview/candidate-cat-video-call.png" alt="ตัวละครแมว 8 บิต ผู้สมัครงาน กำลังวิดีโอคอลจากฉากหลังจำลอง"/><figcaption><div><strong>Candidate #7F2A</strong><span>Cat avatar · Mock feed</span></div><span className="mock-audio-bars" aria-label="กำลังพูด"><i/><i/><i/><i/></span></figcaption><span className="mock-corner-label">YOU · MOCK</span></figure><figure className="mock-video-participant recruiter"><img src="/interview/recruiter-fox-video-call.png" alt="ตัวละครจิ้งจอก 8 บิต HR กำลังวิดีโอคอลจากสตูดิโอจำลอง"/><figcaption><div><strong>HR Recruiter</strong><span>Fox avatar · Mock feed</span></div><span className="mock-audio-bars" aria-label="กำลังพูด"><i/><i/><i/><i/></span></figcaption><span className="mock-corner-label">HR · MOCK</span></figure></div><div className="rec-ai-note"><ShieldCheck/><div><strong>Mock video call — ไม่ใช้กล้องจริง</strong><p>ทั้งผู้สมัครและ HR เป็นภาพตัวละครสัตว์ 8-bit พร้อมฉากหลังจำลอง หน้านี้ไม่ขอสิทธิ์กล้องหรือไมโครโฟน และไม่มีการเชื่อมต่อวิดีโอจริง</p></div></div><button className="rec-primary" type="button" onClick={() => setStage("decision")}><Check/> จบการสนทนาและตัดสินใจ</button></div>}
-          {stage === "decision" && <div className="rec-stage-content"><div className="rec-stage-heading"><span><ShieldCheck/></span><div><h3>Private two-sided decision</h3><p>เลือกผลทั้งสองฝั่งเพื่อจำลอง resolver แบบเดิม ผลจะเปิดเมื่อส่งครบเท่านั้น</p></div></div><div className="rec-score-grid"><div><span>Recruiter decision</span><button className="rec-primary" onClick={() => setRecruiterDecision("APPROVE")}>สนใจไปต่อ</button> <button className="rec-secondary" onClick={() => setRecruiterDecision("REJECT")}>ไม่ไปต่อ</button></div><div><span>Candidate decision (demo)</span><button className="rec-primary" onClick={() => setCandidateDecision("APPROVE")}>สนใจไปต่อ</button> <button className="rec-secondary" onClick={() => setCandidateDecision("REJECT")}>ไม่ไปต่อ</button></div><div><span>Result</span><strong>{!recruiterDecision || !candidateDecision ? "รอทั้งสองฝั่ง" : recruiterDecision === "APPROVE" && candidateDecision === "APPROVE" ? "Mutual Match" : "No Match"}</strong></div></div>{recruiterDecision && candidateDecision && <><div className="rec-result-hero"><span><CheckCircle2/></span><div><h3>{recruiterDecision === "APPROVE" && candidateDecision === "APPROVE" ? "ทั้งสองฝ่ายสนใจตรงกัน" : "จบกระบวนการอย่างเป็นส่วนตัว"}</h3><p>{recruiterDecision === "APPROVE" && candidateDecision === "APPROVE" ? "พร้อมขอ consent เปิดเผยข้อมูลติดต่อในขั้นถัดไป" : "ไม่เปิดเผยว่าใครเลือกไม่ไปต่อ และยังคงปิดบังตัวตน"}</p></div><strong className="rec-final-score">{finalScore}<small>/100</small></strong></div><section className="assessment-reflection"><span className="eyebrow">Assessment result · เปิดหลังตัดสินใจแล้ว</span><h3>ทบทวนสิ่งที่ทำได้และสิ่งที่ควรพัฒนาต่อ</h3><div className="rec-score-grid"><div><span>คะแนนรวม</span><strong>{finalScore}%</strong><p>Resume + ความรู้</p></div><div><span>Resume ↔ JD</span><strong>{analysis.score}%</strong><p>ตรง {analysis.matched.length}/{selectedJob.skills.length} ทักษะ</p></div><div><span>Knowledge check</span><strong>{knowledgeScore}%</strong><p>ตอบถูก {correctAnswers}/10 ข้อ</p></div></div><div className="reflection-strengths"><div><strong>จุดแข็ง</strong><p>{analysis.matched.join(" · ") || "หลักฐานเชิงประสบการณ์"}</p></div><div><strong>ควรพัฒนา</strong><p>{questions.filter((question,index) => answers[index] !== question.correctIndex).map((question) => question.skill).filter((skill,index,list) => list.indexOf(skill) === index).join(" · ") || "ทบทวนการอธิบายเหตุผล"}</p></div></div><div className="reflection-lessons">{questions.filter((question,index) => answers[index] !== question.correctIndex).slice(0,3).map((question) => <article key={question.id}><strong>{question.skill}</strong><p>{question.explanation}</p></article>)}</div><p className="reflection-note">ผลการ Match ไม่เปลี่ยนคุณค่าของผู้สมัคร ใช้สรุปนี้เพื่อวางแผนเรียนรู้และเตรียมตัวครั้งถัดไป</p></section></>}<div className="rec-actions"><button className="rec-primary" type="button" onClick={reset}>จบและเริ่มรายใหม่</button></div></div>}
-        </section>}
-      </div>
-    </main>
-    {showApplicationModal && stage === "intake" && <div className="analysis-confirm-backdrop" role="presentation"><section className="analysis-confirm-dialog application-intake-dialog" role="dialog" aria-modal="true" aria-labelledby="application-intake-title"><div className="application-dialog-head"><div><span className="eyebrow">สมัคร · {selectedJob.title}</span><h2 id="application-intake-title">แนบ CV เพื่อเทียบกับ JD</h2><p>{selectedJob.department} · {selectedJob.location} · {selectedJob.salary}</p></div><button type="button" className="rec-secondary" onClick={() => setShowApplicationModal(false)} disabled={loading}>ปิด</button></div><div className="rec-skill-row">{selectedJob.skills.map((skill) => <span key={skill}>{skill}</span>)}</div><button className={`rec-upload ${fileName ? "has-file" : ""} ${loading ? "is-loading" : ""}`} type="button" onClick={() => inputRef.current?.click()} disabled={loading}><input ref={inputRef} type="file" accept=".pdf" onChange={handleFile}/>{loading ? <LoaderCircle className="upload-loading-spinner"/> : fileName ? <CheckCircle2/> : <FileText/>}<strong>{loading ? aiLoadingLabel : fileName || "เลือกไฟล์เรซูเม่ PDF"}</strong><span>{loading ? `กำลังประมวลผล ${aiProgress}% · กรุณารอสักครู่` : fileName ? "แนบไฟล์แล้ว · พร้อมประมวลผล" : "PDF ไม่เกิน 10 MB · ไม่บันทึกไฟล์ต้นฉบับ"}</span></button>{loading && <div className="ai-progress-block" role="status" aria-live="polite"><div className="ai-progress-copy"><span><Sparkles/> {aiLoadingLabel}</span><strong>{aiProgress}%</strong></div><div className="ai-progress-track" role="progressbar" aria-label={aiLoadingLabel} aria-valuemin={0} aria-valuemax={100} aria-valuenow={aiProgress}><span style={{ width: `${aiProgress}%` }}/></div><small>{aiProgress < 35 ? "กำลังเตรียมข้อมูลและตรวจรูปแบบไฟล์" : aiProgress < 70 ? "AI กำลังประมวลผลหลักฐานที่เกี่ยวข้อง" : aiProgress < 100 ? "กำลังตรวจความครบถ้วนของผลลัพธ์" : "เสร็จเรียบร้อย"}</small></div>}{apiNote && !loading && <div className="rec-ai-note"><Sparkles/><div>{apiNote}</div></div>}{fileName && claims && !loading && <section className="extracted-evidence-card"><div><div><span className="eyebrow">Resume evidence</span><h4>หลักฐานที่สกัดจากเรซูเม่</h4></div><button type="button" onClick={() => { setClaimsDraft(claims); setEditClaimsOpen(true); }}><Pencil/> แก้ไข</button></div><p>{claims}</p><small>ผลวิเคราะห์แบบอ่านอย่างเดียว กดแก้ไขเพื่อเปิด popup แยก</small></section>}{fileName && claims && !loading && <><div className="rec-analysis-preview"><div><span>JD coverage</span><strong>{analysis.score}%</strong></div><div><span>ตรงกับ JD</span><p>{analysis.matched.join(" · ") || "ยังไม่พบทักษะที่ตรง"}</p></div><div><span>ควรตรวจเพิ่ม</span><p>{analysis.missing.join(" · ") || "ครบทุกรายการหลัก"}</p></div></div><div className="rec-actions"><button className="rec-primary" type="button" disabled={claims.trim().length < 30 || loading} onClick={createAssessment}><Sparkles/> สร้าง Assessment จาก CV + JD <ArrowRight/></button></div></>}</section></div>}
-    {showAnalysisConfirm && <div className="analysis-confirm-backdrop top-layer" role="presentation"><section className="analysis-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="analysis-confirm-title"><div className="analysis-confirm-icon"><ClipboardCheck/></div><span className="eyebrow">Resume analysis checkpoint</span><h2 id="analysis-confirm-title">ยืนยันผลวิเคราะห์ก่อนเริ่ม Assessment</h2><p>ตรวจว่าหลักฐานที่สกัดไม่ผิดคน ไม่แต่งข้อมูลเพิ่ม และสอดคล้องกับ Resume ก่อนส่งข้อสอบให้ผู้สมัคร</p><div className="analysis-confirm-summary"><div><span>ตำแหน่ง</span><strong>{selectedJob.title}</strong></div><div><span>คะแนนเทียบ JD</span><strong>{analysis.score}%</strong></div><div><span>แหล่งข้อสอบ</span><strong>{apiNote.includes("Gemini") && !apiNote.includes("ไม่พร้อม") ? "Gemini API" : "Demo fallback"}</strong></div></div><div className="analysis-confirm-evidence"><strong>หลักฐานที่นำไปสร้างคำถาม</strong><p>{claims}</p></div><div className="rec-skill-row">{analysis.matched.map((skill) => <span key={skill}>ตรง: {skill}</span>)}{analysis.missing.map((skill) => <span key={skill}>ตรวจเพิ่ม: {skill}</span>)}</div><div className="rec-actions"><button type="button" className="rec-secondary" onClick={() => setShowAnalysisConfirm(false)}>กลับไปแก้ผลวิเคราะห์</button><button type="button" className="rec-primary" onClick={() => { setShowAnalysisConfirm(false); setShowApplicationModal(false); setStage("assessment"); }}><Check/> ยืนยันและไปหน้าคำถาม</button></div></section></div>}
-    {editClaimsOpen && <div className="analysis-confirm-backdrop" role="presentation"><section className="analysis-confirm-dialog evidence-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-evidence-title"><div className="analysis-confirm-icon"><Pencil/></div><span className="eyebrow">Manual correction</span><h2 id="edit-evidence-title">แก้ไขผลวิเคราะห์ Resume</h2><p>แก้เฉพาะข้อมูลที่มีหลักฐานอยู่ใน CV ระบบจะนำข้อความที่บันทึกไปคำนวณ JD และสร้างคำถามใหม่</p><label className="rec-claims"><span>หลักฐานที่สกัดจากเรซูเม่</span><textarea value={claimsDraft} onChange={(event) => setClaimsDraft(event.target.value)} rows={8} autoFocus/></label><div className="rec-actions"><button type="button" className="rec-secondary" onClick={() => { setEditClaimsOpen(false); setClaimsDraft(""); }}>ยกเลิก</button><button type="button" className="rec-primary" disabled={claimsDraft.trim().length < 30} onClick={() => { setClaims(claimsDraft.trim()); setEditClaimsOpen(false); setApiNote("บันทึกการแก้ไขผลวิเคราะห์แล้ว"); }}><Check/> บันทึกการแก้ไข</button></div></section></div>}
-    <footer className="rec-demo-footer"><span><ShieldCheck/> Local demo · ไม่มีการอัปโหลดไฟล์ไปยังเซิร์ฟเวอร์</span><span>Recruiter surface only · โค้ดส่วนอื่นยังคงอยู่แต่ไม่เปิด route</span></footer>
-  </div>;
+  // Stage 2: Anti-Cheat & Proctoring (Tab Switch & Window Blur Detection)
+  useEffect(() => {
+    if (stage !== "assessment") {
+      return;
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Tab was hidden / minimized / switched away
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        setTabSwitchCount((prev) => {
+          const nextCount = prev + 1;
+          setProctoringLogs((logs) => [
+            ...logs,
+            {
+              id: `log-${Date.now()}-${nextCount}`,
+              timestamp: timeStr,
+              questionNumber: currentQuestionIndex + 1,
+              timeRemaining: timerSeconds,
+              message: `สลับแท็บ / ย่อหน้าต่างครั้งที่ ${nextCount} ขณะทำข้อที่ ${currentQuestionIndex + 1} (เวลาเหลือ ${formatTimer(timerSeconds)})`,
+            },
+          ]);
+          return nextCount;
+        });
+      } else {
+        // User switched back into the assessment tab -> show warning modal popup
+        setShowTabWarningModal(true);
+      }
+    };
+
+    const handleWindowBlur = () => {
+      // Trigger when browser window loses focus (e.g. alt-tab to another application)
+      if (!document.hidden) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        setTabSwitchCount((prev) => {
+          const nextCount = prev + 1;
+          setProctoringLogs((logs) => [
+            ...logs,
+            {
+              id: `log-${Date.now()}-${nextCount}`,
+              timestamp: timeStr,
+              questionNumber: currentQuestionIndex + 1,
+              timeRemaining: timerSeconds,
+              message: `เปลี่ยนโฟกัสไปแอปอื่น (App Switch) ครั้งที่ ${nextCount} ขณะทำข้อที่ ${currentQuestionIndex + 1}`,
+            },
+          ]);
+          return nextCount;
+        });
+      }
+    };
+
+    const handleWindowFocus = () => {
+      if (!document.hidden) {
+        setShowTabWarningModal(true);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleWindowBlur);
+    window.addEventListener("focus", handleWindowFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleWindowBlur);
+      window.removeEventListener("focus", handleWindowFocus);
+    };
+  }, [stage, currentQuestionIndex, timerSeconds]);
+
+  // Stage 2: GSAP slide animation on question switch
+  useEffect(() => {
+    if (stage !== "assessment" || !questionCardRef.current) return;
+    gsap.fromTo(
+      questionCardRef.current,
+      { autoAlpha: 0, x: 20 },
+      { autoAlpha: 1, x: 0, duration: 0.28, ease: "power2.out" },
+    );
+  }, [stage, currentQuestionIndex]);
+
+  // Handle stage 4 turn transitions with GSAP
+  useEffect(() => {
+    if (stage !== "decision") return;
+    if (decisionTurn === "candidate" && candidateCardRef.current) {
+      gsap.fromTo(
+        candidateCardRef.current,
+        { autoAlpha: 0, y: 30, scale: 0.95 },
+        { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(1.4)" },
+      );
+    } else if (decisionTurn === "recruiter" && recruiterCardRef.current) {
+      gsap.fromTo(
+        recruiterCardRef.current,
+        { autoAlpha: 0, y: 40, scale: 0.94, rotateY: 15 },
+        { autoAlpha: 1, y: 0, scale: 1, rotateY: 0, duration: 0.5, ease: "back.out(1.3)" },
+      );
+    }
+  }, [stage, decisionTurn]);
+
+  const finishAiLoading = async () => {
+    setAiProgress(100);
+    await new Promise((resolve) => window.setTimeout(resolve, 220));
+    setLoading(false);
+    setAiLoadingLabel("");
+  };
+
+  const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setFileName(file.name);
+    setClaims("");
+    if (file.type === "application/pdf") {
+      const startTime = Date.now();
+      const timeNow = () => new Date().toLocaleTimeString("th-TH");
+      setAiProgress(10);
+      setAiLoadingLabel("กำลังอ่านและสกัดหลักฐานจาก Resume ด้วย AI");
+      setAiLiveLog(`[${timeNow()}] ⚡ อ่านไฟล์ "${file.name}" (${(file.size / 1024).toFixed(1)} KB) พร้อมเข้ารหัส Privacy Shield`);
+      setLoading(true);
+      try {
+        setAiProgress(35);
+        setAiLiveLog(`[${timeNow()}] 📤 กำลังส่ง Binary PDF ไปยังระบบ AI Engine (gemini-3.6-flash)...`);
+        const result = await analyzeResume(file);
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        setAiProgress(92);
+        setAiLiveLog(`[${timeNow()}] 📥 สกัดข้อมูลสำเร็จใน ${elapsed}s (ตรวจพบ ${result.skills.length} ทักษะสำคัญ)`);
+        setClaims(result.recruiterSummary || result.candidateSummary);
+        setApiNote(`✨ AI สกัดหลักฐานจากเรซูเม่สำเร็จใน ${elapsed}s`);
+      } catch (err) {
+        setClaims(sampleClaims);
+        setAiLiveLog(`[${timeNow()}] ⚠️ AI API ไม่ตอบสนอง — สลับใช้ชุดข้อมูลสังเคราะห์จำลอง`);
+        setApiNote("⚠️ ระบบสลับใช้ข้อความสังเคราะห์จำลองแทน");
+      } finally {
+        await finishAiLoading();
+      }
+    }
+  };
+
+  const createAssessment = async () => {
+    const startTime = Date.now();
+    const timeNow = () => new Date().toLocaleTimeString("th-TH");
+    setAiProgress(12);
+    setAiLoadingLabel("กำลังประมวลผลผ่าน AI เพื่อสร้างข้อสอบ Scenario 11 ข้อ");
+    setAiLiveLog(`[${timeNow()}] ⚡ รวบรวม JD (${selectedJob.title}) และหลักฐานเพื่อออกแบบข้อสอบ...`);
+    setLoading(true);
+    setApiNote("");
+    try {
+      setAiProgress(40);
+      setAiLiveLog(`[${timeNow()}] 📤 กำลังส่ง Prompt 11 ข้อไปยัง AI Engine (gemini-3.6-flash)...`);
+      const items = await generateAssessment({
+        jobTitle: selectedJob.title,
+        jobSummary: selectedJob.summary,
+        requiredSkills: selectedJob.skills,
+        resumeEvidence: claims,
+      });
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      setAiProgress(95);
+      setAiLiveLog(`[${timeNow()}] 📥 AI ออกข้อสอบ 10 ช้อยส์ + 1 อัตนัยเสร็จสมบูรณ์ใน ${elapsed}s (สุ่ม Choice ไร้แพทเทิร์น)`);
+      setQuestions(items);
+      setAnswers(Array(items.length).fill(undefined));
+      setSubjectiveAnswer("");
+      setApiNote(`✨ สร้างจาก AI สำเร็จใน ${elapsed}s (Scenario เฉพาะบุคคล 11 ข้อ)`);
+    } catch (err) {
+      const fallback = generateSmartFallbackAssessment(selectedJob, claims);
+      setAiLiveLog(`[${timeNow()}] ⚠️ AI API ไม่ตอบสนอง — สลับใช้ชุดข้อสอบ Fallback จำลอง`);
+      setQuestions(fallback);
+      setAnswers(Array(fallback.length).fill(undefined));
+      setSubjectiveAnswer("");
+      setApiNote("✨ สร้างจาก AI (Scenario จำลอง 11 ข้อ)");
+    } finally {
+      await finishAiLoading();
+      setShowAnalysisConfirm(true);
+    }
+  };
+
+  const reset = () => {
+    setSelectedJobId("");
+    setSelectedCategory("");
+    setShowApplicationModal(false);
+    setSelectedCompanyForModal(null);
+    setFileName("");
+    setClaims("");
+    setClaimsDraft("");
+    setEditClaimsOpen(false);
+    setAnswers([]);
+    setQuestions([]);
+    setCurrentQuestionIndex(0);
+    setTimerSeconds(600);
+    setTimerExpired(false);
+    setRecruiterDecision(null);
+    setCandidateDecision(null);
+    setDecisionTurn("candidate");
+    setStage("intake");
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  // Swiping mechanics for Candidate
+  const handleCandidateSwipe = (decision: "APPROVE" | "REJECT") => {
+    if (!candidateCardRef.current) {
+      setCandidateDecision(decision);
+      setDecisionTurn("recruiter");
+      return;
+    }
+    const targetX = decision === "APPROVE" ? 500 : -500;
+    const targetRot = decision === "APPROVE" ? 25 : -25;
+    gsap.to(candidateCardRef.current, {
+      x: targetX,
+      rotation: targetRot,
+      autoAlpha: 0,
+      duration: 0.38,
+      ease: "power2.in",
+      onComplete: () => {
+        setCandidateDecision(decision);
+        setDecisionTurn("recruiter");
+      },
+    });
+  };
+
+  // Swiping mechanics for Recruiter
+  const handleRecruiterSwipe = (decision: "APPROVE" | "REJECT") => {
+    if (!recruiterCardRef.current) {
+      setRecruiterDecision(decision);
+      setDecisionTurn("revealed");
+      return;
+    }
+    const targetX = decision === "APPROVE" ? 500 : -500;
+    const targetRot = decision === "APPROVE" ? 25 : -25;
+    gsap.to(recruiterCardRef.current, {
+      x: targetX,
+      rotation: targetRot,
+      autoAlpha: 0,
+      duration: 0.38,
+      ease: "power2.in",
+      onComplete: () => {
+        setRecruiterDecision(decision);
+        setDecisionTurn("revealed");
+      },
+    });
+  };
+
+  // Pointer dragging logic
+  const attachCardDrag = (cardEl: HTMLDivElement | null, onSwipe: (decision: "APPROVE" | "REJECT") => void) => {
+    if (!cardEl) return {};
+
+    const onPointerDown = (e: React.PointerEvent) => {
+      dragTracker.current.isDragging = true;
+      dragTracker.current.startX = e.clientX;
+      dragTracker.current.startY = e.clientY;
+      dragTracker.current.currentX = 0;
+      cardEl.setPointerCapture(e.pointerId);
+    };
+
+    const onPointerMove = (e: React.PointerEvent) => {
+      if (!dragTracker.current.isDragging) return;
+      const dx = e.clientX - dragTracker.current.startX;
+      dragTracker.current.currentX = dx;
+      gsap.set(cardEl, { x: dx, rotation: dx * 0.06 });
+
+      const likeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.like");
+      const nopeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.nope");
+      if (likeBadge) {
+        likeBadge.style.opacity = String(Math.max(0, Math.min(1, dx / 80)));
+      }
+      if (nopeBadge) {
+        nopeBadge.style.opacity = String(Math.max(0, Math.min(1, -dx / 80)));
+      }
+    };
+
+    const onPointerUp = (e: React.PointerEvent) => {
+      if (!dragTracker.current.isDragging) return;
+      dragTracker.current.isDragging = false;
+      cardEl.releasePointerCapture(e.pointerId);
+      const dx = dragTracker.current.currentX;
+
+      if (dx > 95) {
+        onSwipe("APPROVE");
+      } else if (dx < -95) {
+        onSwipe("REJECT");
+      } else {
+        gsap.to(cardEl, { x: 0, rotation: 0, duration: 0.45, ease: "elastic.out(1, 0.4)" });
+        const likeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.like");
+        const nopeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.nope");
+        if (likeBadge) likeBadge.style.opacity = "0";
+        if (nopeBadge) nopeBadge.style.opacity = "0";
+      }
+    };
+
+    return {
+      onPointerDown,
+      onPointerMove,
+      onPointerUp,
+      onPointerCancel: onPointerUp,
+    };
+  };
+
+  const formatTimer = (totalSeconds: number) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
+
+  const details = jobDetails[selectedJob.id] ?? {
+    overview: selectedJob.summary,
+    responsibilities: [
+      `รับผิดชอบงานในส่วน ${selectedJob.department}`,
+      `ประยุกต์ใช้ ${selectedJob.skills.join(", ")} เพื่อส่งมอบผลลัพธ์`,
+    ],
+    qualifications: [`มีประสบการณ์ตรง 2 ปีขึ้นไป`, `สื่อสารและทำงานเป็นทีมได้ดี`],
+    benefits: [`สวัสดิการตามมาตรฐานองค์กร`, `Hybrid Work`, `ประกันสุขภาพ`],
+  };
+
+  const currentQuestion = questions[currentQuestionIndex] ?? questions[0];
+
+  return (
+    <div className="rec-demo-root">
+      <a className="skip-link" href="#main-content">
+        ข้ามไปเนื้อหาหลัก
+      </a>
+
+      {/* Header */}
+      <header className="rec-demo-header">
+        <div className="rec-demo-brand">
+          <span>MM</span>
+          <div>
+            <strong>MaskedMatch</strong>
+            <small>Recruiter Intelligence & Sponsor Jobboard</small>
+          </div>
+        </div>
+        <div className="rec-demo-header-actions">
+          <span className="demo-badge">LOCAL SYNTHETIC DEMO</span>
+          <button type="button" onClick={reset}>
+            <RotateCcw /> เริ่มเดโม่ใหม่
+          </button>
+        </div>
+      </header>
+
+      {/* Main Container */}
+      <main id="main-content" className="rec-demo-main">
+        {/* Hero Section */}
+        <section className="rec-demo-hero">
+          <div>
+            <span className="eyebrow">Recruiter-only workspace</span>
+            <h1>
+              ตรวจคนให้ตรงงาน
+              <br />
+              <em>ด้วยหลักฐาน ไม่ใช่แค่คีย์เวิร์ด</em>
+            </h1>
+            <p>
+              รวบรวมตำแหน่งงานจากสปอนเซอร์ชั้นนำ วิเคราะห์สิ่งที่ผู้สมัครระบุในเรซูเม่ เทียบกับ JD
+              และสร้างแบบประเมินสถานการณ์เฉพาะบุคคล (10 ข้อ · 10 นาที) เพื่อยืนยันว่ามีความรู้และทักษะตรงตามที่ระบุจริง
+            </p>
+          </div>
+          <div className="rec-demo-metrics">
+            <div>
+              <BriefcaseBusiness />
+              <strong>{jobs.length}</strong>
+              <span>ตำแหน่งพร้อมเดโม่</span>
+            </div>
+            <div>
+              <Building2 />
+              <strong>{Object.keys(sponsorCompanies).length}</strong>
+              <span>องค์กรและสปอนเซอร์</span>
+            </div>
+            <div>
+              <ShieldCheck />
+              <strong>100%</strong>
+              <span>ข้อมูลจำลองแบบ Masked</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Sponsor Banner */}
+        <section className="rec-sponsor-strip">
+          <span className="eyebrow">พันธมิตรและสปอนเซอร์องค์กร</span>
+          <div className="sponsor-marquee">
+            {Object.values(sponsorCompanies).map((company) => (
+              <button
+                type="button"
+                key={company.id}
+                className="sponsor-pill"
+                onClick={() => setSelectedCompanyForModal(company)}
+              >
+                <span className={`company-tag-badge ${company.tone}`}>{company.badge}</span>
+                <strong>{company.shortName}</strong>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Step Navigation */}
+        <nav className="rec-demo-steps" aria-label="ขั้นตอนการประเมิน">
+          {(
+            [
+              ["intake", "1", "Jobboard & CV Intake"],
+              ["assessment", "2", "Quiz Popup (10 ข้อ · 10 นาที)"],
+              ["interview", "3", "Masked 8-bit Call"],
+              ["decision", "4", "Two-Sided Swipe Decision"],
+            ] as const
+          ).map(([key, num, label]) => (
+            <button key={key} type="button" className={stage === key ? "active" : ""} disabled>
+              <span>{num}</span>
+              {label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Layout Grid */}
+        <div className={`rec-demo-layout ${!selectedJobId ? "catalog-only" : ""}`}>
+          {/* Job Panel / Catalog */}
+          <aside className="rec-job-panel">
+            <div className="rec-section-title">
+              <div>
+                <span className="eyebrow">Job catalog</span>
+                <h2>{selectedCategory ? `สายงาน ${selectedCategory}` : "เลือกหมวดหมู่งาน"}</h2>
+              </div>
+              <span>
+                {selectedCategory
+                  ? `${filteredJobs.length} ตำแหน่ง`
+                  : `${Object.keys(categoryDescriptions).length} หมวดหมู่ (${jobs.length} ตำแหน่ง)`}
+              </span>
+            </div>
+
+            {!selectedCategory ? (
+              <div className="job-category-grid">
+                {Object.entries(categoryDescriptions).map(([category, description]) => {
+                  const count = jobs.filter((job) => job.category === category).length;
+                  return (
+                    <button
+                      type="button"
+                      key={category}
+                      onClick={() =>
+                        setSelectedCategory(category as "Tech" | "Business" | "People" | "Operations")
+                      }
+                    >
+                      <span className="category-count-badge">{count} ตำแหน่งเปิดรับ</span>
+                      <strong>{category}</strong>
+                      <p>{description}</p>
+                      <ArrowRight />
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <>
+                <div className="category-header-row">
+                  <button
+                    type="button"
+                    className="category-back"
+                    onClick={() => {
+                      setSelectedCategory("");
+                      setSelectedJobId("");
+                    }}
+                  >
+                    ← หมวดหมู่ทั้งหมด
+                  </button>
+                  <span className="category-active-label">{selectedCategory}</span>
+                </div>
+
+                <label className="rec-search">
+                  <Search />
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="ค้นหาตำแหน่ง, ทักษะ หรือชื่อบริษัท..."
+                    aria-label="ค้นหาตำแหน่งงาน"
+                    style={{
+                      background: "transparent",
+                      backgroundColor: "transparent",
+                      border: "none",
+                      outline: "none",
+                      boxShadow: "none",
+                      color: "#f1f8fc",
+                    }}
+                  />
+                </label>
+
+                <div className="rec-job-list">
+                  {filteredJobs.map((job) => {
+                    const comp = sponsorCompanies[job.companyId] ?? sponsorCompanies.microsoft!;
+                    const isSelected = selectedJobId === job.id;
+                    return (
+                      <button
+                        type="button"
+                        key={job.id}
+                        className={`rec-job-card-item ${isSelected ? "selected" : ""}`}
+                        onClick={() => {
+                          setSelectedJobId(job.id);
+                          setStage("intake");
+                        }}
+                      >
+                        <div className="job-card-top">
+                          <span className={`company-mini-badge ${comp.tone}`}>{comp.shortName}</span>
+                          <span className="job-card-salary-badge">{job.salary}</span>
+                        </div>
+                        <strong className="job-card-title">{job.title}</strong>
+                        <div className="job-card-subtitle">
+                          <span className="job-comp-name">{comp.name}</span>
+                          <span className="job-dept-name">· {job.department}</span>
+                        </div>
+                        <div className="job-card-skills">
+                          {job.skills.slice(0, 3).map((s) => (
+                            <span key={s}>{s}</span>
+                          ))}
+                          {job.skills.length > 3 && <span className="skill-more">+{job.skills.length - 3}</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </aside>
+
+          {/* Work Panel */}
+          {selectedJobId && (
+            <section className="rec-work-panel" ref={jdPanelRef}>
+              {/* Job Header Info */}
+              <div className="rec-job-detail">
+                {/* Showcase Banner for Selected Company with Company Details Button */}
+                <div className="job-company-showcase-bar">
+                  <div className="showcase-left">
+                    <span className={`company-tag-badge ${selectedCompany.tone}`}>{selectedCompany.badge}</span>
+                    <div className="showcase-company-info">
+                      <strong>{selectedCompany.name}</strong>
+                      <span>{selectedCompany.industry} · {selectedCompany.location}</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="company-profile-cta-btn"
+                    onClick={() => setSelectedCompanyForModal(selectedCompany)}
+                    title="ดูข้อมูลองค์กร ค่านิยม วัฒนธรรม และสวัสดิการ"
+                  >
+                    <Building2 size={15} /> ดูข้อมูลบริษัท & Culture <ChevronRight size={14} />
+                  </button>
+                </div>
+
+                <div className="job-title-summary-block">
+                  <h2>{selectedJob.title}</h2>
+                  <p>{selectedJob.summary}</p>
+                </div>
+
+                <div className="rec-job-meta">
+                  <span>
+                    <MapPin size={14} /> {selectedJob.location}
+                  </span>
+                  <span>{selectedJob.type}</span>
+                  <span className="job-dept-tag">{selectedJob.department}</span>
+                  <strong>{selectedJob.salary}</strong>
+                </div>
+              </div>
+
+              {/* Skills required */}
+              <div className="rec-skill-row">
+                <span className="skill-label-prefix">ทักษะสำคัญ:</span>
+                {selectedJob.skills.map((skill) => (
+                  <span key={skill}>{skill}</span>
+                ))}
+              </div>
+
+              {/* STAGE 1: Intake & Detailed JD */}
+              {stage === "intake" && (
+                <div className="detailed-jd-content">
+                  <section>
+                    <span className="eyebrow">เกี่ยวกับตำแหน่งและเป้าหมาย</span>
+                    <p>{details.overview}</p>
+                  </section>
+
+                  <div className="jd-detail-columns">
+                    <section>
+                      <h3>หน้าที่ความรับผิดชอบหลัก</h3>
+                      <ul>
+                        {details.responsibilities.map((item) => (
+                          <li key={item}>
+                            <Check /> {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                    <section>
+                      <h3>คุณสมบัติที่กำลังมองหา</h3>
+                      <ul>
+                        {details.qualifications.map((item) => (
+                          <li key={item}>
+                            <Check /> {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  </div>
+
+                  <section className="jd-benefits">
+                    <h3>สวัสดิการและสิ่งที่องค์กรส่งมอบ</h3>
+                    <div>
+                      {details.benefits.map((item) => (
+                        <span key={item}>{item}</span>
+                      ))}
+                    </div>
+                  </section>
+
+                  <div className="jd-interest-bar">
+                    <div>
+                      <strong>สนใจสมัครหรือทดสอบคัดกรองตำแหน่งนี้?</strong>
+                      <span>แนบ Resume เพื่อวิเคราะห์ความสอดคล้องกับ JD และสร้างแบบประเมินเฉพาะตัว</span>
+                    </div>
+                    <div className="jd-interest-actions">
+                      <button
+                        type="button"
+                        className="rec-secondary"
+                        onClick={() => setSelectedCompanyForModal(selectedCompany)}
+                      >
+                        <Building2 /> ดูวัฒนธรรมองค์กร
+                      </button>
+                      <button
+                        className="rec-primary"
+                        type="button"
+                        onClick={() => setShowApplicationModal(true)}
+                      >
+                        แนบเรซูเม่และวิเคราะห์ <ArrowRight />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STAGE 2: Interactive 10-Minute Assessment Modal Popup (Focused Fullscreen Dialog) */}
+              {stage === "assessment" && (
+                <div className="assessment-modal-backdrop top-layer" role="dialog" aria-modal="true" aria-labelledby="assessment-modal-title">
+                  <div className="assessment-modal-dialog">
+                    {/* TOP PINNED SECTION: Header + Progress Bar + Pinned Question Statement */}
+                    <div className="assessment-modal-top-pinned">
+                      {/* Top Assessment Header */}
+                      <div className="assessment-quiz-header">
+                        <div className="quiz-header-titles">
+                          <span className="eyebrow">
+                            Live Assessment · {selectedJob.title} @ {selectedCompany.shortName}
+                          </span>
+                          <h3 id="assessment-modal-title">Scenario Skills & Solution Check ({questions.length || 11} ข้อ)</h3>
+                          <p>{apiNote || "10 ข้อสถานการณ์ปรนัย + 1 ข้อเขียนอัตนัย ไร้แพทเทิร์น"}</p>
+                        </div>
+
+                        <div className="quiz-header-right-badges">
+                          {/* Live Anti-Cheat & Proctoring Status */}
+                          <div className="quiz-proctor-status-pill">
+                            {tabSwitchCount === 0 ? (
+                              <span className="proctor-badge clean" title="ระบบ Anti-Cheat กำลังตรวจจับการสลับหน้าจอ (ไม่พบการสลับแท็บ)">
+                                <ShieldCheck size={14} /> Anti-Cheat: 100% Verified
+                              </span>
+                            ) : (
+                              <span className="proctor-badge warning" title="ตรวจพบการสลับหน้าต่างและบันทึก Log แล้ว">
+                                <AlertTriangle size={14} /> สลับแท็บ {tabSwitchCount} ครั้ง (มีบันทึก Log)
+                              </span>
+                            )}
+                          </div>
+
+                          {/* 10-Minute Live Countdown Timer */}
+                          <div
+                            className={`quiz-timer-badge ${
+                              timerSeconds <= 60
+                                ? "timer-critical"
+                                : timerSeconds <= 180
+                                  ? "timer-warning"
+                                  : "timer-normal"
+                            }`}
+                            role="timer"
+                            aria-live="polite"
+                          >
+                            <Clock size={18} />
+                            <div>
+                              <span>เวลาที่เหลือ (จาก 10:00 นาที)</span>
+                              <strong>{formatTimer(timerSeconds)}</strong>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Progress Tracker Bar */}
+                      <div className="quiz-progress-panel">
+                        <div className="quiz-progress-stats">
+                          <span className="quiz-stat-pill">
+                            <strong>ข้อที่ {currentQuestionIndex + 1}</strong> จาก {questions.length || 11} ข้อ
+                          </span>
+                          <span className="quiz-stat-pill done">
+                            <Check size={14} /> ตอบแล้ว <strong>{completedAnswers}</strong> ข้อ
+                          </span>
+                          <span className="quiz-stat-pill remain">
+                            เหลืออีก <strong>{(questions.length || 11) - completedAnswers}</strong> ข้อ
+                          </span>
+                        </div>
+
+                        <div className="quiz-progress-track-bg">
+                          <div
+                            className="quiz-progress-track-fill"
+                            style={{ width: `${(completedAnswers / (questions.length || 11)) * 100}%` }}
+                          />
+                        </div>
+
+                        {/* 11 Numbered Jump Pills */}
+                        <div className="quiz-jump-pills" aria-label="เลือกลัดไปยังข้อสอบ">
+                          {questions.map((q, idx) => {
+                            const isSubjective = q.type === "subjective";
+                            const isAnswered = isSubjective
+                              ? subjectiveAnswer.trim().length > 0
+                              : answers[idx] !== undefined;
+                            const isCurrent = currentQuestionIndex === idx;
+                            return (
+                              <button
+                                type="button"
+                                key={q.id || idx}
+                                className={`quiz-jump-btn ${isCurrent ? "current" : ""} ${
+                                  isAnswered ? "answered" : ""
+                                } ${isSubjective ? "subjective-pill" : ""}`}
+                                onClick={() => setCurrentQuestionIndex(idx)}
+                                title={`ข้อที่ ${idx + 1}: ${isSubjective ? "ข้อเขียนอัตนัย" : q.skill} (${
+                                  isAnswered ? "ตอบแล้ว" : "ยังไม่ได้ตอบ"
+                                })`}
+                              >
+                                <span>{idx + 1}{isSubjective ? " ✍️" : ""}</span>
+                                {isAnswered && <Check size={10} className="jump-check-icon" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Pinned Question Statement (โจทย์ที่ตรึงไว้ด้านบนเสมอ) */}
+                      {currentQuestion && (
+                        <div className="quiz-pinned-question-statement">
+                          <div className="single-q-meta">
+                            <span className="single-q-number-tag">
+                              ข้อที่ {currentQuestionIndex + 1}/{questions.length || 11} {currentQuestion.type === "subjective" ? "· ✍️ ข้อเขียนอัตนัย (พิมพ์ตอบ)" : "· ปรนัย (4 ตัวเลือก)"}
+                            </span>
+                            <span className="single-q-skill-tag">
+                              🎯 ทักษะที่วัด: <strong>{currentQuestion.skill}</strong>
+                            </span>
+                          </div>
+
+                          <h4 className="single-q-statement">{currentQuestion.question}</h4>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* MIDDLE SCROLLABLE BODY: Only this middle section scrolls! */}
+                    <div className="assessment-modal-scrollable-body" ref={questionCardRef}>
+                      {/* Timer Expired Warning */}
+                      {timerExpired && (
+                        <div className="quiz-expired-banner">
+                          <ShieldAlert size={20} />
+                          <div>
+                            <strong>หมดเวลาทำข้อสอบแล้ว (10:00 นาที)!</strong>
+                            <p>ระบบได้บันทึกคำตอบทั้งหมดที่คุณได้ทำไว้แล้ว กรุณากดปุ่มด้านล่างเพื่อเข้าสู่ขั้นตอนสัมภาษณ์</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* If Subjective Question (Item 11) */}
+                      {currentQuestion?.type === "subjective" ? (
+                        <div className="quiz-subjective-box">
+                          <div className="subjective-tip-banner">
+                            <Sparkles size={16} />
+                            <span>ข้อนี้เป็นคำถามสถานการณ์ข้อเขียน (อัตนัย) — ไม่มีการตัดคะแนนอัตโนมัติ โดยระบบจะส่งคำตอบของคุณตรงถึง HR / Recruiter เพื่อประกอบการพิจารณาคัดเลือก</span>
+                          </div>
+
+                          <div className="subjective-textarea-wrapper">
+                            <textarea
+                              className="quiz-subjective-textarea"
+                              placeholder={currentQuestion.placeholder || "พิมพ์อธิบายลำดับขั้นตอนการวิเคราะห์ปัญหา แนวทางการแก้ปัญหา และข้อควรระวังในมุมมองของคุณ..."}
+                              value={subjectiveAnswer}
+                              onChange={(e) => setSubjectiveAnswer(e.target.value)}
+                              rows={6}
+                            />
+                            <div className="subjective-meta-row">
+                              <span className="subjective-char-count">
+                                📝 {subjectiveAnswer.length} ตัวอักษร {subjectiveAnswer.length > 0 ? "· บันทึกคำตอบแล้ว" : "· (พิมพ์สรุปแนวทางหรืออธิบายสั้นๆ ตามความเหมาะสม)"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        /* If Multiple-Choice Question (Items 1-10) */
+                        currentQuestion && currentQuestion.options && (
+                          <div className="single-q-choices-list">
+                            {currentQuestion.options.map((option, optIdx) => {
+                              const isSelected = answers[currentQuestionIndex] === optIdx;
+                              return (
+                                <label
+                                  key={option}
+                                  className={`quiz-choice-card ${isSelected ? "selected" : ""}`}
+                                  onClick={() => {
+                                    setAnswers((curr) => {
+                                      const next = [...curr];
+                                      next[currentQuestionIndex] = optIdx;
+                                      return next;
+                                    });
+                                  }}
+                                >
+                                  <div className="choice-left-group">
+                                    <div className="choice-letter-badge">
+                                      {String.fromCharCode(65 + optIdx)}
+                                    </div>
+                                    <div className="choice-text-content">{option}</div>
+                                  </div>
+                                  <div className="choice-radio-indicator" />
+                                  <input
+                                    type="radio"
+                                    name={`q-${currentQuestionIndex}`}
+                                    checked={isSelected}
+                                    onChange={() => {}}
+                                    className="sr-only"
+                                  />
+                                </label>
+                              );
+                            })}
+                          </div>
+                        )
+                      )}
+                    </div>
+
+                    {/* BOTTOM PINNED FOOTER: Navigation & Submission */}
+                    <div className="assessment-modal-bottom-pinned">
+                      <div className="quiz-navigation-footer">
+                        <button
+                          type="button"
+                          className="rec-secondary quiz-nav-prev"
+                          disabled={currentQuestionIndex === 0}
+                          onClick={() => setCurrentQuestionIndex((prev) => Math.max(0, prev - 1))}
+                        >
+                          <ChevronLeft size={18} /> ข้อก่อนหน้า
+                        </button>
+
+                        <div className="quiz-nav-counter">
+                          <span>
+                            ข้อที่ <strong>{currentQuestionIndex + 1}</strong> / {questions.length || 11}
+                          </span>
+                        </div>
+
+                        <div className="quiz-nav-right-actions">
+                          {currentQuestionIndex < (questions.length || 11) - 1 ? (
+                            <button
+                              type="button"
+                              className="rec-primary quiz-nav-next"
+                              onClick={() => setCurrentQuestionIndex((prev) => Math.min((questions.length || 11) - 1, prev + 1))}
+                            >
+                              ข้อถัดไป <ChevronRight size={18} />
+                            </button>
+                          ) : (
+                            <button
+                              className="rec-primary quiz-submit-btn"
+                              type="button"
+                              disabled={completedAnswers < (mcqQuestions.length || 10) && !timerExpired}
+                              onClick={() => setStage("interview")}
+                            >
+                              <CheckCircle2 size={18} /> ส่งคำตอบและเข้าสัมภาษณ์ Masked ({completedAnswers}/{questions.length || 11}) <ArrowRight size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STAGE 3: Masked 8-bit Video Call */}
+              {stage === "interview" && (
+                <div className="rec-stage-content">
+                  <div className="mock-call-header">
+                    <div>
+                      <span className="mock-live-dot" /> MOCK INTERVIEW · 08:42
+                    </div>
+                    <span>Private Room #{selectedJob.id.toUpperCase().slice(0, 6)}</span>
+                  </div>
+
+                  <div className="masked-interview mock-video-grid">
+                    <figure className="mock-video-participant">
+                      <img
+                        src="/interview/candidate-cat-video-call.png"
+                        alt="ตัวละครแมว 8 บิต ผู้สมัครงาน กำลังวิดีโอคอลจากฉากหลังจำลอง"
+                      />
+                      <figcaption>
+                        <div>
+                          <strong>Candidate #7F2A</strong>
+                          <span>Cat avatar · Masked feed</span>
+                        </div>
+                        <span className="mock-audio-bars" aria-label="กำลังพูด">
+                          <i />
+                          <i />
+                          <i />
+                          <i />
+                        </span>
+                      </figcaption>
+                      <span className="mock-corner-label">YOU (JOB SEEKER)</span>
+                    </figure>
+
+                    <figure className="mock-video-participant recruiter">
+                      <img
+                        src="/interview/recruiter-fox-video-call.png"
+                        alt="ตัวละครจิ้งจอก 8 บิต HR กำลังวิดีโอคอลจากสตูดิโอจำลอง"
+                      />
+                      <figcaption>
+                        <div>
+                          <strong>{selectedCompany.shortName} HR Lead</strong>
+                          <span>Fox avatar · Masked feed</span>
+                        </div>
+                        <span className="mock-audio-bars" aria-label="กำลังพูด">
+                          <i />
+                          <i />
+                          <i />
+                          <i />
+                        </span>
+                      </figcaption>
+                      <span className="mock-corner-label">HR RECRUITER</span>
+                    </figure>
+                  </div>
+
+                  <div className="rec-ai-note">
+                    <ShieldCheck />
+                    <div>
+                      <strong>Mock video call — จำลองการสัมภาษณ์แบบปิดบังตัวตน 100%</strong>
+                      <p>
+                        ตัวละครสัตว์ 8-bit และฉากหลังเสมือนจริงช่วยปกป้องความลับ ข้อมูลส่วนตัว
+                        และการตัดสินบนพื้นฐานความสามารถ
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="interview-bottom-bar">
+                    <button
+                      type="button"
+                      className="rec-secondary"
+                      onClick={() => setSelectedCompanyForModal(selectedCompany)}
+                    >
+                      <Building2 /> ดู Culture บริษัทอีกครั้ง
+                    </button>
+                    <button
+                      className="rec-primary"
+                      type="button"
+                      onClick={() => {
+                        setStage("decision");
+                        setDecisionTurn("candidate");
+                      }}
+                    >
+                      <Check /> จบการสนทนาและไปหน้าตัดสินใจ (Swipe Deck) <ArrowRight />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STAGE 4: Interactive Two-Sided Swipe Arena */}
+              {stage === "decision" && (
+                <div className="rec-stage-content swipe-arena-section">
+                  <div className="rec-stage-heading">
+                    <span>
+                      <ShieldCheck />
+                    </span>
+                    <div>
+                      <h3>Two-Sided Private Swipe Decision</h3>
+                      <p>
+                        {decisionTurn === "candidate" &&
+                          "ขั้นตอน 1/2: การตัดสินใจฝั่งผู้สมัคร (Job Seeker Turn) — ปัดการ์ดหรือคลิกปุ่ม"}
+                        {decisionTurn === "recruiter" &&
+                          "ขั้นตอน 2/2: การตัดสินใจฝั่งนายจ้าง (Recruiter Turn) — ประเมินผลและตัดสินใจ"}
+                        {decisionTurn === "revealed" && "ผลลัพธ์การตัดสินใจแบบสองฝั่ง (Mutual Reveal Result)"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* TURN 1: CANDIDATE SWIPE CARD */}
+                  {decisionTurn === "candidate" && (
+                    <div className="swipe-arena-container">
+                      <div className="swipe-turn-indicator candidate-turn">
+                        <UserCheck size={18} />
+                        <span>ฝั่งผู้สมัคร (คุณ): สัมภาษณ์กับ {selectedCompany.name} แล้ว สนใจไปต่อหรือไม่?</span>
+                      </div>
+
+                      <div className="swipe-card-wrapper">
+                        <div
+                          className="swipe-card candidate-card"
+                          ref={candidateCardRef}
+                          {...attachCardDrag(candidateCardRef.current, handleCandidateSwipe)}
+                        >
+                          {/* Swipe Stamp Badges */}
+                          <div className="swipe-stamp like">MATCH! สนใจ</div>
+                          <div className="swipe-stamp nope">PASS ข้าม</div>
+
+                          {/* Card Content */}
+                          <div className="card-badge-header">
+                            <span className={`company-tag-badge ${selectedCompany.tone}`}>
+                              {selectedCompany.badge}
+                            </span>
+                            <span className="card-company-industry">{selectedCompany.industry}</span>
+                          </div>
+
+                          <h3 className="card-job-title">{selectedJob.title}</h3>
+                          <div className="card-company-name">
+                            <Building2 size={16} /> {selectedCompany.name}
+                          </div>
+
+                          <div className="card-highlight-grid">
+                            <div>
+                              <span>ช่วงเงินเดือน</span>
+                              <strong>{selectedJob.salary}</strong>
+                            </div>
+                            <div>
+                              <span>สถานที่ปฏิบัติงาน</span>
+                              <strong>{selectedJob.location}</strong>
+                            </div>
+                          </div>
+
+                          <div className="card-values-preview">
+                            <span className="card-section-label">ค่านิยมองค์กร (Company Values)</span>
+                            <div className="card-values-tags">
+                              {selectedCompany.values.map((v) => (
+                                <span key={v.title} title={v.desc}>
+                                  ⭐ {v.title}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="card-interview-note">
+                            <strong>ความประทับใจจากการสัมภาษณ์ Masked:</strong>
+                            <p>
+                              ทีมงานเปิดกว้าง วัฒนธรรมมุ่งเน้นผลงานและความคิดสร้างสรรค์
+                              ตรงกับเป้าหมายการเติบโตของคุณ
+                            </p>
+                          </div>
+
+                          <div className="swipe-card-drag-hint">
+                            <span>↔ ลากการ์ดซ้าย-ขวา หรือกดปุ่มด้านล่าง</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons below Candidate Card */}
+                      <div className="swipe-action-controls">
+                        <button
+                          type="button"
+                          className="swipe-btn reject-btn"
+                          title="ไม่ไปต่อ (Swipe Left)"
+                          onClick={() => handleCandidateSwipe("REJECT")}
+                        >
+                          <X size={26} />
+                          <span>ไม่ไปต่อ / PASS</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="swipe-btn info-btn"
+                          title="ดูข้อมูลบริษัทแบบเต็ม"
+                          onClick={() => setSelectedCompanyForModal(selectedCompany)}
+                        >
+                          <Building2 size={20} />
+                          <span>ข้อมูลบริษัท</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="swipe-btn approve-btn"
+                          title="สนใจร่วมงาน (Swipe Right)"
+                          onClick={() => handleCandidateSwipe("APPROVE")}
+                        >
+                          <Heart size={26} />
+                          <span>สนใจไปต่อ / MATCH</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TURN 2: RECRUITER SWIPE CARD */}
+                  {decisionTurn === "recruiter" && (
+                    <div className="swipe-arena-container">
+                      <div className="swipe-turn-indicator recruiter-turn">
+                        <BriefcaseBusiness size={18} />
+                        <span>ฝั่งนายจ้าง ({selectedCompany.shortName} HR): ประเมินผล Candidate #7F2A</span>
+                      </div>
+
+                      <div className="swipe-card-wrapper">
+                        <div
+                          className="swipe-card recruiter-card"
+                          ref={recruiterCardRef}
+                          {...attachCardDrag(recruiterCardRef.current, handleRecruiterSwipe)}
+                        >
+                          {/* Swipe Stamp Badges */}
+                          <div className="swipe-stamp like">ACCEPT รับเข้า</div>
+                          <div className="swipe-stamp nope">REJECT ปฏิเสธ</div>
+
+                          <div className="card-badge-header">
+                            <span className="candidate-id-badge">CANDIDATE #7F2A (MASKED)</span>
+                            <span className="candidate-applied-for">สมัคร: {selectedJob.title}</span>
+                          </div>
+
+                          <div className="card-candidate-header">
+                            <img
+                              src="/interview/candidate-cat-video-call.png"
+                              alt="Avatar Candidate"
+                              className="candidate-avatar-thumb"
+                            />
+                            <div>
+                              <h4>Candidate #7F2A</h4>
+                              <small>Cat Avatar · Anonymous Assessment</small>
+                            </div>
+                            <div className="candidate-score-badge">
+                              <span>Match Score</span>
+                              <strong>{finalScore}%</strong>
+                            </div>
+                          </div>
+
+                          <div className="recruiter-evaluation-stats">
+                            <div>
+                              <span>Resume ↔ JD</span>
+                              <strong>{analysis.score}%</strong>
+                              <small>ตรง {analysis.matched.length}/{selectedJob.skills.length} ทักษะ</small>
+                            </div>
+                            <div>
+                              <span>Knowledge Check</span>
+                              <strong>{knowledgeScore}%</strong>
+                              <small>ตอบถูก {correctAnswers}/10 ข้อ</small>
+                            </div>
+                          </div>
+
+                          {/* Anti-Cheat & Integrity Check on Recruiter Card */}
+                          {/* Anti-Cheat & Integrity Check on Recruiter Card */}
+                          <div className={`card-proctoring-summary-pill ${tabSwitchCount === 0 ? "clean" : "flagged"}`}>
+                            {tabSwitchCount === 0 ? (
+                              <span className="integrity-clean">
+                                <ShieldCheck size={14} /> Integrity Verified: 100% (ไม่พบประวัติสลับหน้าจอ)
+                              </span>
+                            ) : (
+                              <span className="integrity-flagged">
+                                <AlertTriangle size={14} /> Security Flag: ตรวจพบสลับแท็บ {tabSwitchCount} ครั้ง (บันทึกใน Audit Log)
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Subjective Candidate Written Response for HR review */}
+                          {subjectiveAnswer && (
+                            <div className="card-subjective-snippet-box">
+                              <div className="subjective-snippet-label">
+                                <Sparkles size={13} />
+                                <strong>คำตอบข้อเขียนอัตนัย (เพื่อประกอบการตัดสินใจของ HR):</strong>
+                              </div>
+                              <p className="subjective-snippet-text">"{subjectiveAnswer}"</p>
+                            </div>
+                          )}
+
+                          <div className="card-evidence-box">
+                            <strong>จุดแข็งและหลักฐานที่ยืนยันได้:</strong>
+                            <p>{analysis.matched.join(" · ") || "มีพื้นฐานและทักษะที่เกี่ยวข้องกับตำแหน่ง"}</p>
+                          </div>
+
+                          <div className="swipe-card-drag-hint">
+                            <span>↔ ลากการ์ดซ้าย-ขวา หรือกดปุ่มเพื่อตัดสินใจ</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons below Recruiter Card */}
+                      <div className="swipe-action-controls">
+                        <button
+                          type="button"
+                          className="swipe-btn reject-btn"
+                          title="ไม่ผ่านเกณฑ์ (Swipe Left)"
+                          onClick={() => handleRecruiterSwipe("REJECT")}
+                        >
+                          <X size={26} />
+                          <span>ไม่ผ่าน / REJECT</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="swipe-btn info-btn"
+                          title="ดูสรุปคำถามทั้งหมด"
+                          onClick={() => setShowQuestionsSummary(!showQuestionsSummary)}
+                        >
+                          <ClipboardCheck size={20} />
+                          <span>ดูผล ({questions.length || 11} ข้อ)</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="swipe-btn approve-btn"
+                          title="ผ่านเข้ารอบถัดไป (Swipe Right)"
+                          onClick={() => handleRecruiterSwipe("APPROVE")}
+                        >
+                          <Check size={26} />
+                          <span>ผ่านสัมภาษณ์ / ACCEPT</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Summary of Questions Modal / Expand */}
+                  {showQuestionsSummary && (
+                    <div className="questions-summary-card">
+                      <div className="summary-head">
+                        <h4>สรุปผลการตอบคำถาม {questions.length || 11} ข้อของผู้สมัคร</h4>
+                        <button type="button" onClick={() => setShowQuestionsSummary(false)}>
+                          <X size={16} />
+                        </button>
+                      </div>
+                      <div className="summary-list">
+                        {questions.map((q, idx) => {
+                          const isSubjective = q.type === "subjective";
+                          const isCorrect = !isSubjective && answers[idx] === q.correctIndex;
+                          return (
+                            <div
+                              key={q.id || idx}
+                              className={`summary-item ${
+                                isSubjective ? "subjective" : isCorrect ? "correct" : "incorrect"
+                              }`}
+                            >
+                              <div>
+                                <span>ข้อ {idx + 1}: {q.skill} {isSubjective ? "· ✍️ ข้อเขียนอัตนัย" : ""}</span>
+                                <p>{q.question}</p>
+                                {isSubjective && subjectiveAnswer && (
+                                  <blockquote className="summary-subjective-reply">
+                                    <strong>คำตอบของผู้สมัคร:</strong> "{subjectiveAnswer}"
+                                  </blockquote>
+                                )}
+                              </div>
+                              <strong>
+                                {isSubjective
+                                  ? subjectiveAnswer.trim().length > 0 ? "✓ มีคำตอบ" : "ยังไม่ได้ตอบ"
+                                  : isCorrect ? "✓ ถูกต้อง" : "✕ ไม่ถูกต้อง"}
+                              </strong>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TURN 3: REVEALED / MUTUAL RESULT */}
+                  {decisionTurn === "revealed" && (
+                    <div className="reveal-result-wrapper">
+                      <div className="rec-score-grid decision-summary-grid">
+                        <div>
+                          <span>Candidate Decision</span>
+                          <strong>{candidateDecision === "APPROVE" ? "💚 สนใจไปต่อ" : "⚪ ไม่ไปต่อ"}</strong>
+                        </div>
+                        <div>
+                          <span>Recruiter Decision</span>
+                          <strong>{recruiterDecision === "APPROVE" ? "💚 สนใจร่วมงาน" : "⚪ ไม่ผ่านเกณฑ์"}</strong>
+                        </div>
+                        <div>
+                          <span>สถานะการ Match</span>
+                          <strong className={recruiterDecision === "APPROVE" && candidateDecision === "APPROVE" ? "match-success" : "match-closed"}>
+                            {recruiterDecision === "APPROVE" && candidateDecision === "APPROVE"
+                              ? "🎉 Mutual Match!"
+                              : "🔒 No Match (Private)"}
+                          </strong>
+                        </div>
+                      </div>
+
+                      <div className={`rec-result-hero ${recruiterDecision === "APPROVE" && candidateDecision === "APPROVE" ? "is-mutual" : "is-closed"}`}>
+                        <span>
+                          {recruiterDecision === "APPROVE" && candidateDecision === "APPROVE" ? (
+                            <CheckCircle2 />
+                          ) : (
+                            <ShieldCheck />
+                          )}
+                        </span>
+                        <div>
+                          <h3>
+                            {recruiterDecision === "APPROVE" && candidateDecision === "APPROVE"
+                              ? "ทั้งสองฝ่ายสนใจตรงกัน! ยินดีด้วย"
+                              : "จบกระบวนการคัดเลือกอย่างเป็นส่วนตัว"}
+                          </h3>
+                          <p>
+                            {recruiterDecision === "APPROVE" && candidateDecision === "APPROVE"
+                              ? `ยินดีด้วย! ทั้งคุณและ ${selectedCompany.name} ต่างเห็นพ้องต้องกัน พร้อมเข้าสู่ขั้นตอนเปิดเผยข้อมูลติดต่อและสัมภาษณ์รอบไฟนอล`
+                              : "ระบบรักษาความเป็นส่วนตัวอย่างสมบูรณ์ ไม่เปิดเผยว่าฝ่ายใดเลือกไม่ไปต่อ และไม่มีการเก็บประวัติที่เชื่อมโยงตัวตนจริง"}
+                          </p>
+                        </div>
+                        <strong className="rec-final-score">
+                          {finalScore}
+                          <small>/100</small>
+                        </strong>
+                      </div>
+
+                      {/* Reflection Breakdown */}
+                      <section className="assessment-reflection">
+                        <span className="eyebrow">Assessment Reflection & Learning Roadmap</span>
+                        <h3>ทบทวนสิ่งที่ทำได้ดีและทักษะที่ควรพัฒนาต่อ</h3>
+                        <div className="rec-score-grid">
+                          <div>
+                            <span>คะแนนรวมสุทธิ</span>
+                            <strong>{finalScore}%</strong>
+                            <p>Resume 55% + Scenario Check 45%</p>
+                          </div>
+                          <div>
+                            <span>Resume ↔ JD Match</span>
+                            <strong>{analysis.score}%</strong>
+                            <p>ตรง {analysis.matched.length}/{selectedJob.skills.length} ทักษะสำคัญ</p>
+                          </div>
+                          <div>
+                            <span>Scenario Accuracy</span>
+                            <strong>{knowledgeScore}%</strong>
+                            <p>ตอบถูก {correctAnswers}/10 ข้อ (ปรนัย)</p>
+                          </div>
+                        </div>
+
+                        {/* Subjective Candidate Written Response Review */}
+                        {subjectiveAnswer && (
+                          <div className="reflection-subjective-card">
+                            <div className="subjective-card-head">
+                              <Sparkles size={16} />
+                              <strong>ข้อเขียนอัตนัยของผู้สมัคร (Subjective Response Review):</strong>
+                            </div>
+                            <p className="reflection-subjective-q">
+                              {questions.find((q) => q.type === "subjective")?.question || "ข้อเขียนอัตนัย"}
+                            </p>
+                            <blockquote className="reflection-subjective-ans">
+                              "{subjectiveAnswer}"
+                            </blockquote>
+                          </div>
+                        )}
+
+                        <div className="reflection-strengths">
+                          <div>
+                            <strong>จุดแข็งที่เด่นชัด</strong>
+                            <p>{analysis.matched.join(" · ") || "ความเข้าใจในโครงสร้างระบบและกระบวนการทำงาน"}</p>
+                          </div>
+                          <div>
+                            <strong>ทักษะที่ควรทบทวนเพิ่มเติม</strong>
+                            <p>
+                              {questions
+                                .filter((q, idx) => q.type !== "subjective" && answers[idx] !== q.correctIndex)
+                                .map((q) => q.skill)
+                                .filter((s, idx, arr) => arr.indexOf(s) === idx)
+                                .join(" · ") || "ความรู้ครอบคลุมทุกหัวข้ออย่างดีเยี่ยม"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {questions.some((q, idx) => q.type !== "subjective" && answers[idx] !== q.correctIndex) && (
+                          <div className="reflection-lessons">
+                            <h4>คำอธิบายเชิงลึกสำหรับข้อที่ควรทบทวน:</h4>
+                            {questions
+                              .filter((q, idx) => q.type !== "subjective" && answers[idx] !== q.correctIndex)
+                              .slice(0, 3)
+                              .map((question) => (
+                                <article key={question.id}>
+                                  <strong>ทักษะ: {question.skill}</strong>
+                                  <p>{question.explanation}</p>
+                                </article>
+                              ))}
+                          </div>
+                        )}
+
+                        {/* Anti-Cheat & Proctoring Audit Summary Box */}
+                        <div className="reflection-integrity-box">
+                          <div className="reflection-integrity-head">
+                            <ShieldCheck size={18} className="integrity-icon" />
+                            <strong>สรุปการตรวจสอบความโปร่งใส (Anti-Cheat & Proctoring Audit)</strong>
+                          </div>
+                          <p>
+                            {tabSwitchCount === 0
+                              ? "✓ ผ่านเกณฑ์: ผู้สมัครทำข้อสอบต่อเนื่องในหน้าต่างเดียว ไม่พบประวัติการสลับแท็บหรือย่อหน้าจอ (Integrity 100%)"
+                              : `⚠️ ตรวจพบการสลับหน้าจอทั้งหมด ${tabSwitchCount} ครั้ง ซึ่งระบบได้บันทึกรายละเอียดไว้ใน Audit Log สำหรับ Recruiter และ Admin เรียบร้อยแล้ว`}
+                          </p>
+                          {proctoringLogs.length > 0 && (
+                            <div className="reflection-audit-logs">
+                              <span className="audit-logs-title">บันทึกเหตุการณ์ Audit Trail:</span>
+                              <ul>
+                                {proctoringLogs.map((log) => (
+                                  <li key={log.id}>
+                                    <span className="log-stamp">[{log.timestamp}]</span> {log.message}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+
+                        <p className="reflection-note">
+                          ผลการ Match บน MaskedMatch เน้นการประเมินทักษะที่วัดได้จริง
+                          เพื่อนำไปวางแผนพัฒนาศักยภาพอย่างต่อเนื่อง
+                        </p>
+                      </section>
+
+                      <div className="rec-actions">
+                        <button type="button" className="rec-secondary" onClick={() => setDecisionTurn("candidate")}>
+                          <RotateCcw size={16} /> ย้อนกลับไปทดลอง Swipe อีกครั้ง
+                        </button>
+                        <button className="rec-primary" type="button" onClick={reset}>
+                          จบกระบวนการและทดสอบตำแหน่งใหม่ <ArrowRight />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+          )}
+        </div>
+      </main>
+
+      {/* MODAL 1: Application CV Intake */}
+      {showApplicationModal && stage === "intake" && (
+        <div className="analysis-confirm-backdrop" role="presentation">
+          <section
+            className="analysis-confirm-dialog application-intake-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="application-intake-title"
+          >
+            <div className="application-dialog-head">
+              <div>
+                <span className="eyebrow">
+                  สมัคร · {selectedJob.title} @ {selectedCompany.shortName}
+                </span>
+                <h2 id="application-intake-title">แนบ CV เพื่อเทียบกับ JD</h2>
+                <p>
+                  {selectedJob.department} · {selectedJob.location} · {selectedJob.salary}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="rec-secondary"
+                onClick={() => setShowApplicationModal(false)}
+                disabled={loading}
+              >
+                ปิด
+              </button>
+            </div>
+
+            <div className="rec-skill-row">
+              {selectedJob.skills.map((skill) => (
+                <span key={skill}>{skill}</span>
+              ))}
+            </div>
+
+            <div className="sample-cv-quick-fill-row">
+              <button
+                type="button"
+                className="rec-secondary sample-fill-btn"
+                onClick={() => {
+                  setFileName("Candidate_Senior_Resume.pdf");
+                  setClaims(sampleClaims);
+                  setApiNote("โหลดตัวอย่างข้อมูล Resume จำลองสำหรับทดสอบเดโม่");
+                }}
+              >
+                <Sparkles size={14} /> ใช้ตัวอย่าง Resume จำลองสำหรับเดโม่
+              </button>
+            </div>
+
+            {/* AI Time Notice Banner */}
+            <div className="ai-estimate-notice-card">
+              <Clock size={15} />
+              <span>
+                <strong>ระยะเวลาประมวลผล AI:</strong> ทั้งการตรวจวิเคราะห์เรซูเม่และการสร้างชุดข้อสอบจะใช้เวลาประมาณ <strong>1–2 นาที</strong> ต่อขั้นตอนเพื่อการประเมินเชิงลึก
+              </span>
+            </div>
+
+            <button
+              className={`rec-upload ${fileName ? "has-file" : ""} ${loading ? "is-loading" : ""}`}
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={loading}
+            >
+              <input ref={inputRef} type="file" accept=".pdf" onChange={handleFile} />
+              {loading ? (
+                <LoaderCircle className="upload-loading-spinner" />
+              ) : fileName ? (
+                <CheckCircle2 />
+              ) : (
+                <FileText />
+              )}
+              <strong>{loading ? aiLoadingLabel : fileName || "เลือกไฟล์เรซูเม่ PDF"}</strong>
+              <span>
+                {loading
+                  ? `กำลังประมวลผล ${aiProgress}% · ใช้เวลาประมาณ 1–2 นาที กรุณารอสักครู่`
+                  : fileName
+                    ? "แนบไฟล์แล้ว · พร้อมประมวลผล"
+                    : "PDF ไม่เกิน 10 MB · ระบบไม่บันทึกไฟล์ต้นฉบับ"}
+              </span>
+            </button>
+
+            {loading && (
+              <div className="ai-progress-block" role="status" aria-live="polite">
+                <div className="ai-progress-copy">
+                  <span>
+                    <Sparkles /> {aiLoadingLabel}
+                  </span>
+                  <strong>{aiProgress}%</strong>
+                </div>
+                <div
+                  className="ai-progress-track"
+                  role="progressbar"
+                  aria-label={aiLoadingLabel}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={aiProgress}
+                >
+                  <span style={{ width: `${aiProgress}%` }} />
+                </div>
+                <div className="ai-time-estimate-pill">
+                  <Clock size={13} />
+                  <span>AI กำลังประมวลผลเชิงลึก ใช้เวลาประมาณ <strong>1–2 นาที</strong> กรุณาเปิดหน้านี้ทิ้งไว้</span>
+                </div>
+                {aiLiveLog && (
+                  <div className="ai-live-oneline-ticker" role="log" aria-live="assertive">
+                    <span className="ticker-pulse-dot" />
+                    <span className="ticker-badge-tag">LIVE AI:</span>
+                    <span className="ticker-log-msg">{aiLiveLog}</span>
+                  </div>
+                )}
+                <small>
+                  {aiProgress < 35
+                    ? "กำลังเตรียมข้อมูลและตรวจรูปแบบไฟล์"
+                    : aiProgress < 70
+                      ? "AI กำลังสกัดหลักฐานและทักษะที่เกี่ยวข้อง"
+                      : aiProgress < 100
+                        ? "กำลังสร้าง Assessment 11 ข้อเชิงลึก"
+                        : "เสร็จเรียบร้อย"}
+                </small>
+              </div>
+            )}
+
+            {apiNote && !loading && (
+              <div className="rec-ai-note">
+                <Sparkles />
+                <div>{apiNote}</div>
+              </div>
+            )}
+
+            {fileName && claims && !loading && (
+              <section className="extracted-evidence-card">
+                <div>
+                  <div>
+                    <span className="eyebrow">Resume Evidence</span>
+                    <h4>หลักฐานที่สกัดจากเรซูเม่</h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setClaimsDraft(claims);
+                      setEditClaimsOpen(true);
+                    }}
+                  >
+                    <Pencil /> แก้ไข
+                  </button>
+                </div>
+                <p>{claims}</p>
+                <small>ผลวิเคราะห์แบบ Masked ปิดบังชื่อ เบอร์โทร และที่อยู่</small>
+              </section>
+            )}
+
+            {fileName && claims && !loading && (
+              <>
+                <div className="rec-analysis-preview">
+                  <div>
+                    <span>JD Coverage</span>
+                    <strong>{analysis.score}%</strong>
+                  </div>
+                  <div>
+                    <span>ตรงกับ JD</span>
+                    <p>{analysis.matched.join(" · ") || "ยังไม่พบทักษะที่ตรง"}</p>
+                  </div>
+                  <div>
+                    <span>ควรตรวจเพิ่ม</span>
+                    <p>{analysis.missing.join(" · ") || "ครบทุกรายการหลัก"}</p>
+                  </div>
+                </div>
+
+                <div className="rec-actions">
+                  <button
+                    className="rec-primary"
+                    type="button"
+                    disabled={claims.trim().length < 30 || loading}
+                    onClick={createAssessment}
+                  >
+                    <Sparkles /> สร้าง Scenario Assessment 11 ข้อ (ใช้เวลา ~1–2 นาที) <ArrowRight />
+                  </button>
+                </div>
+              </>
+            )}
+          </section>
+        </div>
+      )}
+
+      {/* MODAL 2: Checkpoint Confirmation before Assessment */}
+      {showAnalysisConfirm && (
+        <div className="analysis-confirm-backdrop top-layer" role="presentation">
+          <section
+            className="analysis-confirm-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="analysis-confirm-title"
+          >
+            <div className="analysis-confirm-icon">
+              <ClipboardCheck />
+            </div>
+            <span className="eyebrow">Resume analysis checkpoint</span>
+            <h2 id="analysis-confirm-title">ยืนยันผลวิเคราะห์ก่อนเริ่ม Assessment</h2>
+            <p>
+              ตรวจดูว่าหลักฐานที่สกัดไม่ผิดคน และสอดคล้องกับเรซูเม่ของผู้สมัคร ก่อนเริ่มทำแบบทดสอบสถานการณ์ {questions.length || 11} ข้อ (ช้อยส์ 10 + อัตนัย 1 · จับเวลา 10 นาที)
+            </p>
+
+            <div className="analysis-confirm-summary">
+              <div>
+                <span>ตำแหน่ง</span>
+                <strong>{selectedJob.title}</strong>
+              </div>
+              <div>
+                <span>บริษัท</span>
+                <strong>{selectedCompany.name}</strong>
+              </div>
+              <div>
+                <span>คะแนนเทียบ JD</span>
+                <strong>{analysis.score}%</strong>
+              </div>
+            </div>
+
+            <div className="analysis-confirm-evidence">
+              <strong>หลักฐานที่นำไปสร้างคำถาม Scenario</strong>
+              <p>{claims}</p>
+            </div>
+
+            <div className="rec-skill-row">
+              {analysis.matched.map((skill) => (
+                <span key={skill}>✓ ตรง: {skill}</span>
+              ))}
+              {analysis.missing.map((skill) => (
+                <span key={skill}>? ตรวจเพิ่ม: {skill}</span>
+              ))}
+            </div>
+
+            {/* Rules & Integrity Policy before Start */}
+            <div className="quiz-rules-card">
+              <div className="quiz-rules-title-row">
+                <Shield size={18} className="rules-shield-icon" />
+                <strong>กฎระเบียบและข้อปฏิบัติก่อนเริ่มทำข้อสอบ (Assessment Rules)</strong>
+              </div>
+              <ul className="quiz-rules-list">
+                <li>
+                  <span className="rule-badge red">1. ห้ามทุจริต</span>
+                  <p>ห้ามคัดลอก ค้นหาคำตอบจากอินเทอร์เน็ต หรือใช้เครื่องมือ AI และบุคคลภายนอกช่วยเหลือโดยเด็ดขาด</p>
+                </li>
+                <li>
+                  <span className="rule-badge amber">2. สภาพแวดล้อม</span>
+                  <p>ควรอยู่ในที่เงียบและไม่มีคนเดินผ่าน เห็นใบหน้าชัดเจน ไม่สวมหมวก แว่นตากันแดด หรือสิ่งปิดบังใบหน้า</p>
+                </li>
+                <li>
+                  <span className="rule-badge cyan">3. ห้ามสลับแท็บ / เปลี่ยนแอป</span>
+                  <p>ตลอดเวลา 10 นาที ระบบมี Anti-Cheat ตรวจจับการสลับแท็บ (Tab Switch) หากสลับแท็บจะมี Popup เตือนทันที</p>
+                </li>
+                <li>
+                  <span className="rule-badge violet">4. บันทึก Security Audit Log</span>
+                  <p>ทุกเหตุการณ์สลับหน้าต่างจะถูกบันทึกเวลาและส่งให้ Recruiter และ Admin ประกอบการพิจารณาคัดเลือก</p>
+                </li>
+              </ul>
+
+              <label className="quiz-rules-agree-checkbox">
+                <input
+                  type="checkbox"
+                  checked={agreeAssessmentRules}
+                  onChange={(e) => setAgreeAssessmentRules(e.target.checked)}
+                />
+                <span>
+                  ข้าพเจ้ารับทราบและยินยอมปฏิบัติตามกฎระเบียบการทดสอบ รวมถึงยินยอมให้ระบบบันทึก Audit Log การสลับหน้าจอ
+                </span>
+              </label>
+            </div>
+
+            <div className="rec-actions">
+              <button
+                type="button"
+                className="rec-secondary"
+                onClick={() => setShowAnalysisConfirm(false)}
+              >
+                กลับไปแก้ไขผลวิเคราะห์
+              </button>
+              <button
+                type="button"
+                className="rec-primary"
+                disabled={!agreeAssessmentRules}
+                onClick={() => {
+                  setShowAnalysisConfirm(false);
+                  setShowApplicationModal(false);
+                  setCurrentQuestionIndex(0);
+                  setTimerSeconds(600);
+                  setTimerExpired(false);
+                  setTabSwitchCount(0);
+                  setProctoringLogs([]);
+                  setShowTabWarningModal(false);
+                  setStage("assessment");
+                }}
+              >
+                <Check /> เริ่มทำแบบทดสอบ {questions.length || 11} ข้อ (10 นาที)
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* MODAL 3: Edit Claims */}
+      {editClaimsOpen && (
+        <div className="analysis-confirm-backdrop" role="presentation">
+          <section
+            className="analysis-confirm-dialog evidence-edit-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-evidence-title"
+          >
+            <div className="analysis-confirm-icon">
+              <Pencil />
+            </div>
+            <span className="eyebrow">Manual correction</span>
+            <h2 id="edit-evidence-title">แก้ไขผลวิเคราะห์ Resume</h2>
+            <p>
+              แก้เฉพาะข้อมูลที่มีหลักฐานอยู่ใน CV ระบบจะนำข้อความที่บันทึกไปคำนวณความตรงกับ JD และสร้างคำถามใหม่
+            </p>
+            <label className="rec-claims">
+              <span>หลักฐานที่สกัดจากเรซูเม่</span>
+              <textarea
+                value={claimsDraft}
+                onChange={(event) => setClaimsDraft(event.target.value)}
+                rows={8}
+                autoFocus
+              />
+            </label>
+            <div className="rec-actions">
+              <button
+                type="button"
+                className="rec-secondary"
+                onClick={() => {
+                  setEditClaimsOpen(false);
+                  setClaimsDraft("");
+                }}
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                className="rec-primary"
+                disabled={claimsDraft.trim().length < 30}
+                onClick={() => {
+                  setClaims(claimsDraft.trim());
+                  setEditClaimsOpen(false);
+                  setApiNote("บันทึกการแก้ไขผลวิเคราะห์แล้ว");
+                }}
+              >
+                <Check /> บันทึกการแก้ไข
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* MODAL 4: Company Profile Modal (Culture, Values, Products, Perks) */}
+      {selectedCompanyForModal && (
+        <div
+          className="company-modal-backdrop"
+          role="presentation"
+          onClick={() => setSelectedCompanyForModal(null)}
+        >
+          <section
+            className="company-profile-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="comp-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="company-modal-header">
+              <div className="company-modal-brand">
+                <span className={`company-modal-badge ${selectedCompanyForModal.tone}`}>
+                  {selectedCompanyForModal.badge}
+                </span>
+                <div>
+                  <span className="company-modal-industry">{selectedCompanyForModal.industry}</span>
+                  <h2 id="comp-modal-title">{selectedCompanyForModal.name}</h2>
+                  <p className="company-modal-tagline">"{selectedCompanyForModal.tagline}"</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="company-modal-close-btn"
+                aria-label="ปิดหน้าต่าง"
+                onClick={() => setSelectedCompanyForModal(null)}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="company-modal-body">
+              {/* Description */}
+              <section className="comp-modal-section">
+                <p className="comp-modal-desc">{selectedCompanyForModal.description}</p>
+                <div className="comp-modal-meta-row">
+                  <span>
+                    <MapPin size={15} /> {selectedCompanyForModal.location}
+                  </span>
+                  <a
+                    href={selectedCompanyForModal.website}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="comp-website-link"
+                  >
+                    เว็บไซต์ทางการ <ExternalLink size={14} />
+                  </a>
+                </div>
+              </section>
+
+              {/* 1. Values */}
+              <section className="comp-modal-section">
+                <div className="section-title-with-icon">
+                  <Sparkles size={18} />
+                  <h3>ค่านิยมหลักขององค์กร (Core Values)</h3>
+                </div>
+                <div className="comp-values-grid">
+                  {selectedCompanyForModal.values.map((val) => (
+                    <div key={val.title} className="comp-value-card">
+                      <strong>{val.title}</strong>
+                      <p>{val.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* 2. Culture */}
+              <section className="comp-modal-section">
+                <div className="section-title-with-icon">
+                  <Users size={18} />
+                  <h3>วัฒนธรรมและบรรยากาศการทำงาน (Work Culture)</h3>
+                </div>
+                <ul className="comp-culture-list">
+                  {selectedCompanyForModal.culture.map((c) => (
+                    <li key={c}>
+                      <ChevronRight size={16} /> {c}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              {/* 3. Products & Services */}
+              <section className="comp-modal-section">
+                <div className="section-title-with-icon">
+                  <BriefcaseBusiness size={18} />
+                  <h3>ผลิตภัณฑ์และบริการหลัก (Products & Services)</h3>
+                </div>
+                <div className="comp-products-tags">
+                  {selectedCompanyForModal.products.map((p) => (
+                    <span key={p}>📦 {p}</span>
+                  ))}
+                </div>
+              </section>
+
+              {/* 4. Perks & Benefits */}
+              <section className="comp-modal-section">
+                <div className="section-title-with-icon">
+                  <Heart size={18} />
+                  <h3>สวัสดิการและสภาพแวดล้อม (Perks & Environment)</h3>
+                </div>
+                <div className="comp-perks-tags">
+                  {selectedCompanyForModal.perks.map((perk) => (
+                    <span key={perk}>🎁 {perk}</span>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="company-modal-footer">
+              <span className="open-jobs-count-text">
+                มีตำแหน่งเปิดรับในระบบ {jobs.filter((j) => j.companyId === selectedCompanyForModal.id).length} ตำแหน่ง
+              </span>
+              <div className="footer-action-buttons">
+                <button
+                  type="button"
+                  className="rec-secondary"
+                  onClick={() => setSelectedCompanyForModal(null)}
+                >
+                  ปิด
+                </button>
+                <button
+                  type="button"
+                  className="rec-primary"
+                  onClick={() => {
+                    const companyJobs = jobs.filter((j) => j.companyId === selectedCompanyForModal.id);
+                    if (companyJobs.length > 0) {
+                      setSelectedCategory(companyJobs[0]!.category);
+                      setSelectedJobId(companyJobs[0]!.id);
+                    }
+                    setSelectedCompanyForModal(null);
+                  }}
+                >
+                  ดูตำแหน่งของบริษัทนี้ <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* MODAL 5: Tab Switch & Proctoring Warning Alert Dialog */}
+      {showTabWarningModal && (
+        <div className="tab-warning-backdrop top-layer" role="alertdialog" aria-modal="true" aria-labelledby="tab-warning-title">
+          <section className="tab-warning-dialog">
+            <div className="tab-warning-icon">
+              <AlertTriangle size={36} />
+            </div>
+            <span className="warning-eyebrow">ANTI-CHEAT & PROCTORING ALERT</span>
+            <h2 id="tab-warning-title">ตรวจพบการสลับหน้าจอ / ออกจากแอป!</h2>
+            <p className="tab-warning-desc">
+              ระบบตรวจพบว่าคุณได้ <strong>สลับแท็บ ย่อเบราว์เซอร์ หรือเปลี่ยนไปใช้งานแอปพลิเคชันอื่น</strong> (ตรวจพบครั้งที่ <strong>{tabSwitchCount}</strong>)
+            </p>
+
+            <div className="tab-warning-box">
+              <div className="warning-notice-item">
+                <ShieldAlert size={20} />
+                <div>
+                  <strong>พฤติกรรมนี้ถูกบันทึกประวัติ (Audit Log) แล้ว</strong>
+                  <p>
+                    ระบบได้ส่งประวัติการสลับหน้าต่าง เวลาที่เกิดเหตุ และข้อที่กำลังทำ ({currentQuestionIndex + 1}) ไปยัง <strong>Recruiter และ Admin</strong> ของ {selectedCompany.name} เรียบร้อยแล้ว
+                  </p>
+                </div>
+              </div>
+              <div className="warning-notice-item">
+                <EyeOff size={20} />
+                <div>
+                  <strong>คำเตือนเรื่องความโปร่งใส (Integrity Score)</strong>
+                  <p>
+                    การสลับหน้าจอซ้ำอาจส่งผลกระทบต่อคะแนนความน่าเชื่อถือ หรือทำให้ผลการประเมินถูกปฏิเสธ โปรดทำข้อสอบต่อโดยไม่สลับหน้าจอ
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {proctoringLogs.length > 0 && (
+              <div className="tab-warning-recent-logs">
+                <span>บันทึกเหตุการณ์ Audit Trail ล่าสุด:</span>
+                <ul>
+                  {proctoringLogs.slice(-3).map((log) => (
+                    <li key={log.id}>
+                      <span className="log-time">[{log.timestamp}]</span> {log.message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="tab-warning-actions">
+              <button
+                type="button"
+                className="rec-primary tab-warning-ack-btn"
+                onClick={() => setShowTabWarningModal(false)}
+              >
+                <Check size={18} /> รับทราบและกลับไปทำข้อสอบต่อ
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* Footer */}
+      <footer className="rec-demo-footer">
+        <span>
+          <ShieldCheck /> Local demo · สังเคราะห์ข้อมูลเพื่อการประเมินทักษะอย่างเป็นธรรม
+        </span>
+        <span>
+          Sponsor-backed job catalog · ปิดบังตัวตนและข้อมูลส่วนตัวจนกว่าทั้งสองฝ่ายจะ Mutual Match
+        </span>
+      </footer>
+    </div>
+  );
 }

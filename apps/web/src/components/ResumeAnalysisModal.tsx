@@ -120,6 +120,9 @@ export function ResumeAnalysisModal({
               <Loader2 className="spin progress-icon" aria-hidden="true" />
               <h3>ระบบ AI กำลังประมวลผล...</h3>
               <p>ระบบกำลังอ่านไฟล์ PDF และสกัดทักษะพร้อมหลักฐานอ้างอิงโดยไม่เปิดเผยตัวตน</p>
+              <div className="analyzing-time-estimate-badge">
+                ⏱️ กระบวนการวิเคราะห์และสกัดข้อมูลด้วย AI ใช้เวลาประมาณ <strong>1–2 นาที</strong>
+              </div>
             </div>
 
             {/* Progress Bar */}

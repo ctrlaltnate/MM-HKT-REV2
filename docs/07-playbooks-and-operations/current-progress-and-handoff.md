@@ -1,45 +1,45 @@
 # Current Progress and Handoff
 
-## Recruiter-only assessment demo update (2026-08-29)
+## Recruiter-only assessment & Sponsor Jobboard update (2026-08-30)
 
-### Expanded Tech job catalog (2026-08-30)
+### Sponsor-Backed Job Catalog & Interactive Company Profiles
+- Expanded `/recruiter` catalog to 18 positions across all 4 categories (Tech: 6, Business: 4, People: 4, Operations: 4), with every category having at least 4 detailed jobs.
+- Directly mapped all jobs to real sponsor organizations: **Microsoft**, **LINE MAN Wongnai**, **Canva**, **MFEC**, **MuvMi**, **JobThai**, **if (General Beverage)**, **Julian's The Spa**, **Tech Career Spark**, and **SHAKESPHERE**.
+- Added interactive **Company Profile Modal** (`selectedCompanyForModal`), accessible via top sponsor pills, job card peek buttons (`[🏢 ข้อมูลบริษัท]`), and the detailed JD header. Displays Core Values (with descriptions), Work Culture & Principles, Products & Services, and Office Perks & Environment.
 
-- The synthetic `/recruiter` catalog now contains 9 Tech roles across Frontend, Backend, Mobile, DevOps/Cloud, Cybersecurity, Machine Learning, QA Automation, UX/UI Product Design and Data Analytics, while preserving the existing 5 non-Tech roles.
-- Every added role includes a distinct summary, skill set, assessment seed questions, overview, responsibilities, qualifications and benefits. Category filtering and the existing JD → CV → assessment flow continue to use the selected role.
-- Search within a category now matches title, department and skills.
-- Verification 2026-08-30: `npm run typecheck` PASS; `npm test` PASS (29/29); `npm run build` PASS. The build retains only the existing Phaser chunk-size advisory.
+### Dynamic, Deep Scenario-Based AI Assessment (10 MCQs + 1 Subjective Question · 10-Minute Modal Popup)
+- **Pinned Top Header, Pinned Statement & Pinned Bottom Navigation**: Re-architected `.assessment-modal-dialog` with fixed sections:
+  - **Top Pinned Header**: Fixed `.assessment-modal-top-pinned` displaying Live Assessment title, 10-min countdown timer, real-time proctoring status badge, 11-pill progress tracker, and the full pinned question statement (`.quiz-pinned-question-statement`).
+  - **Scrollable Middle Body**: Only `.assessment-modal-scrollable-body` scrolls vertically, ensuring the candidate always sees the question, timer, and proctoring status regardless of choice/text length.
+  - **Bottom Pinned Footer**: Fixed `.assessment-modal-bottom-pinned` with Previous, Question Counter (`ข้อที่ X / 11`), and Next/Submit buttons.
+- **Clean Choice Card Typography & Radio Indicator**: Fixed layout and text-wrapping bug by properly hiding native radio buttons via `.sr-only` utility, giving `.choice-text-content` full width, and rendering a sleek custom right-aligned radio ring (`.choice-radio-indicator`).
+- **10 Multiple-Choice + 1 Subjective Problem-Solving Question**:
+  - **Questions 1 to 10 (MCQs)**: 10 Scenario-based Multiple-Choice Questions scored 0–100% for the Knowledge Score gauge.
+  - **Question 11 (Subjective - อัตนัย พิมพ์ตอบ)**: Practical workplace problem-solving scenario where candidates type their reasoning, trade-offs, and incident response into a rich `<textarea>`. It is not scored automatically by machine, but forwarded directly into the **Recruiter Evaluation Card (Turn 2)** and **Reflection Portfolio (Turn 3)** for HR/Hiring Manager decision making.
+- **Streamlined Job Catalog & Showcase Header (UI/UX Clean-up)**:
+  - Fixed search input bar styling (`.rec-search`) to ensure 100% background transparency and borderless seamlessness across desktop and responsive viewport scaling, overriding global form input styles.
+  - Resolved job card vertical clipping (`.rec-job-card-item` / `.rec-job-list`) during responsive resizing and mobile viewports by enabling dynamic `fit-content` height, flexible wrapping, and expanding viewport scroll bounds.
+  - Fixed job card hover state (`.rec-job-card-item:hover`) by removing horizontal translation (`translateX`) and applying clean box-shadow/border glow, preventing right-boundary layout overflow.
+  - Removed redundant category label ("TECH") from individual cards since the user is already browsing the active category view, relocating salary into a dedicated top-right pill (`.job-card-salary-badge`) for balanced visual hierarchy.
+  - Fixed search input bar alignment and color mismatch (`.rec-search`) with a unified cyberpunk dark theme container.
+  - Eliminated redundant, visually cluttered "ข้อมูลบริษัท" peek buttons from individual job catalog cards in the sidebar list.
+  - Replaced individual cards with unified, clean interactive button cards showing company badge, job title, company name, salary, and skill chips without text clipping.
+  - Moved company details access into a rich, dedicated **Company Showcase Header Banner** (`.job-company-showcase-bar`) with `[🏢 ดูข้อมูลบริษัท & Culture]` directly within the active Job Detail / Work Panel view, eliminating duplication and enhancing responsiveness across viewports.
+- **Real-Time Live One-Line Status Logger (UI & Server)**: Added a real-time single-line ticker bar (`.ai-live-oneline-ticker`) in the UI progress modal that displays live step-by-step terminal logs with millisecond timestamps (e.g. `⚡ [11:24:01] อ่านไฟล์พร้อมเข้ารหัส Privacy Shield`, `📤 [11:24:02] ส่งคำขอไปยัง AI Engine (gemini-3.6-flash)...`, `📥 [11:24:04] ได้รับชุดข้อสอบ 10 MCQs + 1 อัตนัยใน 2.1s`) and aligned server-side log output in `apps/api/src/gemini.ts`.
+- **AI Processing Time Estimates & User Guidance (1–2 นาที)**: Added explicit notices across CV upload, resume analysis modals, and assessment generation loading screens informing users that deep AI analysis and customized question generation take approximately **1–2 minutes**, preventing premature tab exits.
+- **Model Fallback Priority (Gemini 3.6 -> 3.7 -> 3.5)**: Configured `GEMINI_MODEL=gemini-3.6-flash` as primary in `.env.local`, `.env.example`, and `apps/api/src/server.ts` for fast direct token generation without reasoning budget lag, with fallback to `gemini-3.7-flash` and `gemini-3.5-flash` in `apps/api/src/gemini.ts`.
+- **10-Minute Countdown Timer & Anti-Cheat Proctoring**: Live 600-second timer with dynamic color urgency and full Tab Switch / Window Blur proctoring with warning modals and security audit logs.
 
-### Mock animal video interview (2026-08-30)
+### Interactive Two-Sided Swipe Decision Arena (GSAP)
+- Replaced static decision stage with an interactive **Two-Sided Swipe Arena** using GSAP physics, pointer drag gestures, and action buttons (`[✕ PASS / REJECT]`, `[♥ / ✓ MATCH / ACCEPT]`):
+  1. **Phase 1 (Candidate Turn)**: Candidate evaluates the company, culture fit, compensation, and interview impressions. Swipes left or right with animated stamps ("MATCH! สนใจ" vs "PASS ข้าม").
+  2. **Phase 2 (Recruiter Turn)**: Smooth GSAP card transition to Recruiter view evaluating Candidate #7F2A (8-bit Cat avatar), showing Match Score gauge, Resume ↔ JD coverage %, 10-question Knowledge Check score, and Anti-Cheat Integrity status.
+  3. **Phase 3 (Reveal & Reflection)**: Mutual Match celebration or private closure screen with score gauges, reflection breakdown (Strengths, Development Areas, Explanations from missed questions, and Anti-Cheat Audit Trail), and restart controls.
+- Fully responsive design with tuned padding, margins, and dark cyberpunk styling.
+- Verification 2026-08-30: `npm run typecheck` PASS across all workspaces; `npm test` PASS (36/36 tests: web 24/24, api 5/5, contracts 7/7); `npm run build` PASS.
 
-- `/recruiter` now presents both interview participants as generated 8-bit mock video feeds: an anonymous cat candidate and a fox recruiter, each with a fictional background and animated call-status UI.
-- The interview screen does not request camera or microphone permission, does not open a media device, and does not connect a real peer. `@mediapipe/tasks-vision` and the previous live-camera processor were removed.
-- Both feeds are explicitly labelled `MOCK`, and the recruiter copy states that the scene uses fictional images rather than a live privacy/masking pipeline.
-- **Delivery label: `LOCAL UI DEMO`**. This is a scripted visual prototype, not live video infrastructure.
+- **Delivery label: `LOCAL UI DEMO / CONNECTED`**.
 
-### Resume confirmation, camera-mask interview and reflection (2026-08-30)
-
-- `/recruiter` แสดง modal checkpoint หลังสร้าง assessment และก่อนเปิดคำถาม เพื่อให้ตรวจ evidence, JD coverage, matched/missing skills และยืนยันหรือย้อนกลับไปแก้ผลวิเคราะห์
-- Interview ใช้ภาพ mock ตัวละครสัตว์ 8-bit ทั้งสองฝั่งและไม่ขอสิทธิ์กล้องหรือไมโครโฟน โดยผู้สมัครเป็นแมวและ HR จำลองเป็นจิ้งจอก
-- หลัง private two-sided decision ทั้ง `Mutual Match` และ `No Match` แสดง assessment reflection: คะแนน, จำนวนข้อถูก, จุดแข็ง, skill ที่ควรพัฒนา และ explanation จากข้อที่ตอบผิด โดยไม่ผูกคุณค่าผู้สมัครกับผล match
-- **ข้อจำกัด:** interview เป็น scripted local UI demo ไม่ใช่การเชื่อมต่อวิดีโอหรือ media privacy pipeline จริง
-- Verification 2026-08-30: `npm run typecheck` PASS, `npm test` PASS (29/29), `npm run build` PASS
-- Recruiter demo job discovery now starts category-first: the full-width catalog shows four categories before any role, selecting a category reveals only its roles, and selecting a role animates a detailed JD panel with GSAP. Each of seven synthetic roles now has explicit overview, responsibilities, qualifications and benefits. CV intake is no longer embedded in the JD; it opens in a modal only after `สนใจงานนี้`.
-- Vercel deployment support now includes SPA rewrites for direct role/deep links, a root catch-all serverless Express entry at `api/[...path].ts`, same-origin production API defaults, and `/api/health`. The Vercel project must use the repository root (not `apps/web`) as its Root Directory and define `GEMINI_API_KEY` to enable live AI calls.
-
-### Public playable hall route
-
-- เพิ่ม `/demo/hall` เป็น full-viewport Phaser Career Hall สำหรับสาธิตแบบ public โดยไม่ต้องลงชื่อเข้าใช้ มีข้อมูลสังเคราะห์ 2 บูธ บูธละ 3 ตำแหน่ง เดินด้วย WASD/ลูกศร/คลิก เปิด drawer ดูบริษัทและงานด้วยการเข้าใกล้แล้วกด `E` หรือปุ่ม action ได้
-- Landing Page มี CTA `ทดลองเดินใน Career Hall` เชื่อมตรงไปยัง route นี้ ขณะที่เว็บไซต์และ routes เดิมทั้งหมดคงทำงานตามเดิม
-- หน้าสาธิตโหลดแบบ lazy route เพื่อไม่บังคับให้ Landing Page ดาวน์โหลด Phaser bundle ล่วงหน้า
-
-- **Delivery label:** `PARTIAL / LOCAL DEMO` — recruiter journey is executable locally; Gemini requires `GEMINI_API_KEY`, while assessment generation has a visibly labelled deterministic fallback. Masked interview is a UI simulation, not real media.
-- เว็บไซต์เดิมและ role routes ทั้งหมดกลับมาเปิดใช้งานตามเดิมแล้ว ส่วน recruiter assessment demo ใหม่ยังคงเข้าถึงได้โดยตรงที่ `/recruiter` โดยไม่แทนที่ recruiter workspace เดิมที่ `/recruiter/workspace`.
-- Recruiter demo includes seven synthetic jobs: two Tech roles and five non-Tech roles.
-- Executable flow: select JD → attach PDF → Gemini resume extraction → compare evidence with JD → Gemini-generated assessment (10 questions, four choices) → pre-interview result summary → masked HR conversation simulation → private recruiter/candidate decisions → Mutual Match or No Match.
-- Added `POST /api/assessments/generate`, using the existing Gemini configuration and a constrained JSON response contract. Resume/JD inputs are explicitly treated as untrusted content.
-- Verification on 2026-08-29: `npm run typecheck` PASS; `npm test` PASS (29/29); `npm run build` PASS.
-
-เอกสารนี้เป็น status snapshot และ handoff ล่าสุดของโครงการ MaskedMatch เพื่อให้ AI Agent และผู้พัฒนาเข้ามาทำงานต่อได้ทันทีโดยไม่ต้องคาดเดาสถานะระบบ
 
 ## 1. Quick start สำหรับผู้มารับงานต่อ
 
