@@ -14,7 +14,7 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:e2e": "npm run test:e2e -w @maskedmatch/web",
-    "build": "npm run build --workspaces --if-present"
+    "build": "npm run build -w @maskedmatch/contracts && npm run build -w @maskedmatch/api && npm run build -w @maskedmatch/web"
   },
   "dependencies": {
     "@google/genai": "2.19.0",

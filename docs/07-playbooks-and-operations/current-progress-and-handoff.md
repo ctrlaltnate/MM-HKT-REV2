@@ -17,8 +17,9 @@
   - **Questions 1 to 10 (MCQs)**: 10 Scenario-based Multiple-Choice Questions scored 0–100% for the Knowledge Score gauge.
   - **Question 11 (Subjective - อัตนัย พิมพ์ตอบ)**: Practical workplace problem-solving scenario where candidates type their reasoning, trade-offs, and incident response into a rich `<textarea>`. It is not scored automatically by machine, but forwarded directly into the **Recruiter Evaluation Card (Turn 2)** and **Reflection Portfolio (Turn 3)** for HR/Hiring Manager decision making.
 - **Production Deployment & AI API Routing Diagnostics**:
+  - Removed `prebuild` recursive workspace hook from `apps/web/package.json` and set explicit linear monorepo build pipeline (`npm run build -w @maskedmatch/contracts && npm run build -w @maskedmatch/api && npm run build -w @maskedmatch/web`) to eliminate Vercel workspace recursion exit code 2.
   - Added dedicated Vercel Serverless Function entry points (`api/resumes/analyze.ts`, `api/assessments/generate.ts`, `api/health.ts`, `api/index.ts`, `api/[...path].ts`) with `export const config = { api: { bodyParser: false } }` to ensure native Vercel file-based routing and raw stream forwarding for Multer PDF uploads.
-  - Added server dependencies (`@google/genai`, `express`, `multer`, `cors`, `zod`, `dotenv`) into root `package.json` to ensure Vercel bundles all modules during Serverless Lambda compilation.
+  - Added server dependencies (`@google/genai`, `express`, `multer`, `cors`, `zod`, `dotenv`) and `@types/*` into root `package.json` and created root `tsconfig.json` for seamless Vercel Serverless Lambda compilation.
   - Added `!process.env.VERCEL` guard to `app.listen()` in `apps/api/src/server.ts` so Vercel Serverless Functions export clean handlers without socket binding blocks.
   - Implemented smart API URL resolution (`resolveApiBaseUrl()`) that sanitizes localhost/127.0.0.1 environment variable overrides when running on production domains (preventing `ERR_CONNECTION_REFUSED` and 404 HTML responses in production).
   - Set primary default model to `gemini-3.6-flash` with automatic fallback cascade across available models.
