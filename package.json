@@ -25,6 +25,10 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "@types/multer": "2.0.0",
+    "@types/node": "26.3.0",
     "concurrently": "10.0.5",
     "typescript": "7.0.2"
   }
