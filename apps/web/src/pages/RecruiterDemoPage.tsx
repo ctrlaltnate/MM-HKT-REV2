@@ -849,9 +849,9 @@ export function RecruiterDemoPage() {
   const [apiNote, setApiNote] = useState("");
   const [showAnalysisConfirm, setShowAnalysisConfirm] = useState(false);
 
-  // Stage 2: 10-Minute Assessment Modal State (One Question at a Time)
+  // Stage 2: 15-Minute Assessment Modal State (One Question at a Time)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [timerSeconds, setTimerSeconds] = useState(600); // 10 minutes = 600s
+  const [timerSeconds, setTimerSeconds] = useState(900); // 15 minutes = 900s
   const [timerExpired, setTimerExpired] = useState(false);
   const [agreeAssessmentRules, setAgreeAssessmentRules] = useState(false);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
@@ -1137,7 +1137,7 @@ export function RecruiterDemoPage() {
     setAnswers([]);
     setQuestions([]);
     setCurrentQuestionIndex(0);
-    setTimerSeconds(600);
+    setTimerSeconds(900);
     setTimerExpired(false);
     setRecruiterDecision(null);
     setCandidateDecision(null);
@@ -1299,7 +1299,7 @@ export function RecruiterDemoPage() {
             </h1>
             <p>
               รวบรวมตำแหน่งงานจากสปอนเซอร์ชั้นนำ วิเคราะห์สิ่งที่ผู้สมัครระบุในเรซูเม่ เทียบกับ JD
-              และสร้างแบบประเมินสถานการณ์เฉพาะบุคคล (10 ข้อ · 10 นาที) เพื่อยืนยันว่ามีความรู้และทักษะตรงตามที่ระบุจริง
+              และสร้างแบบประเมินสถานการณ์เฉพาะบุคคล (11 ข้อ · 15 นาที) เพื่อยืนยันว่ามีความรู้และทักษะตรงตามที่ระบุจริง
             </p>
           </div>
           <div className="rec-demo-metrics">
@@ -1344,7 +1344,7 @@ export function RecruiterDemoPage() {
           {(
             [
               ["intake", "1", "Jobboard & CV Intake"],
-              ["assessment", "2", "Quiz Popup (10 ข้อ · 10 นาที)"],
+              ["assessment", "2", "Quiz Popup (11 ข้อ · 15 นาที)"],
               ["interview", "3", "Masked 8-bit Call"],
               ["decision", "4", "Two-Sided Swipe Decision"],
             ] as const
@@ -1394,37 +1394,39 @@ export function RecruiterDemoPage() {
               </div>
             ) : (
               <>
-                <div className="category-header-row">
-                  <button
-                    type="button"
-                    className="category-back"
-                    onClick={() => {
-                      setSelectedCategory("");
-                      setSelectedJobId("");
-                    }}
-                  >
-                    ← หมวดหมู่ทั้งหมด
-                  </button>
-                  <span className="category-active-label">{selectedCategory}</span>
-                </div>
+                <div className="rec-job-panel-pinned-top">
+                  <div className="category-header-row">
+                    <button
+                      type="button"
+                      className="category-back"
+                      onClick={() => {
+                        setSelectedCategory("");
+                        setSelectedJobId("");
+                      }}
+                    >
+                      ← หมวดหมู่ทั้งหมด
+                    </button>
+                    <span className="category-active-label">{selectedCategory}</span>
+                  </div>
 
-                <label className="rec-search">
-                  <Search />
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="ค้นหาตำแหน่ง, ทักษะ หรือชื่อบริษัท..."
-                    aria-label="ค้นหาตำแหน่งงาน"
-                    style={{
-                      background: "transparent",
-                      backgroundColor: "transparent",
-                      border: "none",
-                      outline: "none",
-                      boxShadow: "none",
-                      color: "#f1f8fc",
-                    }}
-                  />
-                </label>
+                  <label className="rec-search">
+                    <Search />
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="ค้นหาตำแหน่ง, ทักษะ หรือชื่อบริษัท..."
+                      aria-label="ค้นหาตำแหน่งงาน"
+                      style={{
+                        background: "transparent",
+                        backgroundColor: "transparent",
+                        border: "none",
+                        outline: "none",
+                        boxShadow: "none",
+                        color: "#f1f8fc",
+                      }}
+                    />
+                  </label>
+                </div>
 
                 <div className="rec-job-list">
                   {filteredJobs.map((job) => {
@@ -1619,7 +1621,7 @@ export function RecruiterDemoPage() {
                           >
                             <Clock size={18} />
                             <div>
-                              <span>เวลาที่เหลือ (จาก 10:00 นาที)</span>
+                              <span>เวลาที่เหลือ (จาก 15:00 นาที)</span>
                               <strong>{formatTimer(timerSeconds)}</strong>
                             </div>
                           </div>
@@ -1699,7 +1701,7 @@ export function RecruiterDemoPage() {
                         <div className="quiz-expired-banner">
                           <ShieldAlert size={20} />
                           <div>
-                            <strong>หมดเวลาทำข้อสอบแล้ว (10:00 นาที)!</strong>
+                            <strong>หมดเวลาทำข้อสอบแล้ว (15:00 นาที)!</strong>
                             <p>ระบบได้บันทึกคำตอบทั้งหมดที่คุณได้ทำไว้แล้ว กรุณากดปุ่มด้านล่างเพื่อเข้าสู่ขั้นตอนสัมภาษณ์</p>
                           </div>
                         </div>
@@ -2547,7 +2549,7 @@ export function RecruiterDemoPage() {
             <span className="eyebrow">Resume analysis checkpoint</span>
             <h2 id="analysis-confirm-title">ยืนยันผลวิเคราะห์ก่อนเริ่ม Assessment</h2>
             <p>
-              ตรวจดูว่าหลักฐานที่สกัดไม่ผิดคน และสอดคล้องกับเรซูเม่ของผู้สมัคร ก่อนเริ่มทำแบบทดสอบสถานการณ์ {questions.length || 11} ข้อ (ช้อยส์ 10 + อัตนัย 1 · จับเวลา 10 นาที)
+              ตรวจดูว่าหลักฐานที่สกัดไม่ผิดคน และสอดคล้องกับเรซูเม่ของผู้สมัคร ก่อนเริ่มทำแบบทดสอบสถานการณ์ {questions.length || 11} ข้อ (ช้อยส์ 10 + อัตนัย 1 · จับเวลา 15 นาที)
             </p>
 
             <div className="analysis-confirm-summary">
@@ -2596,7 +2598,7 @@ export function RecruiterDemoPage() {
                 </li>
                 <li>
                   <span className="rule-badge cyan">3. ห้ามสลับแท็บ / เปลี่ยนแอป</span>
-                  <p>ตลอดเวลา 10 นาที ระบบมี Anti-Cheat ตรวจจับการสลับแท็บ (Tab Switch) หากสลับแท็บจะมี Popup เตือนทันที</p>
+                  <p>ตลอดเวลา 15 นาที ระบบมี Anti-Cheat ตรวจจับการสลับแท็บ (Tab Switch) หากสลับแท็บจะมี Popup เตือนทันที</p>
                 </li>
                 <li>
                   <span className="rule-badge violet">4. บันทึก Security Audit Log</span>
@@ -2632,7 +2634,7 @@ export function RecruiterDemoPage() {
                   setShowAnalysisConfirm(false);
                   setShowApplicationModal(false);
                   setCurrentQuestionIndex(0);
-                  setTimerSeconds(600);
+                  setTimerSeconds(900);
                   setTimerExpired(false);
                   setTabSwitchCount(0);
                   setProctoringLogs([]);
@@ -2640,7 +2642,7 @@ export function RecruiterDemoPage() {
                   setStage("assessment");
                 }}
               >
-                <Check /> เริ่มทำแบบทดสอบ {questions.length || 11} ข้อ (10 นาที)
+                <Check /> เริ่มทำแบบทดสอบ {questions.length || 11} ข้อ (15 นาที)
               </button>
             </div>
           </section>

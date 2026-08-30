@@ -109,7 +109,7 @@ describe("RecruiterDemoPage & Sponsor Job Catalog Tests", () => {
     expect(getByText("สวัสดิการและสภาพแวดล้อม (Perks & Environment)")).toBeInTheDocument();
   });
 
-  it("supports pre-assessment rules agreement and 10-minute quiz popup navigation", async () => {
+  it("supports pre-assessment rules agreement and 15-minute quiz popup navigation", async () => {
     const { getByText, getByRole, getAllByRole, getAllByTitle, getAllByText, findByRole, findByText } = render(<RecruiterDemoPage />);
 
     // 1. Select Tech -> Job
@@ -153,7 +153,7 @@ describe("RecruiterDemoPage & Sponsor Job Catalog Tests", () => {
     expect(confirmStartBtn).not.toBeDisabled();
     fireEvent.click(confirmStartBtn);
 
-    // 5. Verify 10-Minute Assessment Stage is active
+    // 5. Verify 15-Minute Assessment Stage is active
     expect(getByText(/Scenario Skills & Solution Check/i)).toBeInTheDocument();
     expect(getByRole("timer")).toBeInTheDocument();
     expect(getByText(/เวลาที่เหลือ/i)).toBeInTheDocument();
