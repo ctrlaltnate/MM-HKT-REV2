@@ -24,7 +24,7 @@
   - Added server dependencies (`@google/genai`, `express`, `multer`, `cors`, `zod`, `dotenv`) and `@types/*` into root `package.json` and created root `tsconfig.json` for seamless Vercel Serverless Lambda compilation.
   - Added `!process.env.VERCEL` guard to `app.listen()` in `apps/api/src/server.ts` so Vercel Serverless Functions export clean handlers without socket binding blocks.
   - Implemented smart API URL resolution (`resolveApiBaseUrl()`) that sanitizes localhost/127.0.0.1 environment variable overrides when running on production domains (preventing `ERR_CONNECTION_REFUSED` and 404 HTML responses in production).
-  - Set primary default model to `gemini-3.6-flash` with automatic fallback cascade across available models.
+  - Set primary default model to `gemini-3.6-flash` with fallback exclusively to `gemini-3.5-flash` in `apps/api/src/gemini.ts` (removed all legacy 2.x/2.0 references).
 - **Stage 4: Two-Sided Private Swipe Deck & Mutual Match Contact Form**:
   - Enabled **Full Touch & Mouse Drag Interactivity** (`PointerEvents` with `setPointerCapture`, `touch-action: none`, and hardware-accelerated 3D transforms) for both Candidate Turn (Turn 1) and Recruiter Turn (Turn 2) swipe cards.
   - Users can physically drag or swipe the card horizontally on both mobile screens and desktop trackpads/mice with dynamic tilt rotation and visual stamp badge reveal (`MATCH! / สนใจ` green stamp on right swipe, `PASS / ข้าม` red stamp on left swipe), with an elastic bounce-back when released below the threshold or smooth exit fling and instant turn transition when thrown.
