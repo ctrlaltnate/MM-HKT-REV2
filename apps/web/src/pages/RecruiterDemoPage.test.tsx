@@ -228,4 +228,90 @@ describe("RecruiterDemoPage & Sponsor Job Catalog Tests", () => {
     // 8. Verify anti-cheat status now indicates tab switch flagged
     expect(getByText(/สลับแท็บ 1 ครั้ง/i)).toBeInTheDocument();
   });
+
+  it("supports interactive touch/pointer dragging and button swipes in Stage 4 decision deck", async () => {
+    const { getByText, getByRole, getAllByRole, getAllByTitle, getAllByText, findByRole, findByText } = render(<RecruiterDemoPage />);
+
+    // Fast-forward to decision stage:
+    // 1. Select Tech -> Job -> Intake
+    const techCategoryBtns = getAllByRole("button", { name: /Tech/i });
+    const techCard = techCategoryBtns.find((b) => b.textContent?.includes("ตำแหน่งเปิดรับ"));
+    fireEvent.click(techCard!);
+    fireEvent.click(getByText("Cloud & AI Solutions Architect"));
+    fireEvent.click(getByText("แนบเรซูเม่และวิเคราะห์"));
+    fireEvent.click(getByRole("button", { name: /ใช้ตัวอย่าง Resume/i }));
+    fireEvent.click(getByRole("button", { name: /สร้าง Scenario Assessment/i }));
+
+    // 2. Agree and start
+    const agreeCheckbox = await findByRole("checkbox", {}, { timeout: 4000 });
+    fireEvent.click(agreeCheckbox);
+    fireEvent.click(getByRole("button", { name: /เริ่มทำแบบทดสอบ/i }));
+
+    expect(await findByText(/Scenario Skills & Solution Check/i, {}, { timeout: 4000 })).toBeInTheDocument();
+
+    // 3. Answer all 10 MCQs
+    const jumpButtons = getAllByTitle(/ข้อที่ \d+:/i);
+    for (let i = 0; i < 10; i++) {
+      fireEvent.click(jumpButtons[i]!);
+      const choices = getAllByText(/^[A-D]$/);
+      fireEvent.click(choices[0]!);
+    }
+
+    // Jump to subjective (item 11) and submit to reach Interview stage
+    fireEvent.click(jumpButtons[10]!);
+    const submitBtn = getByRole("button", { name: /ส่งคำตอบและเข้าสัมภาษณ์/i });
+    expect(submitBtn).not.toBeDisabled();
+    fireEvent.click(submitBtn);
+
+    // 4. Click proceed to Decision Stage
+    const goToDecisionBtn = await findByText(/จบการสนทนาและไปหน้าตัดสินใจ/i, {}, { timeout: 4000 });
+    fireEvent.click(goToDecisionBtn);
+
+    // 5. Verify Stage 4 Candidate Turn is rendered
+    expect(await findByText(/Two-Sided Private Swipe Decision/i)).toBeInTheDocument();
+    expect(getByText(/ฝั่งผู้สมัคร \(คุณ\):/i)).toBeInTheDocument();
+
+    // 6. Test candidate decision action
+    const candidateCard = document.querySelector(".swipe-card.candidate-card");
+    expect(candidateCard).toBeInTheDocument();
+
+    fireEvent.click(getByText("สนใจไปต่อ / MATCH"));
+
+    // 7. Verify Turn 2 (Recruiter Turn)
+    expect(await findByText(/ขั้นตอน 2\/2: การตัดสินใจฝั่งนายจ้าง/i, {}, { timeout: 4000 })).toBeInTheDocument();
+    const recruiterCard = document.querySelector(".swipe-card.recruiter-card");
+    expect(recruiterCard).toBeInTheDocument();
+
+    // 8. Test recruiter decision swipe (Approve)
+    fireEvent.click(getByText("ผ่านสัมภาษณ์ / ACCEPT"));
+
+    // 9. Verify Mutual Reveal Result
+    expect(await findByText(/Mutual Match!/i, {}, { timeout: 4000 })).toBeInTheDocument();
+    expect(getByText(/ทั้งสองฝ่ายสนใจตรงกัน! ยินดีด้วย/i)).toBeInTheDocument();
+
+    // 10. Test Candidate Contact Info Submission on Mutual Match
+    expect(getByText(/ปลดล็อกตัวตนและส่งข้อมูลติดต่อให้ HR/i)).toBeInTheDocument();
+
+    const nameInput = document.querySelector("#candidate-fullname") as HTMLInputElement;
+    const emailInput = document.querySelector("#candidate-email") as HTMLInputElement;
+    const phoneInput = document.querySelector("#candidate-phone") as HTMLInputElement;
+
+    expect(nameInput).toBeInTheDocument();
+    expect(emailInput).toBeInTheDocument();
+    expect(phoneInput).toBeInTheDocument();
+
+    fireEvent.change(nameInput, { target: { value: "ณิชชยา วัฒนไพศาล" } });
+    fireEvent.change(emailInput, { target: { value: "nitichaya.dev@gmail.com" } });
+    fireEvent.change(phoneInput, { target: { value: "089-123-4567" } });
+
+    const submitContactBtn = getByRole("button", { name: /ส่งข้อมูลให้ HR และจบเซสชั่นอย่างสมบูรณ์/i });
+    fireEvent.click(submitContactBtn);
+
+    // 11. Verify Confirmed Receipt
+    expect(await findByText(/SESSION COMPLETE · ส่งมอบข้อมูลติดต่อสำเร็จ/i)).toBeInTheDocument();
+    expect(getByText("ณิชชยา วัฒนไพศาล")).toBeInTheDocument();
+    expect(getByText("nitichaya.dev@gmail.com")).toBeInTheDocument();
+    expect(getByText("089-123-4567")).toBeInTheDocument();
+  });
 });
+

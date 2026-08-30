@@ -202,16 +202,16 @@ body::before {
 .swipe-turn-indicator{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:.88rem;font-weight:700;border:1px solid;width:100%;border-radius:2px}
 .swipe-turn-indicator.candidate-turn{background:#112a38;border-color:#78dbe6;color:#78dbe6}
 .swipe-turn-indicator.recruiter-turn{background:#23173d;border-color:#a78bfa;color:#c4b5fd}
-.swipe-card-wrapper{position:relative;width:100%;min-height:460px;perspective:1000px;touch-action:none}
-.swipe-card{position:relative;width:100%;background:#112533;border:2px solid #36586b;padding:26px;box-shadow:0 12px 30px rgba(0,0,0,.5);cursor:grab;user-select:none;display:grid;gap:16px;touch-action:none;transition:box-shadow .15s}
-.swipe-card:active{cursor:grabbing;box-shadow:0 18px 40px rgba(0,0,0,.7)}
+.swipe-card-wrapper{position:relative;width:100%;min-height:460px;perspective:1000px;touch-action:none;user-select:none;-webkit-user-select:none}
+.swipe-card{position:relative;width:100%;background:#112533;border:2px solid #36586b;padding:26px;box-shadow:0 12px 30px rgba(0,0,0,.5);cursor:grab;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;display:grid;gap:16px;touch-action:none;will-change:transform;transition:box-shadow .15s}
+.swipe-card:active{cursor:grabbing;box-shadow:0 20px 48px rgba(0,0,0,.85)}
 .swipe-card.candidate-card{border-color:#48748c}
 .swipe-card.recruiter-card{border-color:#7457a8;background:#151c2e}
 
 /* Swipe Stamp Badges */
-.swipe-stamp{position:absolute;top:24px;padding:8px 18px;font-size:1.3rem;font-weight:900;letter-spacing:.08em;border:3px solid;border-radius:4px;opacity:0;pointer-events:none;z-index:20;transition:opacity .1s ease}
-.swipe-stamp.like{right:24px;border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,.15);transform:rotate(12deg);box-shadow:0 0 20px rgba(74,222,128,.4)}
-.swipe-stamp.nope{left:24px;border-color:#f87171;color:#f87171;background:rgba(248,113,113,.15);transform:rotate(-12deg);box-shadow:0 0 20px rgba(248,113,113,.4)}
+.swipe-stamp{position:absolute;top:24px;padding:8px 18px;font-size:1.35rem;font-weight:900;letter-spacing:.08em;border:3px solid;border-radius:6px;opacity:0;pointer-events:none;z-index:30;transition:opacity .08s ease}
+.swipe-stamp.like{right:24px;border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,.18);transform:rotate(14deg);box-shadow:0 0 24px rgba(74,222,128,.55);text-shadow:0 0 10px rgba(74,222,128,.7)}
+.swipe-stamp.nope{left:24px;border-color:#f87171;color:#f87171;background:rgba(248,113,113,.18);transform:rotate(-14deg);box-shadow:0 0 24px rgba(248,113,113,.55);text-shadow:0 0 10px rgba(248,113,113,.7)}
 
 .card-badge-header{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .card-company-industry,.candidate-applied-for{font-size:.72rem;color:#8fa7b5;text-transform:uppercase}
@@ -277,6 +277,44 @@ body::before {
 .decision-summary-grid .match-closed{color:#90aab8}
 .rec-result-hero.is-mutual{background:linear-gradient(135deg,#0d2e2b,#0c2336);border-left:5px solid #4ade80}
 .rec-result-hero.is-closed{background:#14232e;border-left:5px solid #5a7684}
+
+/* Mutual Match Candidate Contact Submission Form & Success Receipt */
+.mutual-contact-submission-section{display:grid;gap:16px;width:100%;animation:fadeIn .3s ease}
+.candidate-contact-form-card{background:linear-gradient(145deg,#0a1f29,#0d2836);border:1.5px solid #28607a;border-radius:8px;padding:24px;display:grid;gap:20px;box-shadow:0 10px 30px rgba(0,0,0,.4),0 0 20px rgba(120,219,230,.1);position:relative;overflow:hidden}
+.candidate-contact-form-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#10b981,#4ade80,#78dbe6)}
+.contact-form-header{display:flex;align-items:flex-start;gap:16px}
+.contact-icon-wrapper{width:48px;height:48px;border-radius:8px;background:rgba(16,185,129,.15);border:1px solid #34d399;display:flex;align-items:center;justify-content:center;color:#4ade80;flex-shrink:0}
+.contact-form-header h4{margin:0 0 4px;font-size:1.15rem;color:#f0fdf4}
+.contact-form-header p{margin:0;font-size:.88rem;color:#9ac9dc;line-height:1.5}
+.contact-form-error-alert{display:flex;align-items:center;gap:8px;background:rgba(239,68,68,.15);border:1px solid #f87171;color:#fca5a5;padding:10px 14px;border-radius:6px;font-size:.88rem}
+.contact-inputs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.form-field-group{display:flex;flex-direction:column;gap:6px}
+.form-field-group.full-width{grid-column:1 / -1}
+.form-field-group label{display:flex;align-items:center;gap:6px;font-size:.84rem;font-weight:600;color:#d1e7f0}
+.form-field-group label .req{color:#f87171}
+.form-field-group input{padding:12px 14px;background:#06131c;border:1px solid #2a576d;border-radius:6px;color:#f0fdf4;font-size:.92rem;transition:all .2s ease}
+.form-field-group input:focus{outline:none;border-color:#4ade80;box-shadow:0 0 12px rgba(74,222,128,.35);background:#081a26}
+.form-field-group input::placeholder{color:#5d7e90}
+.contact-form-actions{display:flex;justify-content:flex-end;margin-top:4px}
+.contact-submit-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 28px;background:linear-gradient(135deg,#10b981,#22c55e,#4ade80);color:#022312;font-weight:800;font-size:.96rem;border:1.5px solid #86efac;border-radius:6px;cursor:pointer;box-shadow:0 0 20px rgba(74,222,128,.4);transition:all .2s ease}
+.contact-submit-btn:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(74,222,128,.6);background:linear-gradient(135deg,#059669,#10b981,#22c55e)}
+.contact-submit-btn:active{transform:translateY(0)}
+
+/* Confirmed Submission Card */
+.contact-submitted-success-card{background:linear-gradient(145deg,#092823,#0a202d);border:1.5px solid #34d399;border-radius:8px;padding:24px;display:grid;gap:20px;box-shadow:0 10px 30px rgba(0,0,0,.4),0 0 24px rgba(52,211,153,.2);animation:modalPopIn .3s ease}
+.success-receipt-header{display:flex;align-items:flex-start;gap:16px}
+.success-receipt-header .success-icon{color:#4ade80;flex-shrink:0;margin-top:2px}
+.receipt-badge{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#4ade80;background:rgba(74,222,128,.15);border:1px solid #22c55e;padding:3px 10px;border-radius:999px;margin-bottom:6px}
+.success-receipt-header h4{margin:0 0 4px;font-size:1.2rem;color:#f0fdf4}
+.success-receipt-header p{margin:0;font-size:.88rem;color:#a7d3c5;line-height:1.5}
+.submitted-receipt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:16px;background:rgba(3,15,20,.6);border:1px solid #1f4756;border-radius:6px}
+.submitted-receipt-grid>div{display:flex;flex-direction:column;gap:4px}
+.submitted-receipt-grid>div span{font-size:.74rem;color:#7facbf;text-transform:uppercase}
+.submitted-receipt-grid>div strong{font-size:.95rem;color:#f0fdf4}
+.submitted-receipt-grid .receipt-note-item{grid-column:1 / -1;padding-top:6px;border-top:1px dashed #1c3d4e}
+.submitted-receipt-grid .receipt-note-item p{margin:0;font-size:.88rem;color:#d1fae5}
+.receipt-footer-status{padding:10px 14px;background:rgba(120,219,230,.08);border-left:3px solid #78dbe6;border-radius:4px;font-size:.82rem;color:#b0e5ee}
+
 /* Screen reader only utility to visually hide radio/checkbox inputs */
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 

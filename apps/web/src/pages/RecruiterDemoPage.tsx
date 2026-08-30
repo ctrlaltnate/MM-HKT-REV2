@@ -16,14 +16,19 @@ import {
   HelpCircle,
   Info,
   LoaderCircle,
+  Mail,
   MapPin,
+  PartyPopper,
   Pencil,
+  Phone,
   RotateCcw,
   Search,
+  Send,
   Shield,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  User,
   UserCheck,
   Users,
   X,
@@ -871,18 +876,34 @@ export function RecruiterDemoPage() {
   const [decisionTurn, setDecisionTurn] = useState<"candidate" | "recruiter" | "revealed">("candidate");
   const [recruiterDecision, setRecruiterDecision] = useState<"APPROVE" | "REJECT" | null>(null);
   const [candidateDecision, setCandidateDecision] = useState<"APPROVE" | "REJECT" | null>(null);
-  const [showQuestionsSummary, setShowQuestionsSummary] = useState(false);
+
+  // Candidate Final Contact Submission (Mutual Match)
+  const [candidateContact, setCandidateContact] = useState<{
+    fullName: string;
+    email: string;
+    phone: string;
+    note: string;
+  }>({
+    fullName: "",
+    email: "",
+    phone: "",
+    note: "",
+  });
+  const [isContactSubmitted, setIsContactSubmitted] = useState(false);
+  const [submittedContactData, setSubmittedContactData] = useState<{
+    fullName: string;
+    email: string;
+    phone: string;
+    note: string;
+    submittedAt: string;
+  } | null>(null);
+  const [contactSubmitError, setContactSubmitError] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
   const jdPanelRef = useRef<HTMLElement>(null);
   const candidateCardRef = useRef<HTMLDivElement>(null);
   const recruiterCardRef = useRef<HTMLDivElement>(null);
-  const dragTracker = useRef<{ isDragging: boolean; startX: number; startY: number; currentX: number }>({
-    isDragging: false,
-    startX: 0,
-    startY: 0,
-    currentX: 0,
-  });
+
 
   const selectedJob = useMemo(() => jobs.find((job) => job.id === selectedJobId) ?? jobs[0]!, [selectedJobId]);
   const selectedCompany = useMemo(
@@ -1071,7 +1092,7 @@ export function RecruiterDemoPage() {
       setLoading(true);
       try {
         setAiProgress(35);
-        setAiLiveLog(`[${timeNow()}] 📤 กำลังส่ง Binary PDF ไปยังระบบ AI Engine (gemini-3.6-flash)...`);
+        setAiLiveLog(`[${timeNow()}] 📤 กำลังส่ง Binary PDF ไปยังระบบ AI Engine...`);
         const result = await analyzeResume(file);
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
         setAiProgress(92);
@@ -1098,7 +1119,7 @@ export function RecruiterDemoPage() {
     setApiNote("");
     try {
       setAiProgress(40);
-      setAiLiveLog(`[${timeNow()}] 📤 กำลังส่ง Prompt 11 ข้อไปยัง AI Engine (gemini-3.6-flash)...`);
+      setAiLiveLog(`[${timeNow()}] 📤 กำลังส่ง Prompt 11 ข้อไปยังระบบ AI Engine...`);
       const items = await generateAssessment({
         jobTitle: selectedJob.title,
         jobSummary: selectedJob.summary,
@@ -1142,107 +1163,187 @@ export function RecruiterDemoPage() {
     setRecruiterDecision(null);
     setCandidateDecision(null);
     setDecisionTurn("candidate");
+    setCandidateContact({ fullName: "", email: "", phone: "", note: "" });
+    setIsContactSubmitted(false);
+    setSubmittedContactData(null);
+    setContactSubmitError("");
     setStage("intake");
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  // Swiping mechanics for Candidate
-  const handleCandidateSwipe = (decision: "APPROVE" | "REJECT") => {
-    if (!candidateCardRef.current) {
-      setCandidateDecision(decision);
-      setDecisionTurn("recruiter");
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!candidateContact.fullName.trim()) {
+      setContactSubmitError("กรุณากรอกชื่อและนามสกุล");
       return;
     }
-    const targetX = decision === "APPROVE" ? 500 : -500;
-    const targetRot = decision === "APPROVE" ? 25 : -25;
-    gsap.to(candidateCardRef.current, {
-      x: targetX,
-      rotation: targetRot,
-      autoAlpha: 0,
-      duration: 0.38,
-      ease: "power2.in",
-      onComplete: () => {
-        setCandidateDecision(decision);
-        setDecisionTurn("recruiter");
-      },
+    if (!candidateContact.email.trim() || !candidateContact.email.includes("@")) {
+      setContactSubmitError("กรุณากรอกอีเมลที่ถูกต้อง (เช่น yourname@email.com)");
+      return;
+    }
+    if (!candidateContact.phone.trim() || candidateContact.phone.trim().length < 8) {
+      setContactSubmitError("กรุณากรอกเบอร์โทรศัพท์ที่ติดต่อได้ (เช่น 081-234-5678)");
+      return;
+    }
+    setContactSubmitError("");
+    setSubmittedContactData({
+      fullName: candidateContact.fullName.trim(),
+      email: candidateContact.email.trim(),
+      phone: candidateContact.phone.trim(),
+      note: candidateContact.note.trim(),
+      submittedAt: new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
     });
+    setIsContactSubmitted(true);
+  };
+
+  // Swiping mechanics for Candidate
+  const handleCandidateSwipe = (decision: "APPROVE" | "REJECT") => {
+    setCandidateDecision(decision);
+    setDecisionTurn("recruiter");
+
+    if (candidateCardRef.current) {
+      const cardEl = candidateCardRef.current;
+      const targetX = decision === "APPROVE" ? (window.innerWidth > 600 ? 550 : 380) : (window.innerWidth > 600 ? -550 : -380);
+      const targetRot = decision === "APPROVE" ? 22 : -22;
+
+      const likeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.like");
+      const nopeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.nope");
+      if (decision === "APPROVE" && likeBadge) likeBadge.style.opacity = "1";
+      if (decision === "REJECT" && nopeBadge) nopeBadge.style.opacity = "1";
+
+      gsap.to(cardEl, {
+        x: targetX,
+        rotation: targetRot,
+        autoAlpha: 0,
+        duration: 0.32,
+        ease: "power2.in",
+      });
+    }
   };
 
   // Swiping mechanics for Recruiter
   const handleRecruiterSwipe = (decision: "APPROVE" | "REJECT") => {
-    if (!recruiterCardRef.current) {
-      setRecruiterDecision(decision);
-      setDecisionTurn("revealed");
-      return;
-    }
-    const targetX = decision === "APPROVE" ? 500 : -500;
-    const targetRot = decision === "APPROVE" ? 25 : -25;
-    gsap.to(recruiterCardRef.current, {
-      x: targetX,
-      rotation: targetRot,
-      autoAlpha: 0,
-      duration: 0.38,
-      ease: "power2.in",
-      onComplete: () => {
-        setRecruiterDecision(decision);
-        setDecisionTurn("revealed");
-      },
-    });
-  };
+    setRecruiterDecision(decision);
+    setDecisionTurn("revealed");
 
-  // Pointer dragging logic
-  const attachCardDrag = (cardEl: HTMLDivElement | null, onSwipe: (decision: "APPROVE" | "REJECT") => void) => {
-    if (!cardEl) return {};
-
-    const onPointerDown = (e: React.PointerEvent) => {
-      dragTracker.current.isDragging = true;
-      dragTracker.current.startX = e.clientX;
-      dragTracker.current.startY = e.clientY;
-      dragTracker.current.currentX = 0;
-      cardEl.setPointerCapture(e.pointerId);
-    };
-
-    const onPointerMove = (e: React.PointerEvent) => {
-      if (!dragTracker.current.isDragging) return;
-      const dx = e.clientX - dragTracker.current.startX;
-      dragTracker.current.currentX = dx;
-      gsap.set(cardEl, { x: dx, rotation: dx * 0.06 });
+    if (recruiterCardRef.current) {
+      const cardEl = recruiterCardRef.current;
+      const targetX = decision === "APPROVE" ? (window.innerWidth > 600 ? 550 : 380) : (window.innerWidth > 600 ? -550 : -380);
+      const targetRot = decision === "APPROVE" ? 22 : -22;
 
       const likeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.like");
       const nopeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.nope");
-      if (likeBadge) {
-        likeBadge.style.opacity = String(Math.max(0, Math.min(1, dx / 80)));
-      }
-      if (nopeBadge) {
-        nopeBadge.style.opacity = String(Math.max(0, Math.min(1, -dx / 80)));
-      }
-    };
+      if (decision === "APPROVE" && likeBadge) likeBadge.style.opacity = "1";
+      if (decision === "REJECT" && nopeBadge) nopeBadge.style.opacity = "1";
 
-    const onPointerUp = (e: React.PointerEvent) => {
-      if (!dragTracker.current.isDragging) return;
-      dragTracker.current.isDragging = false;
-      cardEl.releasePointerCapture(e.pointerId);
-      const dx = dragTracker.current.currentX;
+      gsap.to(cardEl, {
+        x: targetX,
+        rotation: targetRot,
+        autoAlpha: 0,
+        duration: 0.32,
+        ease: "power2.in",
+      });
+    }
+  };
 
-      if (dx > 95) {
-        onSwipe("APPROVE");
-      } else if (dx < -95) {
-        onSwipe("REJECT");
-      } else {
-        gsap.to(cardEl, { x: 0, rotation: 0, duration: 0.45, ease: "elastic.out(1, 0.4)" });
-        const likeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.like");
-        const nopeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.nope");
-        if (likeBadge) likeBadge.style.opacity = "0";
-        if (nopeBadge) nopeBadge.style.opacity = "0";
-      }
-    };
 
-    return {
-      onPointerDown,
-      onPointerMove,
-      onPointerUp,
-      onPointerCancel: onPointerUp,
+  // Drag tracking ref for high performance touch & pointer dragging
+  const dragTracker = useRef<{
+    isDragging: boolean;
+    startX: number;
+    startY: number;
+    currentX: number;
+    currentY: number;
+    targetEl: HTMLDivElement | null;
+    onSwipe: ((decision: "APPROVE" | "REJECT") => void) | null;
+  }>({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    currentY: 0,
+    targetEl: null,
+    onSwipe: null,
+  });
+
+  const onCardPointerDown = (
+    e: React.PointerEvent<HTMLDivElement>,
+    onSwipe: (decision: "APPROVE" | "REJECT") => void
+  ) => {
+    if (typeof e.button === "number" && e.button !== 0) return;
+    const target = e.currentTarget;
+    dragTracker.current = {
+      isDragging: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      currentX: 0,
+      currentY: 0,
+      targetEl: target,
+      onSwipe,
     };
+    try {
+      target.setPointerCapture(e.pointerId);
+    } catch (_) {}
+    target.style.transition = "none";
+    target.style.cursor = "grabbing";
+  };
+
+  const onCardPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const dt = dragTracker.current;
+    if (!dt.isDragging || !dt.targetEl) return;
+    const dx = e.clientX - dt.startX;
+    const dy = e.clientY - dt.startY;
+    dt.currentX = dx;
+    dt.currentY = dy;
+
+    const rot = Math.max(-25, Math.min(25, dx * 0.075));
+    dt.targetEl.style.transform = `translate3d(${dx}px, ${dy * 0.25}px, 0) rotate(${rot}deg)`;
+
+    const likeBadge = dt.targetEl.querySelector<HTMLElement>(".swipe-stamp.like");
+    const nopeBadge = dt.targetEl.querySelector<HTMLElement>(".swipe-stamp.nope");
+    if (likeBadge) {
+      likeBadge.style.opacity = String(Math.max(0, Math.min(1, (dx - 15) / 65)));
+    }
+    if (nopeBadge) {
+      nopeBadge.style.opacity = String(Math.max(0, Math.min(1, (-dx - 15) / 65)));
+    }
+  };
+
+  const onCardPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const dt = dragTracker.current;
+    if (!dt.isDragging || !dt.targetEl) return;
+    dt.isDragging = false;
+    try {
+      dt.targetEl.releasePointerCapture(e.pointerId);
+    } catch (_) {}
+
+    const dx = Math.abs(dt.currentX) > 0 ? dt.currentX : (typeof e.clientX === "number" && dt.startX ? e.clientX - dt.startX : dt.currentX);
+    const cardEl = dt.targetEl;
+    cardEl.style.cursor = "grab";
+
+    const SWIPE_THRESHOLD = 85;
+
+    if (dx > SWIPE_THRESHOLD) {
+      dt.onSwipe?.("APPROVE");
+    } else if (dx < -SWIPE_THRESHOLD) {
+      dt.onSwipe?.("REJECT");
+    } else {
+      gsap.to(cardEl, {
+        x: 0,
+        y: 0,
+        rotation: 0,
+        duration: 0.45,
+        ease: "elastic.out(1, 0.45)",
+        onComplete: () => {
+          cardEl.style.transform = "";
+          cardEl.style.transition = "";
+        },
+      });
+      const likeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.like");
+      const nopeBadge = cardEl.querySelector<HTMLElement>(".swipe-stamp.nope");
+      if (likeBadge) likeBadge.style.opacity = "0";
+      if (nopeBadge) nopeBadge.style.opacity = "0";
+    }
   };
 
   const formatTimer = (totalSeconds: number) => {
@@ -1930,7 +2031,10 @@ export function RecruiterDemoPage() {
                         <div
                           className="swipe-card candidate-card"
                           ref={candidateCardRef}
-                          {...attachCardDrag(candidateCardRef.current, handleCandidateSwipe)}
+                          onPointerDown={(e) => onCardPointerDown(e, handleCandidateSwipe)}
+                          onPointerMove={onCardPointerMove}
+                          onPointerUp={onCardPointerUp}
+                          onPointerCancel={onCardPointerUp}
                         >
                           {/* Swipe Stamp Badges */}
                           <div className="swipe-stamp like">MATCH! สนใจ</div>
@@ -2032,7 +2136,10 @@ export function RecruiterDemoPage() {
                         <div
                           className="swipe-card recruiter-card"
                           ref={recruiterCardRef}
-                          {...attachCardDrag(recruiterCardRef.current, handleRecruiterSwipe)}
+                          onPointerDown={(e) => onCardPointerDown(e, handleRecruiterSwipe)}
+                          onPointerMove={onCardPointerMove}
+                          onPointerUp={onCardPointerUp}
+                          onPointerCancel={onCardPointerUp}
                         >
                           {/* Swipe Stamp Badges */}
                           <div className="swipe-stamp like">ACCEPT รับเข้า</div>
@@ -2122,16 +2229,6 @@ export function RecruiterDemoPage() {
 
                         <button
                           type="button"
-                          className="swipe-btn info-btn"
-                          title="ดูสรุปคำถามทั้งหมด"
-                          onClick={() => setShowQuestionsSummary(!showQuestionsSummary)}
-                        >
-                          <ClipboardCheck size={20} />
-                          <span>ดูผล ({questions.length || 11} ข้อ)</span>
-                        </button>
-
-                        <button
-                          type="button"
                           className="swipe-btn approve-btn"
                           title="ผ่านเข้ารอบถัดไป (Swipe Right)"
                           onClick={() => handleRecruiterSwipe("APPROVE")}
@@ -2139,47 +2236,6 @@ export function RecruiterDemoPage() {
                           <Check size={26} />
                           <span>ผ่านสัมภาษณ์ / ACCEPT</span>
                         </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Summary of Questions Modal / Expand */}
-                  {showQuestionsSummary && (
-                    <div className="questions-summary-card">
-                      <div className="summary-head">
-                        <h4>สรุปผลการตอบคำถาม {questions.length || 11} ข้อของผู้สมัคร</h4>
-                        <button type="button" onClick={() => setShowQuestionsSummary(false)}>
-                          <X size={16} />
-                        </button>
-                      </div>
-                      <div className="summary-list">
-                        {questions.map((q, idx) => {
-                          const isSubjective = q.type === "subjective";
-                          const isCorrect = !isSubjective && answers[idx] === q.correctIndex;
-                          return (
-                            <div
-                              key={q.id || idx}
-                              className={`summary-item ${
-                                isSubjective ? "subjective" : isCorrect ? "correct" : "incorrect"
-                              }`}
-                            >
-                              <div>
-                                <span>ข้อ {idx + 1}: {q.skill} {isSubjective ? "· ✍️ ข้อเขียนอัตนัย" : ""}</span>
-                                <p>{q.question}</p>
-                                {isSubjective && subjectiveAnswer && (
-                                  <blockquote className="summary-subjective-reply">
-                                    <strong>คำตอบของผู้สมัคร:</strong> "{subjectiveAnswer}"
-                                  </blockquote>
-                                )}
-                              </div>
-                              <strong>
-                                {isSubjective
-                                  ? subjectiveAnswer.trim().length > 0 ? "✓ มีคำตอบ" : "ยังไม่ได้ตอบ"
-                                  : isCorrect ? "✓ ถูกต้อง" : "✕ ไม่ถูกต้อง"}
-                              </strong>
-                            </div>
-                          );
-                        })}
                       </div>
                     </div>
                   )}
@@ -2231,6 +2287,151 @@ export function RecruiterDemoPage() {
                           <small>/100</small>
                         </strong>
                       </div>
+
+                      {/* Mutual Match: Candidate Final Contact & Unmask Submission */}
+                      {recruiterDecision === "APPROVE" && candidateDecision === "APPROVE" && (
+                        <div className="mutual-contact-submission-section">
+                          {!isContactSubmitted ? (
+                            <form className="candidate-contact-form-card" onSubmit={handleContactSubmit}>
+                              <div className="contact-form-header">
+                                <div className="contact-icon-wrapper">
+                                  <PartyPopper size={24} />
+                                </div>
+                                <div>
+                                  <h4>ปลดล็อกตัวตนและส่งข้อมูลติดต่อให้ HR ({selectedCompany.name})</h4>
+                                  <p>
+                                    ทั้งสองฝ่ายสนใจตรงกันแล้ว! กรุณากรอกชื่อ-นามสกุล และช่องทางติดต่อ เพื่อให้ทีม HR ดำเนินการนัดสัมภาษณ์และติดต่อกลับโดยตรง
+                                  </p>
+                                </div>
+                              </div>
+
+                              {contactSubmitError && (
+                                <div className="contact-form-error-alert">
+                                  <AlertTriangle size={16} />
+                                  <span>{contactSubmitError}</span>
+                                </div>
+                              )}
+
+                              <div className="contact-inputs-grid">
+                                <div className="form-field-group">
+                                  <label htmlFor="candidate-fullname">
+                                    <User size={15} /> ชื่อ - นามสกุล <span className="req">*</span>
+                                  </label>
+                                  <input
+                                    id="candidate-fullname"
+                                    type="text"
+                                    placeholder="เช่น สมชาย มุ่งมั่นใจ (Somchai Mungmunjai)"
+                                    value={candidateContact.fullName}
+                                    onChange={(e) => {
+                                      setCandidateContact({ ...candidateContact, fullName: e.target.value });
+                                      if (contactSubmitError) setContactSubmitError("");
+                                    }}
+                                    required
+                                  />
+                                </div>
+
+                                <div className="form-field-group">
+                                  <label htmlFor="candidate-email">
+                                    <Mail size={15} /> อีเมลสำหรับติดต่อ <span className="req">*</span>
+                                  </label>
+                                  <input
+                                    id="candidate-email"
+                                    type="email"
+                                    placeholder="เช่น somchai.dev@gmail.com"
+                                    value={candidateContact.email}
+                                    onChange={(e) => {
+                                      setCandidateContact({ ...candidateContact, email: e.target.value });
+                                      if (contactSubmitError) setContactSubmitError("");
+                                    }}
+                                    required
+                                  />
+                                </div>
+
+                                <div className="form-field-group">
+                                  <label htmlFor="candidate-phone">
+                                    <Phone size={15} /> เบอร์โทรศัพท์ <span className="req">*</span>
+                                  </label>
+                                  <input
+                                    id="candidate-phone"
+                                    type="tel"
+                                    placeholder="เช่น 081-234-5678"
+                                    value={candidateContact.phone}
+                                    onChange={(e) => {
+                                      setCandidateContact({ ...candidateContact, phone: e.target.value });
+                                      if (contactSubmitError) setContactSubmitError("");
+                                    }}
+                                    required
+                                  />
+                                </div>
+
+                                <div className="form-field-group full-width">
+                                  <label htmlFor="candidate-note">
+                                    <Clock size={15} /> หมายเหตุหรือช่วงเวลาที่สะดวกให้ติดต่อ (ตัวเลือก)
+                                  </label>
+                                  <input
+                                    id="candidate-note"
+                                    type="text"
+                                    placeholder="เช่น สะดวกรับสายช่วง 14:00 - 18:00 หรือติดต่อทางอีเมลเป็นหลัก"
+                                    value={candidateContact.note}
+                                    onChange={(e) =>
+                                      setCandidateContact({ ...candidateContact, note: e.target.value })
+                                    }
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="contact-form-actions">
+                                <button type="submit" className="contact-submit-btn">
+                                  <Send size={18} />
+                                  <span>ส่งข้อมูลให้ HR และจบเซสชั่นอย่างสมบูรณ์</span>
+                                </button>
+                              </div>
+                            </form>
+                          ) : (
+                            <div className="contact-submitted-success-card">
+                              <div className="success-receipt-header">
+                                <CheckCircle2 size={32} className="success-icon" />
+                                <div>
+                                  <span className="receipt-badge">SESSION COMPLETE · ส่งมอบข้อมูลติดต่อสำเร็จ</span>
+                                  <h4>ส่งข้อมูลติดต่อให้ทีม HR ของ {selectedCompany.name} เรียบร้อยแล้ว!</h4>
+                                  <p>
+                                    ทีม Recruiter ได้รับข้อมูลติดต่อและประวัติการประเมินทักษะของคุณเรียบร้อยแล้ว และจะติดต่อกลับตามช่องทางที่ระบุไว้
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="submitted-receipt-grid">
+                                <div>
+                                  <span>ชื่อ - นามสกุล</span>
+                                  <strong>{submittedContactData?.fullName}</strong>
+                                </div>
+                                <div>
+                                  <span>อีเมลติดต่อ</span>
+                                  <strong>{submittedContactData?.email}</strong>
+                                </div>
+                                <div>
+                                  <span>เบอร์โทรศัพท์</span>
+                                  <strong>{submittedContactData?.phone}</strong>
+                                </div>
+                                <div>
+                                  <span>ตำแหน่งงาน</span>
+                                  <strong>{selectedJob.title} ({selectedCompany.shortName})</strong>
+                                </div>
+                                {submittedContactData?.note && (
+                                  <div className="receipt-note-item">
+                                    <span>ช่วงเวลาที่สะดวก</span>
+                                    <p>{submittedContactData.note}</p>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="receipt-footer-status">
+                                <span>🔒 สิ้นสุดกระบวนการคัดเลือกแบบไม่ระบุตัวตน (Masked Phase) → เข้าสู่ขั้นตอนสัมภาษณ์รอบ Final ต่อไป</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {/* Reflection Breakdown */}
                       <section className="assessment-reflection">
@@ -2399,14 +2600,6 @@ export function RecruiterDemoPage() {
               </button>
             </div>
 
-            {/* AI Time Notice Banner */}
-            <div className="ai-estimate-notice-card">
-              <Clock size={15} />
-              <span>
-                <strong>ระยะเวลาประมวลผล AI:</strong> ทั้งการตรวจวิเคราะห์เรซูเม่และการสร้างชุดข้อสอบจะใช้เวลาประมาณ <strong>1–2 นาที</strong> ต่อขั้นตอนเพื่อการประเมินเชิงลึก
-              </span>
-            </div>
-
             <button
               className={`rec-upload ${fileName ? "has-file" : ""} ${loading ? "is-loading" : ""}`}
               type="button"
@@ -2424,7 +2617,7 @@ export function RecruiterDemoPage() {
               <strong>{loading ? aiLoadingLabel : fileName || "เลือกไฟล์เรซูเม่ PDF"}</strong>
               <span>
                 {loading
-                  ? `กำลังประมวลผล ${aiProgress}% · ใช้เวลาประมาณ 1–2 นาที กรุณารอสักครู่`
+                  ? `กำลังประมวลผล ${aiProgress}%...`
                   : fileName
                     ? "แนบไฟล์แล้ว · พร้อมประมวลผล"
                     : "PDF ไม่เกิน 10 MB · ระบบไม่บันทึกไฟล์ต้นฉบับ"}
